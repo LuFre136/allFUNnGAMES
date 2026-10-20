@@ -662,6 +662,9 @@ function render() {
   app.innerHTML = view();
   document.getElementById('topinfo').innerHTML = fatal || joinInfo ? '' : viewTopInfo();
   document.getElementById('hostbar-root').innerHTML = fatal ? '' : viewHostbar();
+  // Platz unter dem Inhalt, damit die Host-Leiste nichts verdeckt (sie kann auf Handys mehrzeilig sein)
+  const bar = document.querySelector('.hostbar');
+  document.querySelector('main.wrap').style.paddingBottom = bar ? `${bar.offsetHeight + 24}px` : '';
 
   if (focusId) {
     const el = document.getElementById(focusId);
