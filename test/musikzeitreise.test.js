@@ -1,15 +1,15 @@
-// Regeltests für Hitster: node --test
+// Regeltests für Musikzeitreise: node --test
 
 const test = require('node:test');
 const assert = require('node:assert');
-const Hitster = require('../server/games/hitster');
+const Musikzeitreise = require('../server/games/musikzeitreise');
 
 function fakeLobby(n, game = {}) {
   const players = new Map();
   for (let i = 1; i <= n; i++) players.set(`p${i}`, { id: `p${i}`, connected: true, isHost: i === 1 });
   return {
     players,
-    settings: { hostPlays: true, game: { ...Hitster.defaultSettings(), ...game } },
+    settings: { hostPlays: true, game: { ...Musikzeitreise.defaultSettings(), ...game } },
     activePlayers: () => [...players.values()].filter((p) => p.connected),
     teamById: () => null,
   };
@@ -17,7 +17,7 @@ function fakeLobby(n, game = {}) {
 
 function setup(n = 2, game = {}) {
   const lobby = fakeLobby(n, game);
-  const h = new Hitster(lobby);
+  const h = new Musikzeitreise(lobby);
   h.start();
   const p = (key) => lobby.players.get(key);
   // Feste Startkarten und fester Song für planbare Tests
@@ -28,19 +28,19 @@ function setup(n = 2, game = {}) {
 
 test('Stelle passt zum Jahr, gleiche Jahre an beiden Seiten', () => {
   const cards = [{ year: 1980 }, { year: 1990 }];
-  assert.ok(Hitster.fits(cards, 0, 1975));
-  assert.ok(!Hitster.fits(cards, 1, 1975));
-  assert.ok(Hitster.fits(cards, 1, 1980));
-  assert.ok(Hitster.fits(cards, 2, 1990));
-  assert.ok(Hitster.fits([], 0, 2000));
+  assert.ok(Musikzeitreise.fits(cards, 0, 1975));
+  assert.ok(!Musikzeitreise.fits(cards, 1, 1975));
+  assert.ok(Musikzeitreise.fits(cards, 1, 1980));
+  assert.ok(Musikzeitreise.fits(cards, 2, 1990));
+  assert.ok(Musikzeitreise.fits([], 0, 2000));
 });
 
 test('Interpret und Titel tolerant erkennen', () => {
   const song = { artist: 'Mark Ronson feat. Bruno Mars', title: 'Uptown Funk' };
-  assert.ok(Hitster.guessIsRight({ artist: 'mark ronson', title: 'uptown funk' }, song));
-  assert.ok(Hitster.guessIsRight({ artist: 'Bruno Mars', title: 'Uptwn Funk' }, song));
-  assert.ok(!Hitster.guessIsRight({ artist: 'Bruno Mars', title: '' }, song));
-  assert.ok(Hitster.guessIsRight({ artist: 'Rolling Stones', title: 'Satisfaction' }, { artist: 'The Rolling Stones', title: "(I Can't Get No) Satisfaction" }));
+  assert.ok(Musikzeitreise.guessIsRight({ artist: 'mark ronson', title: 'uptown funk' }, song));
+  assert.ok(Musikzeitreise.guessIsRight({ artist: 'Bruno Mars', title: 'Uptwn Funk' }, song));
+  assert.ok(!Musikzeitreise.guessIsRight({ artist: 'Bruno Mars', title: '' }, song));
+  assert.ok(Musikzeitreise.guessIsRight({ artist: 'Rolling Stones', title: 'Satisfaction' }, { artist: 'The Rolling Stones', title: "(I Can't Get No) Satisfaction" }));
 });
 
 test('richtig gelegt: Karte bleibt, Titel richtig gibt einen Chip', () => {
@@ -96,7 +96,7 @@ test('Karte kaufen und Sieg bei Zielzahl', () => {
 
 test('Songliste: Jahre plausibel, keine doppelten Einträge', () => {
   const seen = new Set();
-  for (const s of Hitster.songs) {
+  for (const s of Musikzeitreise.songs) {
     assert.ok(s.year >= 1950 && s.year <= 2026, `${s.artist} – ${s.title}`);
     const key = `${s.artist}|${s.title}`.toLowerCase();
     assert.ok(!seen.has(key), key);

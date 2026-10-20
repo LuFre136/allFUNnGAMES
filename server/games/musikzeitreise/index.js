@@ -1,4 +1,4 @@
-// Hitster: Songs hören und auf der eigenen Zeitleiste nach Erscheinungsjahr einordnen.
+// Musikzeitreise: Songs hören und auf der eigenen Zeitleiste nach Erscheinungsjahr einordnen.
 // Der Song läuft verdeckt beim Host (Spotify, siehe public/js/music.js). Wer zuerst genug Karten hat, gewinnt.
 
 const path = require('path');
@@ -50,7 +50,7 @@ function publicSong(s) {
   return s ? { artist: s.artist, title: s.title, year: s.year } : null;
 }
 
-class Hitster {
+class Musikzeitreise {
   constructor(lobby) {
     this.lobby = lobby;
     this.units = new Map(); // Spieler- oder Team-ID -> { cards, chips }
@@ -70,8 +70,8 @@ class Hitster {
 
   static meta() {
     return {
-      id: 'hitster',
-      name: 'Hitster',
+      id: 'musikzeitreise',
+      name: 'Musikzeitreise',
       icon: '🎶',
       description: 'Song hören, Jahr schätzen und auf der eigenen Zeitleiste richtig einordnen.',
       players: '1–12 Spieler oder Teams',
@@ -134,7 +134,7 @@ class Hitster {
 
   start() {
     const keys = this.presentKeys();
-    if (!keys.length) throw new Error(this.teamMode ? 'Mindestens ein Team braucht Spieler.' : 'Hitster braucht mindestens einen Mitspieler.');
+    if (!keys.length) throw new Error(this.teamMode ? 'Mindestens ein Team braucht Spieler.' : 'Musikzeitreise braucht mindestens einen Mitspieler.');
     this.deck = shuffle(playableSongs());
     if (this.deck.length < keys.length * 2) {
       throw new Error('Es sind zu wenige Songs mit Spotify-ID hinterlegt. Mit Spotify-Zugangsdaten auf dem Server werden alle Songs abspielbar.');
@@ -403,7 +403,7 @@ class Hitster {
   dispose() {}
 }
 
-Hitster.fits = fits;
-Hitster.guessIsRight = guessIsRight;
-Hitster.songs = SONGS;
-module.exports = Hitster;
+Musikzeitreise.fits = fits;
+Musikzeitreise.guessIsRight = guessIsRight;
+Musikzeitreise.songs = SONGS;
+module.exports = Musikzeitreise;

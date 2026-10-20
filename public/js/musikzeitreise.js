@@ -1,7 +1,7 @@
-// Hitster: Einstellungen und Spielansicht für Host und Handys (nutzt die Helfer aus lobby.js)
+// Musikzeitreise: Einstellungen und Spielansicht für Host und Handys (nutzt die Helfer aus lobby.js)
 
 (() => {
-  const hiDrafts = {}; // Eingaben für Interpret und Titel pro Song
+  const mzDrafts = {}; // Eingaben für Interpret und Titel pro Song
 
   function act(type, data = {}) {
     socket.emit('game:action', { type, ...data }, (res) => {
@@ -15,8 +15,8 @@
 
   function draft(R) {
     const key = songKey(R);
-    if (!hiDrafts[key]) hiDrafts[key] = { artist: '', title: '' };
-    return hiDrafts[key];
+    if (!mzDrafts[key]) mzDrafts[key] = { artist: '', title: '' };
+    return mzDrafts[key];
   }
 
   // ---------- Namen der Zeitleisten (Spieler oder Team) ----------
@@ -24,10 +24,10 @@
   function unitLabel(R, key) {
     if (R.teamMode) {
       const t = teamById(key);
-      return `<span class="hi-who"><span class="team-dot" style="--team:${t?.color || 'var(--line)'}"></span>${esc(t?.name || 'Team')}</span>`;
+      return `<span class="mz-who"><span class="team-dot" style="--team:${t?.color || 'var(--line)'}"></span>${esc(t?.name || 'Team')}</span>`;
     }
     const p = playerById(key);
-    return `<span class="hi-who">${avatarHtml(p, 'sm')}${esc(p?.name || 'Jemand')}${key === S.me.id ? ' <span class="muted">(du)</span>' : ''}</span>`;
+    return `<span class="mz-who">${avatarHtml(p, 'sm')}${esc(p?.name || 'Jemand')}${key === S.me.id ? ' <span class="muted">(du)</span>' : ''}</span>`;
   }
 
   function unitName(R, key) {
@@ -39,7 +39,7 @@
   }
 
   function chips(n) {
-    return `<span class="hi-chips" title="Chips">🪙 ${n}</span>`;
+    return `<span class="mz-chips" title="Chips">🪙 ${n}</span>`;
   }
 
   // ---------- Einstellungen ----------
@@ -66,19 +66,19 @@
       <div>
         <div class="small muted" style="font-weight:700;margin-bottom:6px">Spielmodus</div>
         <div class="segmented">
-          <button data-action="hiTeamMode" data-value="0" class="${!g.teamMode ? 'on' : ''}">🙋 Jeder für sich</button>
-          <button data-action="hiTeamMode" data-value="1" class="${g.teamMode ? 'on' : ''}">👥 In Teams</button>
+          <button data-action="mzTeamMode" data-value="0" class="${!g.teamMode ? 'on' : ''}">🙋 Jeder für sich</button>
+          <button data-action="mzTeamMode" data-value="1" class="${g.teamMode ? 'on' : ''}">👥 In Teams</button>
         </div>
       </div>
       <div class="grid-2" style="gap:12px">
         <label class="field"><span>Karten zum Sieg (Original: 10)</span>
-          <input id="hi-target" type="number" min="3" max="30" value="${g.targetCards}" inputmode="numeric">
+          <input id="mz-target" type="number" min="3" max="30" value="${g.targetCards}" inputmode="numeric">
         </label>
         <div>
           <div class="small muted" style="font-weight:700;margin-bottom:6px">Chips 🪙</div>
           <div class="segmented">
-            <button data-action="hiChips" data-value="1" class="${g.chips ? 'on' : ''}">An</button>
-            <button data-action="hiChips" data-value="0" class="${!g.chips ? 'on' : ''}">Aus</button>
+            <button data-action="mzChips" data-value="1" class="${g.chips ? 'on' : ''}">An</button>
+            <button data-action="mzChips" data-value="0" class="${!g.chips ? 'on' : ''}">Aus</button>
           </div>
         </div>
       </div>
@@ -90,12 +90,12 @@
   // ---------- Zeitleiste ----------
 
   function viewCard(c, cls = '') {
-    return `<div class="hi-card ${cls}"><div class="year">${c.year}</div><div class="artist">${esc(c.artist)}</div><div class="title">${esc(c.title)}</div></div>`;
+    return `<div class="mz-card ${cls}"><div class="year">${c.year}</div><div class="artist">${esc(c.artist)}</div><div class="title">${esc(c.title)}</div></div>`;
   }
 
   function mysteryCard(R) {
     if (R.song) return viewCard(R.song, `new ${R.result?.correct ? 'good' : 'bad'}`);
-    return '<div class="hi-card mystery"><div class="year">?</div><div class="artist">Neuer Song</div></div>';
+    return '<div class="mz-card mystery"><div class="year">?</div><div class="artist">Neuer Song</div></div>';
   }
 
   // mode: place (aktiver Spieler legt), challenge (Einspruch möglich) oder view
@@ -111,15 +111,15 @@
       if (i === R.slot && R.phase !== 'final') {
         parts.push(mysteryCard(R));
       } else if (challenger) {
-        parts.push(`<div class="hi-slot challenged">🪙 ${unitLabel(R, challenger)}</div>`);
+        parts.push(`<div class="mz-slot challenged">🪙 ${unitLabel(R, challenger)}</div>`);
       } else if (mode === 'place') {
-        parts.push(`<button class="hi-slot" data-action="hiPlace" data-slot="${i}" title="Hier einordnen">＋</button>`);
+        parts.push(`<button class="mz-slot" data-action="mzPlace" data-slot="${i}" title="Hier einordnen">＋</button>`);
       } else if (mode === 'challenge') {
-        parts.push(`<button class="hi-slot" data-action="hiChallenge" data-slot="${i}" title="Einspruch: hierhin">🪙</button>`);
+        parts.push(`<button class="mz-slot" data-action="mzChallenge" data-slot="${i}" title="Einspruch: hierhin">🪙</button>`);
       }
       if (i < shown.length) parts.push(viewCard(shown[i]));
     }
-    return `<div class="hi-timeline">${parts.join('')}</div>`;
+    return `<div class="mz-timeline">${parts.join('')}</div>`;
   }
 
   function viewOthers(R) {
@@ -127,9 +127,9 @@
     if (!others.length) return '';
     return `<div class="stack" style="gap:8px">
       <h3 style="margin:0">Die anderen Zeitleisten</h3>
-      ${others.map((u) => `<div class="hi-unit ${u.present ? '' : 'offline'}">
+      ${others.map((u) => `<div class="mz-unit ${u.present ? '' : 'offline'}">
         <div class="row spread">${unitLabel(R, u.key)}<span class="small"><b>${u.cards.length}/${R.target}</b> Karten${R.chipsEnabled ? ` · ${chips(u.chips)}` : ''}</span></div>
-        <div class="hi-years">${u.cards.map((c) => `<span title="${esc(`${c.artist} – ${c.title}`)}">${c.year}</span>`).join('')}</div>
+        <div class="mz-years">${u.cards.map((c) => `<span title="${esc(`${c.artist} – ${c.title}`)}">${c.year}</span>`).join('')}</div>
       </div>`).join('')}
     </div>`;
   }
@@ -157,16 +157,16 @@
     return `<div class="stack">
       <div class="music-card"><div class="note">🎵</div><h3 style="margin:8px 0 4px">Du bist dran!</h3><div>Hör genau hin und tippe auf die Stelle, an die der Song passt.</div></div>
       ${viewTimeline(R, 'place')}
-      <form id="hi-form" class="card stack" autocomplete="off">
+      <form id="mz-form" class="card stack" autocomplete="off">
         ${R.chipsEnabled ? `<div class="small muted">Optional: Interpret und Titel richtig nennen gibt einen Chip.</div>
           <div class="grid-2" style="gap:8px">
-            <input id="hi-artist" type="text" maxlength="60" placeholder="Interpret" value="${esc(d.artist)}" spellcheck="false">
-            <input id="hi-title" type="text" maxlength="60" placeholder="Titel" value="${esc(d.title)}" spellcheck="false">
+            <input id="mz-artist" type="text" maxlength="60" placeholder="Interpret" value="${esc(d.artist)}" spellcheck="false">
+            <input id="mz-title" type="text" maxlength="60" placeholder="Titel" value="${esc(d.title)}" spellcheck="false">
           </div>` : ''}
         <button class="btn primary big" type="submit" ${R.slot === null ? 'disabled' : ''}>${R.slot === null ? 'Wähle eine Stelle' : 'Karte festlegen ✓'}</button>
         ${R.chipsEnabled ? `<div class="row" style="justify-content:center">
-          <button class="btn small" type="button" data-action="hiSkip" ${unit.chips < 1 ? 'disabled' : ''}>⏭ Anderer Song (1 🪙)</button>
-          <button class="btn small" type="button" data-action="hiBuy" ${unit.chips < S.game.buyCost ? 'disabled' : ''}>🎁 Karte kaufen (${S.game.buyCost} 🪙)</button>
+          <button class="btn small" type="button" data-action="mzSkip" ${unit.chips < 1 ? 'disabled' : ''}>⏭ Anderer Song (1 🪙)</button>
+          <button class="btn small" type="button" data-action="mzBuy" ${unit.chips < S.game.buyCost ? 'disabled' : ''}>🎁 Karte kaufen (${S.game.buyCost} 🪙)</button>
         </div>` : ''}
       </form>
     </div>`;
@@ -180,7 +180,7 @@
     let head;
     if (canChallenge) {
       head = `<div class="notice">Glaubst du, ${name} liegt falsch? Tippe auf die Stelle, an die der Song gehört (kostet 1 🪙). Liegst du richtig, bekommst du die Karte.</div>
-        <button class="btn" data-action="hiPass">Kein Einspruch</button>`;
+        <button class="btn" data-action="mzPass">Kein Einspruch</button>`;
     } else if (mine) {
       head = '<div class="notice">Dein Einspruch steht. Gleich wird aufgedeckt …</div>';
     } else if (R.isMyTurn) {
@@ -203,10 +203,10 @@
     const judgeable = S.me.isHost && g && R.chipsEnabled;
     return `<div class="stack">
       <div class="jo-outcome ${banner.cls}"><div style="font-size:2.4rem">${banner.icon}</div><b>${banner.text}</b></div>
-      <div class="hi-reveal">${viewCard(R.song, 'new big')}</div>
+      <div class="mz-reveal">${viewCard(R.song, 'new big')}</div>
       ${g ? `<div class="center">${name} tippte <b>${esc(g.artist || '?')} – ${esc(g.title || '?')}</b> ${res.guessOk ? '✓ (+1 🪙)' : '✗'}</div>` : ''}
       ${judgeable ? `<div class="row" style="justify-content:center"><span class="small muted">Interpret & Titel:</span>
-        <span class="toggle"><button class="${res.guessOk ? 'on yes' : ''}" data-action="hiJudge" data-value="1">✓</button><button class="${!res.guessOk ? 'on no' : ''}" data-action="hiJudge" data-value="0">✗</button></span></div>` : ''}
+        <span class="toggle"><button class="${res.guessOk ? 'on yes' : ''}" data-action="mzJudge" data-value="1">✓</button><button class="${!res.guessOk ? 'on no' : ''}" data-action="mzJudge" data-value="0">✗</button></span></div>` : ''}
       ${viewTimeline(R, 'view')}
     </div>`;
   }
@@ -220,7 +220,7 @@
       <div class="card stack">${R.ranking.map((r, i) => {
         const u = unitByKey(R, r.key);
         return `<div class="stack" style="gap:6px"><div class="row spread"><span><b>${i + 1}.</b> ${unitLabel(R, r.key)}</span><span><b>${r.cards}</b> Karten${R.chipsEnabled ? ` · ${chips(r.chips)}` : ''}</span></div>
-          <div class="hi-years">${u.cards.map((c) => `<span title="${esc(`${c.artist} – ${c.title}`)}">${c.year}</span>`).join('')}</div></div>`;
+          <div class="mz-years">${u.cards.map((c) => `<span title="${esc(`${c.artist} – ${c.title}`)}">${c.year}</span>`).join('')}</div></div>`;
       }).join('')}</div>
       ${S.me.isHost ? '' : '<div class="muted center">Der Host kann eine neue Runde starten.</div>'}
     </div>`;
@@ -236,7 +236,7 @@
       <div class="q-head">
         <div class="small muted"><b>Ziel: ${R.target} Karten</b> · noch ${R.deckLeft} Songs</div>
       </div>
-      <div class="hi-turn">${unitLabel(R, R.activeKey)}<span class="small">${R.isMyTurn ? 'Du bist dran' : 'ist dran'} · <b>${unit.cards.length}/${R.target}</b>${R.chipsEnabled ? ` · ${chips(unit.chips)}` : ''}</span></div>
+      <div class="mz-turn">${unitLabel(R, R.activeKey)}<span class="small">${R.isMyTurn ? 'Du bist dran' : 'ist dran'} · <b>${unit.cards.length}/${R.target}</b>${R.chipsEnabled ? ` · ${chips(unit.chips)}` : ''}</span></div>
       ${viewNoUnit(R)}
       ${body}
       <div style="margin-top:20px">${viewOthers(R)}</div>
@@ -250,8 +250,8 @@
       const done = R.units.some((u) => u.cards.length >= R.target) || !R.deckLeft;
       return `<button class="btn primary" data-action="next">${done ? '🏆 Zum Ergebnis' : 'Nächster Song ▶︎'}</button>`;
     }
-    return `<button class="btn small" data-action="hiHostSkip" title="Zum Beispiel, wenn der Song nicht abspielt">⏭ Song tauschen</button>
-      <button class="btn small" data-action="hiSkipTurn">Zug überspringen</button>
+    return `<button class="btn small" data-action="mzHostSkip" title="Zum Beispiel, wenn der Song nicht abspielt">⏭ Song tauschen</button>
+      <button class="btn small" data-action="mzSkipTurn">Zug überspringen</button>
       ${R.phase === 'challenge' ? '<button class="btn pink" data-action="reveal">Aufdecken</button>' : ''}`;
   }
 
@@ -261,33 +261,33 @@
     return { trackId: R.trackId || null, revealed: R.phase === 'reveal' };
   }
 
-  gameViews.hitster = { settings: viewSettings, view, hostbar, music };
+  gameViews.musikzeitreise = { settings: viewSettings, view, hostbar, music };
 
   Object.assign(actions, {
-    hiTeamMode: (el) => sendHost('settings', { game: { teamMode: el.dataset.value === '1' } }),
-    hiChips: (el) => sendHost('settings', { game: { chips: el.dataset.value === '1' } }),
-    hiPlace: (el) => act('place', { slot: Number(el.dataset.slot) }),
-    hiChallenge: (el) => { if (confirm('Für 1 Chip Einspruch an dieser Stelle erheben?')) act('challenge', { slot: Number(el.dataset.slot) }); },
-    hiPass: () => act('pass'),
-    hiSkip: () => { if (confirm('Für 1 Chip einen anderen Song ziehen?')) act('skip'); },
-    hiBuy: () => { if (confirm(`Für ${S.game.buyCost} Chips die Karte ohne Raten bekommen?`)) act('buy'); },
-    hiJudge: (el) => act('judge', { ok: el.dataset.value === '1' }),
-    hiHostSkip: () => { if (confirm('Diesen Song durch einen anderen ersetzen?')) act('hostSkip'); },
-    hiSkipTurn: () => { if (confirm('Den Zug überspringen? Der Nächste ist dran.')) act('skipTurn'); },
+    mzTeamMode: (el) => sendHost('settings', { game: { teamMode: el.dataset.value === '1' } }),
+    mzChips: (el) => sendHost('settings', { game: { chips: el.dataset.value === '1' } }),
+    mzPlace: (el) => act('place', { slot: Number(el.dataset.slot) }),
+    mzChallenge: (el) => { if (confirm('Für 1 Chip Einspruch an dieser Stelle erheben?')) act('challenge', { slot: Number(el.dataset.slot) }); },
+    mzPass: () => act('pass'),
+    mzSkip: () => { if (confirm('Für 1 Chip einen anderen Song ziehen?')) act('skip'); },
+    mzBuy: () => { if (confirm(`Für ${S.game.buyCost} Chips die Karte ohne Raten bekommen?`)) act('buy'); },
+    mzJudge: (el) => act('judge', { ok: el.dataset.value === '1' }),
+    mzHostSkip: () => { if (confirm('Diesen Song durch einen anderen ersetzen?')) act('hostSkip'); },
+    mzSkipTurn: () => { if (confirm('Den Zug überspringen? Der Nächste ist dran.')) act('skipTurn'); },
   });
 
   app.addEventListener('input', (e) => {
-    if (S?.game.id !== 'hitster' || !S.round) return;
-    if (e.target.id === 'hi-artist') draft(S.round).artist = e.target.value;
-    if (e.target.id === 'hi-title') draft(S.round).title = e.target.value;
+    if (S?.game.id !== 'musikzeitreise' || !S.round) return;
+    if (e.target.id === 'mz-artist') draft(S.round).artist = e.target.value;
+    if (e.target.id === 'mz-title') draft(S.round).title = e.target.value;
   });
 
   app.addEventListener('change', (e) => {
-    if (e.target.id === 'hi-target') sendHost('settings', { game: { targetCards: Number(e.target.value) } });
+    if (e.target.id === 'mz-target') sendHost('settings', { game: { targetCards: Number(e.target.value) } });
   });
 
   app.addEventListener('submit', (e) => {
-    if (e.target.id !== 'hi-form') return;
+    if (e.target.id !== 'mz-form') return;
     const R = S.round;
     act('confirm', draft(R));
     document.activeElement?.blur?.();
