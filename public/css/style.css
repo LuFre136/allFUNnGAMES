@@ -245,3 +245,6 @@ label.field > span { display: block; font-weight: 700; margin-bottom: 6px; font-
 
 .empty { text-align: center; padding: 30px 10px; color: var(--muted); }
 details summary { cursor: pointer; font-weight: 800; }
+
+.exclude-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+.notice { border-radius: 14px; padding: 10px 14px; margin-bottom: 12px; background: rgba(255, 95, 162, 0.15); border: 1px solid var(--pink); font-weight: 700; }

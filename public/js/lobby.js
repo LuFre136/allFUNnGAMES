@@ -19,7 +19,7 @@ const ui = {
   questionKey: null,
 };
 const drafts = {}; // Eingaben pro Frage, damit beim Neuzeichnen nichts verloren geht
-const wikiImages = {};
+const imageErrors = new Set();
 
 const PART_LABELS = { main: 'Antwort', artist: 'Interpret', title: 'Titel', year: 'Jahr' };
 const LETTERS = ['A', 'B', 'C', 'D', 'E', 'F'];
@@ -166,10 +166,10 @@ function viewFatal() {
   </div>`;
 }
 
-function avatarPicker(selected) {
+function avatarPicker(selected, action = 'pickAvatar') {
   if (!avatars.length) return '<p class="muted small">Keine Profilbilder vorhanden.</p>';
   return `<div class="avatar-grid">${avatars.map((src) => `
-    <button type="button" class="avatar-pick ${src === selected ? 'selected' : ''}" data-action="pickAvatar" data-src="${esc(src)}">
+    <button type="button" class="avatar-pick ${src === selected ? 'selected' : ''}" data-action="${action}" data-src="${esc(src)}">
       <img src="${esc(src)}" alt="Profilbild">
     </button>`).join('')}</div>`;
 }
@@ -181,7 +181,11 @@ function teamPicker(teams, selected, membersOf) {
       <div class="team-head"><span class="team-dot"></span><span class="team-name">${esc(t.name)}</span>${t.id === selected ? '✓' : ''}</div>
       <div class="small muted">${members.length ? members.map((m) => esc(m.name)).join(', ') : 'Noch leer'}</div>
     </button>`;
-  }).join('')}</div>`;
+  }).join('')}
+    <button type="button" class="team ${selected === 'random' ? 'mine' : ''}" style="--team:var(--accent);text-align:left;cursor:pointer;color:inherit;font:inherit" data-action="pickTeam" data-team="random">
+      <div class="team-head"><span class="team-name">🎲 Zufälliges Team</span>${selected === 'random' ? '✓' : ''}</div>
+      <div class="small muted">Füllt das kleinste Team auf</div>
+    </button></div>`;
 }
 
 function profileFields({ withTeam, teams, membersOf }) {
@@ -264,6 +268,7 @@ function viewTeams() {
         ${!gm && me.teamId !== t.id ? `<button class="btn small" style="margin-top:8px;width:100%" data-action="joinTeam" data-team="${t.id}">Beitreten</button>` : ''}
       </div>`;
     }).join('')}</div>
+    ${!gm ? '<button class="btn small" data-action="joinTeam" data-team="random">🎲 Zufälligem Team beitreten</button>' : ''}
     ${noTeam.length ? `<div class="small muted">Ohne Team: ${noTeam.map((p) => esc(p.name)).join(', ')}</div>` : ''}
   </div>`;
 }
@@ -278,6 +283,7 @@ function viewSettings() {
       <label class="field"><span>Lobbyname</span><input id="set-lobbyName" type="text" maxlength="40" value="${esc(s.lobbyName)}"></label>
       <label class="field"><span>Dein Spielername</span><input id="set-myName" type="text" maxlength="24" value="${esc(S.me.name)}"></label>
     </div>
+    <div><div class="small muted" style="font-weight:700;margin-bottom:6px">Dein Profilbild</div>${avatarPicker(S.me.avatar, 'hostAvatar')}</div>
     <div>
       <div class="small muted" style="font-weight:700;margin-bottom:6px">Deine Rolle</div>
       <div class="segmented">
@@ -318,34 +324,16 @@ function viewLobby() {
 
 function viewMedia(q, phase) {
   if (q.type === 'image') {
-    let src = q.image.src;
-    if (!src && q.image.wiki) {
-      const entry = wikiImages[q.image.wiki];
-      if (entry === undefined) loadWikiImage(q.image.wiki);
-      src = typeof entry === 'string' && entry !== 'error' ? entry : null;
-      if (entry === 'error') return '<div class="media"><div class="card muted">Bild konnte nicht geladen werden.</div></div>';
-    }
-    return `<div class="media">${src ? `<img class="quiz-image" src="${esc(src)}" alt="Gesuchte Person oder Figur" referrerpolicy="no-referrer">` : '<div class="card muted">Bild lädt …</div>'}</div>`;
+    const failed = imageErrors.has(q.image);
+    return `<div class="media">${failed
+      ? '<div class="card muted">Bild konnte nicht geladen werden.</div>'
+      : `<img class="quiz-image" src="${esc(q.image)}" alt="Gesuchte Person oder Figur" data-image-src="${esc(q.image)}">`}</div>`;
   }
   if (q.type.startsWith('music') && (!S.me.isHost || phase !== 'question')) {
     if (phase !== 'question') return '';
     return `<div class="media"><div class="music-card"><div class="note">🎵</div><h3 style="margin:8px 0 4px">Hört genau hin!</h3><div>Der Song läuft beim Host.</div></div></div>`;
   }
   return '';
-}
-
-async function loadWikiImage(page) {
-  wikiImages[page] = 'loading';
-  try {
-    const res = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(page)}`);
-    const data = await res.json();
-    const original = data.originalimage;
-    let src = original && original.width <= 1400 ? original.source : data.thumbnail?.source?.replace(/\/\d+px-/, '/800px-');
-    wikiImages[page] = src || 'error';
-  } catch {
-    wikiImages[page] = 'error';
-  }
-  render();
 }
 
 function answerInputs(q, d) {
@@ -455,6 +443,17 @@ function viewStatusBar(R) {
   }).join('')}</div>`;
 }
 
+function viewExclude(R) {
+  const ex = R.exclude;
+  const canVote = !isGamemaster() && S.me.teamId && teamById(S.me.teamId);
+  const mine = ex.ids.includes(S.me.id);
+  if (!canVote && !ex.ids.length) return '';
+  return `<div class="exclude-bar">
+    ${canVote ? `<button class="btn small ${mine ? 'pink' : 'ghost'}" data-action="exclude" data-value="${mine ? '0' : '1'}">${mine ? '↩︎ Ausschließen zurücknehmen' : '🚫 Frage ausschließen'}</button>` : ''}
+    ${ex.ids.length ? `<span class="small muted">${ex.ids.length}/${ex.needed} wollen die Frage ausschließen</span>${avatarStack(ex.ids)}` : '<span class="small muted">Stimmen alle dafür, kommt die Frage nie wieder dran.</span>'}
+  </div>`;
+}
+
 function viewQuestion() {
   const R = S.round;
   const q = R.question;
@@ -464,6 +463,7 @@ function viewQuestion() {
   else if (!S.me.teamId || !teamById(S.me.teamId)) body = `<div class="card stack"><h3>Wähle ein Team, um mitzuraten</h3>${teamPicker(S.teams, null, (id) => S.players.filter((p) => p.teamId === id))}</div>`;
   else body = viewAnswerArea(R, q);
   return `<div>
+    ${R.notice ? `<div class="notice">🚫 ${esc(R.notice)}</div>` : ''}
     <div class="q-head">
       <div class="small muted"><b>Frage ${R.index + 1}/${R.total}</b> · ${esc(q.category)} · ${esc(q.typeLabel)}</div>
       ${R.deadline ? '<span class="timer" id="timer"></span>' : ''}
@@ -472,6 +472,7 @@ function viewQuestion() {
     ${viewMedia(q, R.phase)}
     ${body}
     ${viewStatusBar(R)}
+    ${viewExclude(R)}
   </div>`;
 }
 
@@ -550,9 +551,10 @@ function viewFinal() {
   return `<div class="stack">
     <div class="center"><div style="font-size:3rem">🏆</div><h1>${!ranked[0] ? 'Spiel beendet' : ranked[1] && ranked[1].pts === ranked[0].pts ? 'Unentschieden!' : `${esc(ranked[0].name)} gewinnt!`}</h1></div>
     <div class="podium">${top.map((t) => {
-      const place = ranked.indexOf(t);
+      // Bei Punktgleichheit teilen sich Teams denselben Platz
+      const place = ranked.filter((o) => o.pts > t.pts).length;
       return `<div class="step"><b>${esc(t.name)}</b><div class="small muted">${t.pts} Punkte</div>
-        <div class="block" style="--team:${t.color};height:${heights[place]}px">${place + 1}</div></div>`;
+        <div class="block" style="--team:${t.color};height:${heights[place] ?? 70}px">${place + 1}</div></div>`;
     }).join('')}</div>
     ${viewScoreboard(R.totals)}
     <details class="card"><summary>Alle Fragen und Antworten</summary>
@@ -644,12 +646,12 @@ function tick() {
     timer.textContent = `${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}`;
     timer.classList.toggle('urgent', left <= 10);
   }
+  // Nur neu zeichnen, wenn sich die Zahl ändert, sonst startet die Animation ständig neu
   const root = document.getElementById('countdown-root');
-  if (R?.phase === 'question' && R.countdownEnd) {
-    const left = Math.max(1, Math.ceil((R.countdownEnd - now) / 1000));
-    root.innerHTML = `<div class="countdown"><span>${left}</span></div>`;
-  } else if (root.innerHTML) {
-    root.innerHTML = '';
+  const left = R?.phase === 'question' && R.countdownEnd ? String(Math.max(1, Math.ceil((R.countdownEnd - now) / 1000))) : '';
+  if (root.dataset.value !== left) {
+    root.dataset.value = left;
+    root.innerHTML = left ? `<div class="countdown"><span>${left}</span></div>` : '';
   }
 }
 setInterval(tick, 200);
@@ -658,6 +660,7 @@ setInterval(tick, 200);
 
 const actions = {
   pickAvatar: (el) => { ui.profile.avatar = el.dataset.src; render(); },
+  hostAvatar: (el) => socket.emit('player:update', { avatar: el.dataset.src }),
   pickTeam: (el) => {
     if (S && !ui.editProfile) {
       // Spieler ohne Team mitten im Spiel
@@ -710,6 +713,7 @@ const actions = {
   toggleSolution: () => { ui.showSolution = !ui.showSolution; render(); },
   judge: (el) => sendHost('judge', { teamId: el.dataset.team, part: el.dataset.part, value: el.dataset.value === '1' }),
   voteChoice: (el) => vote(Number(el.dataset.i)),
+  exclude: (el) => socket.emit('exclude', el.dataset.value === '1', (res) => { if (res?.error) toast(res.error); }),
   adopt: (el) => {
     const R = S.round;
     const mine = R.teamStatus.find((t) => t.teamId === S.me.teamId);
@@ -729,6 +733,14 @@ document.addEventListener('click', (e) => {
     fn(el);
   }
 });
+
+app.addEventListener('error', (e) => {
+  const src = e.target?.dataset?.imageSrc;
+  if (src && !imageErrors.has(src)) {
+    imageErrors.add(src);
+    render();
+  }
+}, true);
 
 const draftFields = { 'ans-text': 'text', 'ans-number': 'number', 'ans-artist': 'artist', 'ans-title': 'title', 'ans-year': 'year' };
 

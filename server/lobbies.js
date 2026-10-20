@@ -1,6 +1,6 @@
 // Lobbys: Spieler, Teams, Einstellungen und Zustandsverteilung an alle Geräte
 
-const { randomToken, randomCode } = require('./util');
+const { randomToken, randomCode, pick } = require('./util');
 const { games } = require('./games');
 
 const TEAM_COLORS = ['#ef4444', '#3b82f6', '#22c55e', '#f59e0b', '#a855f7', '#ec4899', '#14b8a6', '#f97316', '#6366f1', '#84cc16', '#06b6d4', '#e11d48'];
@@ -16,7 +16,7 @@ function cleanName(name, fallback) {
 }
 
 class Lobby {
-  constructor(gameId, hostName) {
+  constructor(gameId, hostName, hostAvatar) {
     const Game = games[gameId];
     this.Game = Game;
     this.gameId = gameId;
@@ -30,7 +30,7 @@ class Lobby {
     this.touched = Date.now();
     this.addTeam();
     this.addTeam();
-    const host = this.addPlayer({ name: cleanName(hostName, 'Host'), isHost: true });
+    const host = this.addPlayer({ name: cleanName(hostName, 'Host'), avatar: hostAvatar, isHost: true });
     this.hostId = host.id;
     this.settings = {
       lobbyName: `${/[sßxz]$/i.test(host.name) ? `${host.name}’` : `${host.name}s`} ${Game.meta().name}`,
@@ -65,13 +65,21 @@ class Lobby {
     return this.teams.find((t) => t.id === id) || null;
   }
 
+  // „random“ wählt ein Team mit den wenigsten Spielern, damit die Teams gleich groß bleiben
+  resolveTeamId(teamId, player = null) {
+    if (teamId !== 'random') return this.teamById(teamId) ? teamId : null;
+    const sizes = this.teams.map((t) => ({ id: t.id, size: this.playersInTeam(t.id).filter((p) => p !== player).length }));
+    const min = Math.min(...sizes.map((t) => t.size));
+    return pick(sizes.filter((t) => t.size === min)).id;
+  }
+
   addPlayer({ name, avatar = null, teamId = null, isHost = false }) {
     const player = {
       id: `p${this.players.size + 1}_${randomCode(3)}`,
       token: randomToken(),
       name: cleanName(name, 'Spieler'),
-      avatar,
-      teamId: this.teamById(teamId) ? teamId : null,
+      avatar: typeof avatar === 'string' ? avatar.slice(0, 200) : null,
+      teamId: this.resolveTeamId(teamId),
       isHost,
       connected: false,
       socketId: null,
@@ -85,7 +93,7 @@ class Lobby {
     if (name !== undefined) player.name = cleanName(name, player.name);
     if (avatar !== undefined) player.avatar = typeof avatar === 'string' ? avatar.slice(0, 200) : null;
     if (teamId !== undefined) {
-      player.teamId = this.teamById(teamId) ? teamId : null;
+      player.teamId = this.resolveTeamId(teamId, player);
       this.game?.playersChanged();
     }
   }
@@ -173,9 +181,9 @@ class Lobby {
   }
 }
 
-function create(gameId, hostName) {
+function create(gameId, hostName, hostAvatar) {
   if (!games[gameId]) return null;
-  const lobby = new Lobby(gameId, hostName);
+  const lobby = new Lobby(gameId, hostName, hostAvatar);
   lobbies.set(lobby.code, lobby);
   return lobby;
 }

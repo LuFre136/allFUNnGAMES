@@ -11,6 +11,10 @@ const QRCode = require('qrcode');
 const lobbies = require('./lobbies');
 const gameRegistry = require('./games');
 const spotify = require('./spotify');
+const { wikiImage } = require('./images');
+const exclusions = require('./exclusions');
+exclusions.init();
+const PubQuiz = require('./games/pubquiz');
 
 const PORT = Number(process.env.PORT) || 3000;
 const PUBLIC_DIR = path.join(__dirname, '..', 'public');
@@ -30,9 +34,23 @@ app.get(['/lobby/:code', '/join/:code'], (req, res) => {
 app.get('/api/games', (req, res) => res.json(gameRegistry.list()));
 
 // Alle Bilder im Ordner public/avatars stehen als Profilbild zur Auswahl
-app.get('/api/avatars', (req, res) => {
+function listAvatars() {
   const files = fs.existsSync(AVATAR_DIR) ? fs.readdirSync(AVATAR_DIR) : [];
-  res.json(files.filter((f) => /\.(png|jpe?g|gif|webp|svg)$/i.test(f)).sort().map((f) => `/avatars/${encodeURIComponent(f)}`));
+  return files.filter((f) => /\.(png|jpe?g|gif|webp|svg)$/i.test(f)).sort().map((f) => `/avatars/${encodeURIComponent(f)}`);
+}
+
+app.get('/api/avatars', (req, res) => res.json(listAvatars()));
+
+app.get('/api/quiz-image/:id', async (req, res) => {
+  const question = PubQuiz.questionById(req.params.id);
+  if (!question?.wiki) return res.status(404).end();
+  try {
+    const image = await wikiImage(question.wiki);
+    res.set('Cache-Control', 'public, max-age=86400').type(image.type).send(image.body);
+  } catch (err) {
+    console.warn(`Bild für ${question.id} nicht geladen: ${err.message}`);
+    res.status(502).end();
+  }
 });
 
 app.get('/api/qr', async (req, res) => {
@@ -80,7 +98,8 @@ io.on('connection', (socket) => {
   };
 
   socket.on('lobby:create', ({ gameId, hostName } = {}, ack) => {
-    const lobby = lobbies.create(gameId, hostName);
+    const avatars = listAvatars();
+    const lobby = lobbies.create(gameId, hostName, avatars[Math.floor(Math.random() * avatars.length)]);
     if (!lobby) return ack?.({ error: 'Unbekanntes Spiel.' });
     const host = lobby.players.get(lobby.hostId);
     ack?.({ code: lobby.code, token: host.token });
@@ -126,6 +145,14 @@ io.on('connection', (socket) => {
     const { lobby, player } = ctx();
     if (!player || !lobby.game) return ack?.({ error: 'Kein laufendes Spiel.' });
     const result = lobby.game.vote(player, value);
+    lobby.broadcast();
+    ack?.(result);
+  });
+
+  socket.on('exclude', (wanted, ack) => {
+    const { lobby, player } = ctx();
+    if (!player || !lobby.game) return ack?.({ error: 'Kein laufendes Spiel.' });
+    const result = lobby.game.voteExclude(player, Boolean(wanted));
     lobby.broadcast();
     ack?.(result);
   });
