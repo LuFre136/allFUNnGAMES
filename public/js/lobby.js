@@ -29,7 +29,7 @@ function customGame() {
 }
 
 function usesTeams() {
-  return S ? S.game.teams !== false : !!joinInfo?.teams.length;
+  return S ? S.usesTeams : !!joinInfo?.teams.length;
 }
 
 const PART_LABELS = { main: 'Antwort', artist: 'Interpret', title: 'Titel', year: 'Jahr' };

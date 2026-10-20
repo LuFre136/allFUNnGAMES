@@ -28,9 +28,9 @@ class Lobby {
     this.phase = 'lobby'; // lobby | playing
     this.game = null;
     this.touched = Date.now();
-    // Spiele ohne Teams (z. B. Just One) spielen alle zusammen
-    this.usesTeams = Game.meta().teams !== false;
-    if (this.usesTeams) {
+    // Spiele ohne Teams (z. B. Just One) spielen alle zusammen, bei „optional“ entscheidet der Host
+    this.teamSupport = Game.meta().teams;
+    if (this.teamSupport !== false) {
       this.addTeam();
       this.addTeam();
     }
@@ -43,8 +43,14 @@ class Lobby {
     };
   }
 
+  // Ob gerade in Teams gespielt wird (bei optionalen Teams über die Einstellung teamMode)
+  get usesTeams() {
+    if (this.teamSupport === 'optional') return Boolean(this.settings?.game.teamMode);
+    return this.teamSupport !== false;
+  }
+
   addTeam(name) {
-    if (this.teams.length >= MAX_TEAMS || this.usesTeams === false) return null;
+    if (this.teams.length >= MAX_TEAMS || this.teamSupport === false) return null;
     this.teamSeq++;
     const used = new Set(this.teams.map((t) => t.color));
     const color = TEAM_COLORS.find((c) => !used.has(c)) || TEAM_COLORS[this.teamSeq % TEAM_COLORS.length];
@@ -167,6 +173,7 @@ class Lobby {
       code: this.code,
       game: this.Game.meta(),
       phase: this.phase,
+      usesTeams: this.usesTeams,
       settings: this.settings,
       availableQuestions: this.Game.availableCount(this.settings.game),
       teams: this.teams,
