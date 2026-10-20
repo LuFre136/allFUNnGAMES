@@ -5,6 +5,7 @@ const JustOne = require('./justone');
 const StadtLandFluss = require('./stadtlandfluss');
 const KreuzQuer = require('./kreuzquer');
 const DrKroko = require('./drkroko');
+const Musikzeitreise = require('./musikzeitreise');
 const Wuerfelbecher = require('./wuerfelbecher');
 
 const games = {
@@ -13,6 +14,7 @@ const games = {
   stadtlandfluss: StadtLandFluss,
   kreuzquer: KreuzQuer,
   drkroko: DrKroko,
+  musikzeitreise: Musikzeitreise,
   wuerfelbecher: Wuerfelbecher,
 };
 
