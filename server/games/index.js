@@ -1,0 +1,19 @@
+// Verzeichnis aller Spiele. Neue Spiele werden hier eingetragen.
+
+const PubQuiz = require('./pubquiz');
+
+const games = {
+  pubquiz: PubQuiz,
+};
+
+// Platzhalter für die Startseite, bis die Spiele gebaut sind
+const comingSoon = [
+  { id: 'werbinich', name: 'Wer bin ich?', icon: '🕵️', description: 'Errate die Figur auf deiner Stirn.', available: false },
+  { id: 'activity', name: 'Zeichnen & Raten', icon: '🎨', description: 'Einer zeichnet, alle anderen raten.', available: false },
+];
+
+function list() {
+  return [...Object.values(games).map((G) => G.meta()), ...comingSoon];
+}
+
+module.exports = { games, list };

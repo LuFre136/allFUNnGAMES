@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>all Fun n Games</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎲</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <h1 class="brand">all Fun <span>n</span> Games</h1>
+      <p>Such dir ein Spiel aus, erstelle eine Lobby und lade deine Leute per Link oder QR-Code ein.</p>
+    </section>
+    <section>
+      <h2>Spiele</h2>
+      <div id="games" class="games"></div>
+    </section>
+    <section class="card" style="margin-top:24px">
+      <h3>Einer Lobby beitreten</h3>
+      <form id="join-form" class="row">
+        <input id="join-code" type="text" placeholder="Lobby-Code, z. B. K7QXM" maxlength="8" autocomplete="off" style="flex:1;min-width:180px;text-transform:uppercase">
+        <button class="btn primary" type="submit">Beitreten</button>
+      </form>
+    </section>
+  </main>
+
+  <div id="modal" class="modal-backdrop hidden">
+    <form id="create-form" class="card modal stack">
+      <h2 id="modal-title">Lobby erstellen</h2>
+      <p class="muted small" style="margin:0">Du bist der Host und kannst das Spiel gleich danach einstellen.</p>
+      <label class="field"><span>Dein Spielername</span>
+        <input id="host-name" type="text" maxlength="24" placeholder="z. B. Lukas" required autocomplete="nickname">
+      </label>
+      <div class="row">
+        <button type="button" class="btn ghost" id="modal-cancel">Abbrechen</button>
+        <button type="submit" class="btn primary" style="flex:1">Lobby erstellen</button>
+      </div>
+    </form>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/common.js"></script>
+  <script src="/js/home.js"></script>
+</body>
+</html>

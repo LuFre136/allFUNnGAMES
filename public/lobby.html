@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Lobby · all Fun n Games</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎲</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <main class="wrap">
+    <div class="topbar">
+      <a class="brand" href="/">all Fun <span>n</span> Games</a>
+      <div id="topinfo" class="row"></div>
+    </div>
+    <!-- Bleibt beim Neuzeichnen erhalten, damit die Musik weiterläuft -->
+    <div id="music-dock" class="music-dock hidden">
+      <div class="player-wrap">
+        <div class="cover">🎵 Song ist verdeckt – nur du hörst ihn, die anderen raten</div>
+        <div id="spotify-embed"></div>
+      </div>
+      <div class="controls">
+        <button class="btn pink small" id="music-play">▶︎ Abspielen</button>
+        <button class="btn small" id="music-pause">⏸ Pause</button>
+        <button class="btn small" id="music-restart">⟲ Von vorn</button>
+        <span class="small muted" id="music-hint"></span>
+      </div>
+    </div>
+    <div id="app"><div class="empty">Verbinde …</div></div>
+  </main>
+  <div id="hostbar-root"></div>
+  <div id="countdown-root"></div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/common.js"></script>
+  <script src="/js/music.js"></script>
+  <script src="/js/lobby.js"></script>
+</body>
+</html>
