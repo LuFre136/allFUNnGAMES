@@ -278,7 +278,7 @@ function viewTeams() {
           <span class="team-name">${host ? `<input type="text" id="team-name-${t.id}" data-team="${t.id}" value="${esc(t.name)}" maxlength="24">` : esc(t.name)}</span>
           ${host && S.teams.length > 1 ? `<button class="btn small icon ghost" data-action="removeTeam" data-team="${t.id}" title="Team löschen">🗑</button>` : ''}
         </div>
-        ${members.map((p) => `<div class="member ${p.connected ? '' : 'offline'}">${avatarHtml(p, 'sm')}<span class="name">${esc(p.name)}${p.isHost ? ' 👑' : ''}${p.id === me.id ? ' (du)' : ''}</span>
+        ${members.map((p) => `<div class="member ${p.connected ? '' : 'offline'}">${avatarHtml(p, 'sm')}<span class="name">${esc(p.name)}${p.isHost ? ' 👑' : ''}${p.id === me.id ? ' (du)' : ''}${p.guestOf ? ` <span class="small muted">📱 bei ${esc(playerById(p.guestOf)?.name || '?')}</span>` : ''}</span>
           ${host && !p.isHost ? `<button class="btn small icon ghost" data-action="kick" data-player="${p.id}" title="Entfernen">✕</button>` : ''}</div>`).join('') || '<div class="small muted">Noch niemand</div>'}
         ${!gm && me.teamId !== t.id ? `<button class="btn small" style="margin-top:8px;width:100%" data-action="joinTeam" data-team="${t.id}">Beitreten</button>` : ''}
       </div>`;
@@ -294,7 +294,7 @@ function viewPlayers() {
   const visiblePlayers = S.players.filter((p) => !(p.isHost && !S.settings.hostPlays));
   return `<div class="card stack">
     <h3 style="margin:0">Mitspieler (${visiblePlayers.length})</h3>
-    <div>${visiblePlayers.map((p) => `<div class="member ${p.connected ? '' : 'offline'}">${avatarHtml(p, 'sm')}<span class="name">${esc(p.name)}${p.isHost ? ' 👑' : ''}${p.id === me.id ? ' (du)' : ''}</span>
+    <div>${visiblePlayers.map((p) => `<div class="member ${p.connected ? '' : 'offline'}">${avatarHtml(p, 'sm')}<span class="name">${esc(p.name)}${p.isHost ? ' 👑' : ''}${p.id === me.id ? ' (du)' : ''}${p.guestOf ? ` <span class="small muted">📱 bei ${esc(playerById(p.guestOf)?.name || '?')}</span>` : ''}</span>
       ${me.isHost && !p.isHost ? `<button class="btn small icon ghost" data-action="kick" data-player="${p.id}" title="Entfernen">✕</button>` : ''}</div>`).join('')}</div>
   </div>`;
 }
@@ -354,6 +354,7 @@ function viewLobby() {
       <h1 style="font-size:2rem">${esc(S.settings.lobbyName)}</h1>
     </div>
     <div class="grid-2">${viewShare()}${usesTeams() ? viewTeams() : viewPlayers()}</div>
+    ${customGame()?.lobbyExtra?.() ?? ''}
     ${host ? customGame()?.settings?.() ?? viewSettings() : `<div class="card center muted">Warte, bis der Host das Spiel startet … 🎲</div>`}
   </div>`;
 }

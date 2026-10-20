@@ -5,6 +5,7 @@ const { games } = require('./games');
 
 const TEAM_COLORS = ['#ef4444', '#3b82f6', '#22c55e', '#f59e0b', '#a855f7', '#ec4899', '#14b8a6', '#f97316', '#6366f1', '#84cc16', '#06b6d4', '#e11d48'];
 const MAX_TEAMS = 12;
+const MAX_GUESTS = 7;
 const LOBBY_TTL_MS = 12 * 60 * 60 * 1000;
 
 const lobbies = new Map();
@@ -109,9 +110,30 @@ class Lobby {
     }
   }
 
+  // Mitspieler ohne eigenes Gerät (bei Spielen mit meta().sharedDevice): Sie spielen am Gerät
+  // eines anderen Spielers mit und sind verbunden, solange dieses Gerät verbunden ist.
+  addGuest(owner, { name, avatar }) {
+    if (!this.Game.meta().sharedDevice) return 'In diesem Spiel geht das nicht.';
+    if (owner.guestOf) return 'Nur Spieler mit eigenem Gerät können Mitspieler hinzufügen.';
+    if (this.guestsOf(owner.id).length >= MAX_GUESTS) return `Höchstens ${MAX_GUESTS} Mitspieler pro Gerät.`;
+    if (this.players.size >= 60) return 'Die Lobby ist voll.';
+    const guest = this.addPlayer({ name, avatar });
+    this.tokens.delete(guest.token);
+    guest.guestOf = owner.id;
+    const players = this.players;
+    Object.defineProperty(guest, 'connected', { get: () => players.get(owner.id)?.connected ?? false, set() {} });
+    this.game?.playersChanged();
+    return null;
+  }
+
+  guestsOf(playerId) {
+    return [...this.players.values()].filter((p) => p.guestOf === playerId);
+  }
+
   removePlayer(playerId) {
     const p = this.players.get(playerId);
     if (!p || p.isHost) return;
+    for (const g of this.guestsOf(playerId)) this.players.delete(g.id);
     this.players.delete(playerId);
     this.tokens.delete(p.token);
     if (p.socketId) io.to(p.socketId).emit('kicked');
@@ -165,7 +187,7 @@ class Lobby {
   }
 
   publicPlayer(p) {
-    return { id: p.id, name: p.name, avatar: p.avatar, teamId: p.teamId, isHost: p.isHost, connected: p.connected };
+    return { id: p.id, name: p.name, avatar: p.avatar, teamId: p.teamId, isHost: p.isHost, connected: p.connected, guestOf: p.guestOf || null };
   }
 
   view(viewer) {

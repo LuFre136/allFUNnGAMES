@@ -1,4 +1,4 @@
-// Croco Doc: Reihum drückt jeder einen Zahn. Ein zufälliger Zahn lässt das Maul zuschnappen.
+// Dr Kroko: Reihum drückt jeder einen Zahn. Ein zufälliger Zahn lässt das Maul zuschnappen.
 
 const crypto = require('crypto');
 const { shuffle } = require('../../util');
@@ -7,7 +7,7 @@ const MIN_PLAYERS = 2;
 const MAX_PLAYERS = 20;
 const TIME_LIMITS = [0, 5, 10, 15, 20, 30, 60];
 
-class CrocoDoc {
+class DrKroko {
   constructor(lobby) {
     this.lobby = lobby;
     this.order = []; // Reihenfolge (Spieler-IDs)
@@ -21,13 +21,14 @@ class CrocoDoc {
 
   static meta() {
     return {
-      id: 'crocodoc',
-      name: 'Croco Doc',
+      id: 'drkroko',
+      name: 'Dr Kroko',
       icon: '🐊',
       description: 'Reihum Zähne drücken. Bei einem schnappt das Krokodil zu!',
       players: `${MIN_PLAYERS}–${MAX_PLAYERS} Spieler`,
       available: true,
       teams: false,
+      sharedDevice: true, // mehrere Spieler können sich ein Gerät teilen
     };
   }
 
@@ -69,8 +70,8 @@ class CrocoDoc {
 
   start() {
     const players = this.players();
-    if (players.length < MIN_PLAYERS) throw new Error(`Croco Doc braucht mindestens ${MIN_PLAYERS} Mitspieler.`);
-    if (players.length > MAX_PLAYERS) throw new Error(`Croco Doc geht mit höchstens ${MAX_PLAYERS} Mitspielern.`);
+    if (players.length < MIN_PLAYERS) throw new Error(`Dr Kroko braucht mindestens ${MIN_PLAYERS} Mitspieler.`);
+    if (players.length > MAX_PLAYERS) throw new Error(`Dr Kroko geht mit höchstens ${MAX_PLAYERS} Mitspielern.`);
     const ids = players.map((p) => p.id);
     if (this.settings.orderMode === 'manual') {
       // Reihenfolge des Hosts, wer darin fehlt, kommt hinten dran
@@ -133,9 +134,14 @@ class CrocoDoc {
     return candidates.find((c) => c !== id) || candidates[0];
   }
 
+  // Ein Gerät spielt für seinen Spieler und dessen Mitspieler am selben Gerät
+  controls(player, id) {
+    return id === player.id || this.lobby.players.get(id)?.guestOf === player.id;
+  }
+
   press(player, index) {
     if (this.phase !== 'turn') return { error: 'Gerade wird nicht gedrückt.' };
-    if (player.id !== this.activeId) return { error: 'Du bist nicht dran.' };
+    if (!this.controls(player, this.activeId)) return { error: 'Du bist nicht dran.' };
     return this.pressTooth(Number(index));
   }
 
@@ -226,7 +232,7 @@ class CrocoDoc {
       out: this.out,
       bites: this.bites,
       activeId: this.phase === 'turn' ? this.activeId : null,
-      isActive: this.phase === 'turn' && viewer.id === this.activeId,
+      isActive: this.phase === 'turn' && this.controls(viewer, this.activeId),
       teeth: this.pressed.map((by, i) => ({ pressed: Boolean(by), by, bad: done && i === this.badTooth })),
       bittenId: this.bittenId,
       deadline: this.deadline,
@@ -242,4 +248,4 @@ class CrocoDoc {
   }
 }
 
-module.exports = CrocoDoc;
+module.exports = DrKroko;

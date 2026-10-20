@@ -1,4 +1,4 @@
-// Croco Doc: Spielansicht für Host und Handys (nutzt die Helfer aus lobby.js)
+// Dr Kroko: Spielansicht für Host und Handys (nutzt die Helfer aus lobby.js)
 
 (() => {
   const TIMES = [0, 5, 10, 15, 20, 30, 60];
@@ -50,6 +50,27 @@
       }).join('')}</ol>
       <div class="row spread"><span class="small muted">Zum Verschieben am Griff ⠿ ziehen.</span><button class="btn small" data-action="cdShuffle">🎲 Mischen</button></div>`
         : '<div class="small muted">Die Reihenfolge wird beim Start ausgelost.</div>'}
+    </div>`;
+  }
+
+  // Mein Spieler und die Mitspieler an meinem Gerät
+  function mine(id) {
+    return id === S.me.id || playerById(id)?.guestOf === S.me.id;
+  }
+
+  // Für alle in der Lobby: weitere Mitspieler an diesem Gerät
+  function lobbyExtra() {
+    if (S.me.isHost && !S.settings.hostPlays) return '';
+    const guests = S.players.filter((p) => p.guestOf === S.me.id);
+    return `<div class="card stack">
+      <h3 style="margin:0">Mitspieler an diesem Gerät</h3>
+      <div class="small muted">Nicht jeder hat ein Handy? Hier weitere Spieler eintragen, sie spielen an deinem Gerät mit. Wenn sie dran sind, steht ihr Name oben.</div>
+      ${guests.map((p) => `<div class="member">${avatarHtml(p, 'sm')}<span class="name">${esc(p.name)}</span>
+        <button class="btn small icon ghost" data-action="cdRemoveGuest" data-player="${p.id}" title="Entfernen">✕</button></div>`).join('')}
+      <form id="cd-guest-form" class="row" style="flex-wrap:nowrap">
+        <input id="cd-guest-name" type="text" maxlength="24" placeholder="Name" autocomplete="off" style="flex:1;min-width:0">
+        <button class="btn primary small" type="submit">+ Hinzufügen</button>
+      </form>
     </div>`;
   }
 
@@ -122,7 +143,7 @@
       const p = playerById(id);
       const out = R.out.includes(id);
       const cls = [id === R.activeId ? 'active' : '', out ? 'out' : '', id === R.bittenId && R.phase !== 'turn' ? 'bitten' : '', p?.connected === false ? 'offline' : ''].join(' ');
-      return `<div class="cd-chip ${cls}">${avatarHtml(p, 'sm')}<span class="name">${esc(p?.name || '?')}${id === S.me.id ? ' (du)' : ''}</span>
+      return `<div class="cd-chip ${cls}">${avatarHtml(p, 'sm')}<span class="name">${esc(p?.name || '?')}${id === S.me.id ? ' (du)' : ''}${p?.guestOf ? ' 📱' : ''}</span>
         ${R.mode === 'rounds' && R.bites[id] ? `<b class="cd-bites">🐊${R.bites[id]}</b>` : ''}</div>`;
     }).join('')}</div>`;
   }
@@ -139,7 +160,8 @@
   function viewStatus(R) {
     if (R.phase === 'turn') {
       const active = playerById(R.activeId);
-      if (R.isActive) return '<div class="cd-status mine">Du bist dran! Drück einen Zahn … 🫣</div>';
+      if (R.activeId === S.me.id) return '<div class="cd-status mine">Du bist dran! Drück einen Zahn … 🫣</div>';
+      if (R.isActive) return `<div class="cd-status mine">${avatarHtml(active, 'sm')} ${esc(active?.name || '?')} ist dran! Gib das Gerät weiter … 🫣</div>`;
       return `<div class="cd-status">${avatarHtml(active, 'sm')} <b>${esc(active?.name || '?')}</b>&nbsp;ist dran</div>`;
     }
     const bitten = playerById(R.bittenId);
@@ -176,7 +198,7 @@
     if (R.phase !== 'turn' && cd.seenSnap !== R.roundNo) {
       cd.seenSnap = R.roundNo;
       cd.snapping = true;
-      if (R.bittenId === S.me.id) navigator.vibrate?.([300, 80, 300]);
+      if (mine(R.bittenId)) navigator.vibrate?.([300, 80, 300]);
       setTimeout(() => { cd.snapping = false; }, 1200);
     }
     if (R.phase === 'final') return viewFinal(R);
@@ -197,7 +219,7 @@
     return `<button class="btn" data-action="cdSkip">⏭ ${name} überspringen</button><button class="btn" data-action="cdForce">🎲 Für ${name} drücken</button>`;
   }
 
-  gameViews.crocodoc = { settings: viewSettings, view, hostbar };
+  gameViews.drkroko = { settings: viewSettings, lobbyExtra, view, hostbar };
 
   function sendOrder(order) {
     cd.localOrder = order;
@@ -209,6 +231,7 @@
     cdPress: (el) => act('press', { index: Number(el.dataset.i) }),
     cdForce: () => act('force'),
     cdSkip: () => act('skip'),
+    cdRemoveGuest: (el) => socket.emit('guest:remove', { playerId: el.dataset.player }, (res) => { if (res?.error) toast(res.error); }),
     cdShuffle: () => {
       const order = lobbyOrder();
       for (let i = order.length - 1; i > 0; i--) {
@@ -223,7 +246,7 @@
   // Drag and Drop über Pointer-Events, damit es auch auf Handys funktioniert
   app.addEventListener('pointerdown', (e) => {
     const handle = e.target.closest('.cd-handle');
-    if (!handle || S?.game.id !== 'crocodoc' || !S.me.isHost) return;
+    if (!handle || S?.game.id !== 'drkroko' || !S.me.isHost) return;
     e.preventDefault();
     const item = handle.closest('.cd-order-item');
     cd.drag = { id: item.dataset.player, order: lobbyOrder() };
@@ -259,8 +282,21 @@
   document.addEventListener('pointerup', endDrag);
   document.addEventListener('pointercancel', endDrag);
 
+  app.addEventListener('submit', (e) => {
+    if (e.target.id !== 'cd-guest-form') return;
+    const input = document.getElementById('cd-guest-name');
+    const name = input.value.trim();
+    if (!name) return toast('Bitte gib einen Namen ein.');
+    const avatar = avatars.length ? avatars[Math.floor(Math.random() * avatars.length)] : null;
+    socket.emit('guest:add', { name, avatar }, (res) => {
+      if (res?.error) return toast(res.error);
+      const field = document.getElementById('cd-guest-name');
+      if (field) field.value = '';
+    });
+  });
+
   app.addEventListener('change', (e) => {
-    if (S?.game.id !== 'crocodoc') return;
+    if (S?.game.id !== 'drkroko') return;
     const keys = { 'cd-teeth': 'teeth', 'cd-rounds': 'rounds', 'cd-time': 'timeLimit' };
     const key = keys[e.target.id];
     if (key) sendHost('settings', { game: { [key]: Number(e.target.value) } });

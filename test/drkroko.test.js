@@ -1,8 +1,8 @@
-// Regeltests für Croco Doc: node --test
+// Regeltests für Dr Kroko: node --test
 
 const test = require('node:test');
 const assert = require('node:assert');
-const CrocoDoc = require('../server/games/crocodoc');
+const DrKroko = require('../server/games/drkroko');
 
 function fakeLobby(n, game = {}) {
   const players = new Map();
@@ -10,7 +10,7 @@ function fakeLobby(n, game = {}) {
   return {
     hostId: 'p1',
     players,
-    settings: { game: { ...CrocoDoc.defaultSettings(), ...game } },
+    settings: { game: { ...DrKroko.defaultSettings(), ...game } },
     activePlayers: () => [...players.values()].filter((p) => p.connected),
     broadcast() {},
   };
@@ -18,7 +18,7 @@ function fakeLobby(n, game = {}) {
 
 function setup(n = 3, game = { orderMode: 'manual', order: ['p1', 'p2', 'p3'] }) {
   const lobby = fakeLobby(n, game);
-  const g = new CrocoDoc(lobby);
+  const g = new DrKroko(lobby);
   g.start();
   return { lobby, game: g, p: (i) => lobby.players.get(`p${i}`) };
 }
@@ -96,11 +96,26 @@ test('Host kann zufällig drücken und überspringen, Abwesende werden überspru
 });
 
 test('Einstellungen werden begrenzt', () => {
-  const s = CrocoDoc.sanitizeSettings(CrocoDoc.defaultSettings(), { teeth: 99, rounds: 0, timeLimit: 7, mode: 'x', orderMode: 'manual', order: ['a', 'a', 3, 'b'] });
+  const s = DrKroko.sanitizeSettings(DrKroko.defaultSettings(), { teeth: 99, rounds: 0, timeLimit: 7, mode: 'x', orderMode: 'manual', order: ['a', 'a', 3, 'b'] });
   assert.strictEqual(s.teeth, 24);
   assert.strictEqual(s.rounds, 1);
   assert.strictEqual(s.timeLimit, 0);
   assert.strictEqual(s.mode, 'rounds');
   assert.strictEqual(s.orderMode, 'manual');
   assert.deepStrictEqual(s.order, ['a', 'b']);
+});
+
+test('ein Gerät drückt auch für seine Mitspieler am selben Gerät', () => {
+  const { lobby, game, p } = setup(2, { orderMode: 'manual', order: ['p1', 'g', 'p2'] });
+  const guest = { id: 'g', connected: true, isHost: false, guestOf: 'p2' };
+  lobby.players.set('g', guest);
+  game.playersChanged();
+  game.order = ['p1', 'g', 'p2'];
+  game.action(p(1), { type: 'press', index: safeTooth(game) });
+  assert.strictEqual(game.activeId, 'g');
+  assert.ok(game.view(p(2)).isActive);
+  assert.ok(!game.view(p(1)).isActive);
+  assert.ok(game.action(p(1), { type: 'press', index: safeTooth(game) }).error);
+  assert.deepStrictEqual(game.action(p(2), { type: 'press', index: safeTooth(game) }), { ok: true });
+  assert.strictEqual(game.activeId, 'p2');
 });
