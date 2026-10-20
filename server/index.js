@@ -120,7 +120,7 @@ io.on('connection', (socket) => {
         code: lobby.code,
         name: lobby.settings.lobbyName,
         game: lobby.Game.meta().name,
-        teams: lobby.teams.map((t) => ({ ...t, members: lobby.playersInTeam(t.id).map((p) => lobby.publicPlayer(p)) })),
+        teams: (lobby.usesTeams ? lobby.teams : []).map((t) => ({ ...t, members: lobby.playersInTeam(t.id).map((p) => lobby.publicPlayer(p)) })),
       },
     });
   });

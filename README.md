@@ -117,6 +117,12 @@ Kooperatives Ratespiel ohne Teams für mindestens 3 Mitspieler. Reihum rät eine
 
 Die Begriffe stehen in `server/games/justone/words.json` und lassen sich dort beliebig ergänzen.
 
+## So läuft Stadt, Land, Fluss
+
+Für 2–20 Spieler, jeder für sich oder in Teams (im Team-Modus füllt jedes Team ein gemeinsames Blatt aus). Stadt, Land und Fluss sind vorausgewählt; der Host kann Kategorien entfernen, eigene eintippen oder aus Vorschlägen antippen (bis zu 12). Außerdem stellt er Runden, Zeitlimit, Stopp-Knopf mit Restzeit und die erlaubten Buchstaben ein (Standard: ohne Q, X, Y).
+
+Pro Runde wird ein Buchstabe gezogen, jeder Buchstabe nur einmal pro Partie. Wer alle Felder ausgefüllt hat, kann Stopp rufen, danach bleibt den anderen die eingestellte Restzeit. Anschließend wird Kategorie für Kategorie geprüft: Leere Antworten und falsche Anfangsbuchstaben zählen automatisch nicht (Ä zählt als A). Zweifelt die Mehrheit der übrigen Mitspieler eine Antwort an, zählt sie ebenfalls nicht; der Host kann jede Antwort fest zulassen oder ablehnen. Punkte: 20 für die einzige gültige Antwort in einer Kategorie, 10 für eine Antwort, die sonst niemand hat, 5 für eine doppelte Antwort.
+
 ## Aufbau
 
 ```
@@ -124,6 +130,7 @@ server/index.js              Webserver, Socket.IO-Ereignisse, QR-Codes
 server/lobbies.js            Lobbys, Spieler, Teams, Einstellungen
 server/games/index.js        Verzeichnis der Spiele (neue Spiele hier eintragen)
 server/games/pubquiz/        Pub-Quiz-Logik und Fragen
+server/games/stadtlandfluss/ Stadt, Land, Fluss
 server/spotify.js            Optionale Spotify-Suche
 public/                      Startseite, Lobby-/Spielseite, Styles, Profilbilder
 ```
