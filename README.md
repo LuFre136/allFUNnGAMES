@@ -1,6 +1,6 @@
 # all Fun n Games
 
-Spieleplattform für Spieleabende: Spiel auswählen, Lobby erstellen, Freunde per Link oder QR-Code einladen. Als erstes Spiel gibt es ein **Pub Quiz** mit 70 Fragen.
+Spieleplattform für Spieleabende: Spiel auswählen, Lobby erstellen, Freunde per Link oder QR-Code einladen. Als erstes Spiel gibt es ein **Pub Quiz** mit 112 Fragen in 13 Kategorien.
 
 ## Starten
 

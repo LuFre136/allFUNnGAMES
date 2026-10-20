@@ -8,7 +8,11 @@
     "Film & Serien",
     "Musik",
     "Promis & Comics",
-    "Länderflaggen"
+    "Länderflaggen",
+    "Wer oder was ist …?",
+    "Wo liegt …?",
+    "Wahr oder falsch",
+    "Zitate"
   ],
   "questions": [
     { "id": "mc01", "type": "choice", "category": "Geografie", "question": "Was ist die Hauptstadt von Australien?", "options": ["Sydney", "Melbourne", "Canberra", "Perth"], "answer": 2 },
@@ -86,6 +90,52 @@
     { "id": "fl17", "type": "flag", "category": "Länderflaggen", "question": "Zu welchem Land gehört diese Flagge?", "answer": "Irland", "accepted": ["Irland", "Ireland"], "flag": "ie" },
     { "id": "fl18", "type": "flag", "category": "Länderflaggen", "question": "Zu welchem Land gehört diese Flagge?", "answer": "Kroatien", "accepted": ["Kroatien", "Croatia"], "flag": "hr" },
     { "id": "fl19", "type": "flag", "category": "Länderflaggen", "question": "Zu welchem Land gehört diese Flagge?", "answer": "Nepal", "accepted": ["Nepal"], "flag": "np" },
-    { "id": "fl20", "type": "flag", "category": "Länderflaggen", "question": "Zu welchem Land gehört diese Flagge?", "answer": "Jamaika", "accepted": ["Jamaika", "Jamaica"], "flag": "jm" }
+    { "id": "fl20", "type": "flag", "category": "Länderflaggen", "question": "Zu welchem Land gehört diese Flagge?", "answer": "Jamaika", "accepted": ["Jamaika", "Jamaica"], "flag": "jm" },
+
+    { "id": "ww01", "type": "open", "category": "Wer oder was ist …?", "question": "Wer oder was ist ein Axolotl?", "answer": "Ein Schwanzlurch (Amphibie) aus Mexiko", "accepted": ["Schwanzlurch", "Amphibie", "Lurch", "Molch", "Salamander"]},
+    { "id": "ww02", "type": "open", "category": "Wer oder was ist …?", "question": "Wer oder was ist Bratislava?", "answer": "Die Hauptstadt der Slowakei", "accepted": ["Hauptstadt der Slowakei", "Slowakei"]},
+    { "id": "ww03", "type": "open", "category": "Wer oder was ist …?", "question": "Wer oder was ist Pikachu?", "answer": "Ein Pokémon", "accepted": ["Pokémon", "Pokemon"]},
+    { "id": "ww04", "type": "open", "category": "Wer oder was ist …?", "question": "Wer oder was ist ein Okapi?", "answer": "Eine Waldgiraffe aus Zentralafrika", "accepted": ["Waldgiraffe", "Giraffe", "Giraffenart"]},
+    { "id": "ww05", "type": "open", "category": "Wer oder was ist …?", "question": "Wer oder was ist Ada Lovelace?", "answer": "Eine Mathematikerin, gilt als erste Programmiererin", "accepted": ["Programmiererin", "Mathematikerin", "erste Programmiererin"]},
+    { "id": "ww06", "type": "open", "category": "Wer oder was ist …?", "question": "Wer oder was ist Darjeeling?", "answer": "Eine Teesorte und Region in Indien", "accepted": ["Tee", "Teesorte", "Schwarztee"]},
+    { "id": "ww07", "type": "open", "category": "Wer oder was ist …?", "question": "Wer oder was ist ein Sudoku?", "answer": "Ein Zahlenrätsel", "accepted": ["Zahlenrätsel", "Rätsel", "Logikrätsel"]},
+    { "id": "ww08", "type": "open", "category": "Wer oder was ist …?", "question": "Wer oder was ist Gandalf?", "answer": "Ein Zauberer aus „Der Herr der Ringe“", "accepted": ["Zauberer", "Magier"]},
+    { "id": "ww09", "type": "open", "category": "Wer oder was ist …?", "question": "Wer oder was ist Bitcoin?", "answer": "Eine Kryptowährung", "accepted": ["Kryptowährung", "Digitalwährung", "Währung"]},
+    { "id": "ww10", "type": "open", "category": "Wer oder was ist …?", "question": "Wer oder was ist Usain Bolt?", "answer": "Ein Sprinter, Weltrekordhalter über 100 m", "accepted": ["Sprinter", "Läufer", "Leichtathlet"]},
+
+    { "id": "wo01", "type": "choice", "category": "Wo liegt …?", "question": "Wo liegt Timbuktu?", "options": ["Mali", "Niger", "Tschad", "Marokko"], "answer": 0},
+    { "id": "wo02", "type": "choice", "category": "Wo liegt …?", "question": "Wo liegt Machu Picchu?", "options": ["Bolivien", "Peru", "Chile", "Ecuador"], "answer": 1},
+    { "id": "wo03", "type": "choice", "category": "Wo liegt …?", "question": "Wo liegt Angkor Wat?", "options": ["Thailand", "Vietnam", "Kambodscha", "Laos"], "answer": 2},
+    { "id": "wo04", "type": "choice", "category": "Wo liegt …?", "question": "Wo liegt die Felsenstadt Petra?", "options": ["Ägypten", "Israel", "Syrien", "Jordanien"], "answer": 3},
+    { "id": "wo05", "type": "choice", "category": "Wo liegt …?", "question": "Wo liegt der Kilimandscharo?", "options": ["Tansania", "Kenia", "Uganda", "Äthiopien"], "answer": 0},
+    { "id": "wo06", "type": "choice", "category": "Wo liegt …?", "question": "Wo liegt die Osterinsel (zu welchem Land gehört sie)?", "options": ["Peru", "Chile", "Neuseeland", "Frankreich"], "answer": 1},
+    { "id": "wo07", "type": "choice", "category": "Wo liegt …?", "question": "Wo liegt Liechtenstein?", "options": ["Zwischen Deutschland und der Schweiz", "Zwischen Frankreich und Italien", "Zwischen der Schweiz und Österreich", "Zwischen Österreich und Deutschland"], "answer": 2},
+    { "id": "wo08", "type": "choice", "category": "Wo liegt …?", "question": "Wo liegt der Titicacasee?", "options": ["Chile und Argentinien", "Brasilien und Paraguay", "Kolumbien und Ecuador", "Peru und Bolivien"], "answer": 3},
+    { "id": "wo09", "type": "choice", "category": "Wo liegt …?", "question": "Wo liegt Tiflis?", "options": ["Georgien", "Armenien", "Aserbaidschan", "Türkei"], "answer": 0},
+    { "id": "wo10", "type": "choice", "category": "Wo liegt …?", "question": "Wo liegt der Uluru (Ayers Rock)?", "options": ["Neuseeland", "Australien", "Südafrika", "Namibia"], "answer": 1},
+
+    { "id": "wf01", "type": "choice", "category": "Wahr oder falsch", "question": "Wahr oder falsch? Wombats produzieren würfelförmigen Kot.", "options": ["Wahr", "Falsch"], "answer": 0},
+    { "id": "wf02", "type": "choice", "category": "Wahr oder falsch", "question": "Wahr oder falsch? Bananen sind botanisch gesehen Beeren.", "options": ["Wahr", "Falsch"], "answer": 0},
+    { "id": "wf03", "type": "choice", "category": "Wahr oder falsch", "question": "Wahr oder falsch? Erdbeeren sind botanisch gesehen Beeren.", "options": ["Wahr", "Falsch"], "answer": 1},
+    { "id": "wf04", "type": "choice", "category": "Wahr oder falsch", "question": "Wahr oder falsch? Die Chinesische Mauer ist mit bloßem Auge vom Mond aus zu sehen.", "options": ["Wahr", "Falsch"], "answer": 1},
+    { "id": "wf05", "type": "choice", "category": "Wahr oder falsch", "question": "Wahr oder falsch? Kleopatra lebte zeitlich näher an der Mondlandung als am Bau der Cheops-Pyramide.", "options": ["Wahr", "Falsch"], "answer": 0},
+    { "id": "wf06", "type": "choice", "category": "Wahr oder falsch", "question": "Wahr oder falsch? Goldfische haben ein Gedächtnis von nur drei Sekunden.", "options": ["Wahr", "Falsch"], "answer": 1},
+    { "id": "wf07", "type": "choice", "category": "Wahr oder falsch", "question": "Wahr oder falsch? Honig kann Tausende Jahre lang genießbar bleiben.", "options": ["Wahr", "Falsch"], "answer": 0},
+    { "id": "wf08", "type": "choice", "category": "Wahr oder falsch", "question": "Wahr oder falsch? Ein Tag auf der Venus dauert länger als ein Jahr auf der Venus.", "options": ["Wahr", "Falsch"], "answer": 0},
+    { "id": "wf09", "type": "choice", "category": "Wahr oder falsch", "question": "Wahr oder falsch? Ein Blitz schlägt nie zweimal an derselben Stelle ein.", "options": ["Wahr", "Falsch"], "answer": 1},
+    { "id": "wf10", "type": "choice", "category": "Wahr oder falsch", "question": "Wahr oder falsch? Das Nationaltier Schottlands ist das Einhorn.", "options": ["Wahr", "Falsch"], "answer": 0},
+    { "id": "wf11", "type": "choice", "category": "Wahr oder falsch", "question": "Wahr oder falsch? Napoleon war für seine Zeit außergewöhnlich klein.", "options": ["Wahr", "Falsch"], "answer": 1},
+    { "id": "wf12", "type": "choice", "category": "Wahr oder falsch", "question": "Wahr oder falsch? Haie gab es auf der Erde schon vor den ersten Bäumen.", "options": ["Wahr", "Falsch"], "answer": 0},
+
+    { "id": "zi01", "type": "choice", "category": "Zitate", "question": "Von wem stammt dieses Zitat? „Ich bin ein Berliner.“", "options": ["Ronald Reagan", "John F. Kennedy", "Willy Brandt", "Barack Obama"], "answer": 1},
+    { "id": "zi02", "type": "choice", "category": "Zitate", "question": "Von wem stammt dieses Zitat? „Wir schaffen das.“", "options": ["Angela Merkel", "Helmut Kohl", "Olaf Scholz", "Gerhard Schröder"], "answer": 0},
+    { "id": "zi03", "type": "choice", "category": "Zitate", "question": "Von wem stammt dieses Zitat? „Ich denke, also bin ich.“", "options": ["Immanuel Kant", "Sokrates", "René Descartes", "Friedrich Nietzsche"], "answer": 2},
+    { "id": "zi04", "type": "choice", "category": "Zitate", "question": "Von wem stammt dieses Zitat? „I have a dream.“", "options": ["Nelson Mandela", "Malcolm X", "Barack Obama", "Martin Luther King"], "answer": 3},
+    { "id": "zi05", "type": "choice", "category": "Zitate", "question": "Von wem stammt dieses Zitat? „Ich weiß, dass ich nichts weiß.“", "options": ["Platon", "Sokrates", "Aristoteles", "Konfuzius"], "answer": 1},
+    { "id": "zi06", "type": "choice", "category": "Zitate", "question": "Von wem stammt dieses Zitat? „Phantasie ist wichtiger als Wissen.“", "options": ["Albert Einstein", "Isaac Newton", "Stephen Hawking", "Galileo Galilei"], "answer": 0},
+    { "id": "zi07", "type": "choice", "category": "Zitate", "question": "Von wem stammt dieses Zitat? „Veni, vidi, vici.“", "options": ["Augustus", "Nero", "Julius Caesar", "Cicero"], "answer": 2},
+    { "id": "zi08", "type": "choice", "category": "Zitate", "question": "Von wem stammt dieses Zitat? „Das ist ein kleiner Schritt für einen Menschen, aber ein riesiger Sprung für die Menschheit.“", "options": ["Buzz Aldrin", "Juri Gagarin", "John Glenn", "Neil Armstrong"], "answer": 3},
+    { "id": "zi09", "type": "choice", "category": "Zitate", "question": "Von wem stammt dieses Zitat? „Der Ball ist rund, und ein Spiel dauert 90 Minuten.“", "options": ["Sepp Herberger", "Franz Beckenbauer", "Joachim Löw", "Lothar Matthäus"], "answer": 0},
+    { "id": "zi10", "type": "choice", "category": "Zitate", "question": "Von wem stammt dieses Zitat? „Wer zu spät kommt, den bestraft das Leben.“", "options": ["Helmut Kohl", "Michail Gorbatschow", "Erich Honecker", "Willy Brandt"], "answer": 1}
   ]
 }
