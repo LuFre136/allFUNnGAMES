@@ -157,6 +157,16 @@ Würfelspiel nach Kniffel für 1 bis 10 Mitspieler, ohne Teams. Reihum würfelt 
 - Optional gibt es ein Zeitlimit pro Zug. Läuft es ab, wird (falls nötig) gewürfelt und das Feld mit den meisten Punkten eingetragen. Das kann der Host auch per Knopf auslösen oder den Spieler überspringen, der dann in der nächsten Runde wieder dran ist.
 - Ohne Extra-Kniffel-Bonus und ohne Joker-Regel; ein zweiter Kniffel zählt einfach in einem passenden Feld.
 
+## So läuft Alias
+
+Teamspiel nach Codenames für 4 bis 20 Spieler in genau zwei Teams. Auf dem Fernseher liegen 25 Wortkarten. Pro Team ist ein Spieler Hinweisgeber und sieht auf seinem Handy die geheime Karte: 9 Karten für das Startteam, 8 für das andere, 7 neutrale Passanten und 1 Attentäter. Er gibt seinem Team ein Wort und eine Zahl; Wörter, die noch auf dem Tisch liegen, und ihre Wortfamilie lehnt das Spiel ab. Die Ermittler tippen auf dem Handy Karten an, ihre Profilbilder erscheinen auf den Karten. Aufgedeckt wird, sobald die Mehrheit des Teams dieselbe Karte gewählt hat (oder per Einstellung beim ersten Tipp). Pro Hinweis gibt es Zahl + 1 Versuche, bei 0 und ∞ beliebig viele. Ein Passant oder eine gegnerische Karte beendet den Zug, der Attentäter verliert sofort. Wer zuerst alle eigenen Karten gefunden hat, gewinnt die Partie.
+
+- Der Host-Bildschirm ist der Fernseher und zeigt nie die geheime Karte. Spielt der Host mit, ist er deshalb immer Ermittler.
+- Der Host stellt ein, wie viele Partien zum Sieg nötig sind, wer Hinweisgeber ist (reihum, zufällig oder fest), wann aufgedeckt wird und optionale Zeitlimits. Das Startteam wechselt mit jeder Partie.
+- Während des Spiels kann der Host eine Karte direkt aufdecken (Karte antippen), den Zug beenden, einen Hinweis zurückweisen und Hinweisgeber neu vergeben.
+
+Die Wörter stehen in `server/games/alias/words.json`. Die Regeln prüft `npm test`.
+
 ## Aufbau
 
 ```
@@ -169,6 +179,7 @@ server/games/justone/        Just One
 server/games/kreuzquer/      Kreuz & Quer (Würfelspiel)
 server/games/musikzeitreise/ Musikzeitreise (Songs und Zeitleisten)
 server/games/wuerfelbecher/  Würfelbecher (nach Kniffel)
+server/games/alias/          Alias (nach Codenames)
 test/                        Regeltests (npm test)
 server/spotify.js            Optionale Spotify-Suche
 public/                      Startseite, Lobby-/Spielseite, Styles, Profilbilder

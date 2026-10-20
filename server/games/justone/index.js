@@ -2,53 +2,11 @@
 
 const path = require('path');
 const fs = require('fs');
-const { shuffle, fuzzyMatch } = require('../../util');
+const { shuffle, fuzzyMatch, stems, sameStem, sameFamily } = require('../../util');
 
 const WORDS = JSON.parse(fs.readFileSync(path.join(__dirname, 'words.json'), 'utf8')).words;
 const WORDS_PER_CARD = 4;
 const MIN_PLAYERS = 3;
-
-// Endungen werden in zwei Durchgängen abgeschnitten: erst Ableitungen, dann Beugungen
-const DERIVATION = ['schaft', 'ungen', 'heit', 'keit', 'erei', 'lich', 'isch', 'chen', 'lein', 'innen', 'ung', 'in', 'ig'];
-const INFLECTION = ['ern', 'em', 'en', 'er', 'es', 'e', 'n', 's'];
-const MIN_STEM = 3;
-
-function stripSuffix(word, suffixes) {
-  for (const s of suffixes) {
-    if (word.endsWith(s) && word.length - s.length >= MIN_STEM) return word.slice(0, -s.length);
-  }
-  return word;
-}
-
-// Kleinschreibung, Umlaute auf den Grundvokal, nur Buchstaben und Ziffern
-function plain(text) {
-  return String(text ?? '')
-    .toLowerCase()
-    .replace(/ä/g, 'a').replace(/ö/g, 'o').replace(/ü/g, 'u').replace(/ß/g, 'ss')
-    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]+/g, '');
-}
-
-// Mögliche Wortstämme eines Worts. Zwei Wörter gelten als gleich, wenn sie einen Stamm teilen:
-// „Haus“ (haus, hau) und „Häuser“ (hauser, haus) teilen „haus“, „Maus“ und „Haus“ teilen nichts.
-function stems(text) {
-  const word = plain(text);
-  const derived = stripSuffix(word, DERIVATION);
-  return [...new Set([word, derived, stripSuffix(derived, INFLECTION)])].filter(Boolean);
-}
-
-function sameStem(a, b) {
-  return a.some((s) => b.includes(s));
-}
-
-// Hinweise aus derselben Wortfamilie wie der Begriff sind nicht erlaubt (z. B. „Apfelbaum“ zu „Apfel“)
-function sameFamily(clue, word) {
-  const wordStems = stems(word);
-  if (sameStem(clue.stems, wordStems)) return true;
-  const full = plain(clue.text);
-  const roots = wordStems.filter((s, i) => s.length >= (i === 0 ? MIN_STEM : 4));
-  return roots.some((r) => full.startsWith(r) || full.endsWith(r));
-}
 
 function cleanClue(raw) {
   return String(raw ?? '').replace(/\s+/g, ' ').trim().slice(0, 30);
