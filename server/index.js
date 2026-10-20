@@ -273,7 +273,8 @@ server.listen(PORT, () => {
   console.log(`all Fun n Games läuft auf http://localhost:${PORT}`);
   for (const ip of lanAddresses()) console.log(`  im Netzwerk: http://${ip}:${PORT}`);
   const questions = JSON.parse(fs.readFileSync(path.join(__dirname, 'games', 'pubquiz', 'questions.json'), 'utf8')).questions;
-  spotify.resolveAll(questions).then((s) => {
+  const songs = require('./games/musikzeitreise').songs.map((s) => ({ ...s, type: 'music' }));
+  spotify.resolveAll([...questions, ...songs]).then((s) => {
     if (s.enabled) console.log(`Spotify: ${s.resolved} Songs gefunden${s.error ? `, Fehler: ${s.error}` : ''}`);
   });
 });
