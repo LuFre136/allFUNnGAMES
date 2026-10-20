@@ -11,7 +11,7 @@ const QRCode = require('qrcode');
 const lobbies = require('./lobbies');
 const gameRegistry = require('./games');
 const spotify = require('./spotify');
-const { wikiImage } = require('./images');
+const { wikiImage, flagImage } = require('./images');
 const exclusions = require('./exclusions');
 exclusions.init();
 const PubQuiz = require('./games/pubquiz');
@@ -43,9 +43,9 @@ app.get('/api/avatars', (req, res) => res.json(listAvatars()));
 
 app.get('/api/quiz-image/:id', async (req, res) => {
   const question = PubQuiz.questionById(req.params.id);
-  if (!question?.wiki) return res.status(404).end();
+  if (!question?.wiki && !question?.flag) return res.status(404).end();
   try {
-    const image = await wikiImage(question.wiki);
+    const image = question.flag ? await flagImage(question.flag) : await wikiImage(question.wiki);
     res.set('Cache-Control', 'public, max-age=86400').type(image.type).send(image.body);
   } catch (err) {
     console.warn(`Bild für ${question.id} nicht geladen: ${err.message}`);
@@ -175,6 +175,8 @@ io.on('connection', (socket) => {
       case 'player:kick': lobby.removePlayer(data.playerId); break;
       case 'start': error = lobby.start(); break;
       case 'reveal': lobby.game?.reveal(); break;
+      case 'pause': lobby.game?.pause(); break;
+      case 'resume': lobby.game?.resume(); break;
       case 'judge': lobby.game?.judge(data.teamId, data.part, data.value); break;
       case 'next': lobby.game?.next(); break;
       case 'lobby': lobby.backToLobby(); break;

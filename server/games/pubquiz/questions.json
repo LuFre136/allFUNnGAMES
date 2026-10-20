@@ -7,7 +7,8 @@
     "Sport",
     "Film & Serien",
     "Musik",
-    "Promis & Comics"
+    "Promis & Comics",
+    "Länderflaggen"
   ],
   "questions": [
     { "id": "mc01", "type": "choice", "category": "Geografie", "question": "Was ist die Hauptstadt von Australien?", "options": ["Sydney", "Melbourne", "Canberra", "Perth"], "answer": 2 },
@@ -64,6 +65,27 @@
     { "id": "im04", "type": "image", "category": "Promis & Comics", "question": "Wer ist auf dem Bild zu sehen?", "answer": "Barack Obama", "accepted": ["Barack Obama", "Obama"], "wiki": "Barack_Obama" },
     { "id": "im05", "type": "image", "category": "Promis & Comics", "question": "Wie heißt diese Comicfigur?", "answer": "Homer Simpson", "accepted": ["Homer Simpson", "Homer"], "wiki": "Homer_Simpson" },
     { "id": "im06", "type": "image", "category": "Promis & Comics", "question": "Wie heißt diese Comicfigur?", "answer": "SpongeBob Schwammkopf", "accepted": ["SpongeBob", "SpongeBob Schwammkopf", "SpongeBob SquarePants"], "wiki": "SpongeBob_SquarePants_(character)" },
-    { "id": "im07", "type": "image", "category": "Promis & Comics", "question": "Wie heißt diese Comicfigur?", "answer": "Micky Maus", "accepted": ["Micky Maus", "Mickey Mouse", "Micky", "Mickey"], "wiki": "Mickey_Mouse" }
+    { "id": "im07", "type": "image", "category": "Promis & Comics", "question": "Wie heißt diese Comicfigur?", "answer": "Micky Maus", "accepted": ["Micky Maus", "Mickey Mouse", "Micky", "Mickey"], "wiki": "Mickey_Mouse" },
+
+    { "id": "fl01", "type": "flag", "category": "Länderflaggen", "question": "Zu welchem Land gehört diese Flagge?", "answer": "Deutschland", "accepted": ["Deutschland", "Germany", "BRD"], "flag": "de" },
+    { "id": "fl02", "type": "flag", "category": "Länderflaggen", "question": "Zu welchem Land gehört diese Flagge?", "answer": "Frankreich", "accepted": ["Frankreich", "France"], "flag": "fr" },
+    { "id": "fl03", "type": "flag", "category": "Länderflaggen", "question": "Zu welchem Land gehört diese Flagge?", "answer": "Italien", "accepted": ["Italien", "Italy", "Italia"], "flag": "it" },
+    { "id": "fl04", "type": "flag", "category": "Länderflaggen", "question": "Zu welchem Land gehört diese Flagge?", "answer": "Japan", "accepted": ["Japan"], "flag": "jp" },
+    { "id": "fl05", "type": "flag", "category": "Länderflaggen", "question": "Zu welchem Land gehört diese Flagge?", "answer": "Brasilien", "accepted": ["Brasilien", "Brazil", "Brasil"], "flag": "br" },
+    { "id": "fl06", "type": "flag", "category": "Länderflaggen", "question": "Zu welchem Land gehört diese Flagge?", "answer": "Kanada", "accepted": ["Kanada", "Canada"], "flag": "ca" },
+    { "id": "fl07", "type": "flag", "category": "Länderflaggen", "question": "Zu welchem Land gehört diese Flagge?", "answer": "Schweden", "accepted": ["Schweden", "Sweden"], "flag": "se" },
+    { "id": "fl08", "type": "flag", "category": "Länderflaggen", "question": "Zu welchem Land gehört diese Flagge?", "answer": "Griechenland", "accepted": ["Griechenland", "Greece"], "flag": "gr" },
+    { "id": "fl09", "type": "flag", "category": "Länderflaggen", "question": "Zu welchem Land gehört diese Flagge?", "answer": "Mexiko", "accepted": ["Mexiko", "Mexico"], "flag": "mx" },
+    { "id": "fl10", "type": "flag", "category": "Länderflaggen", "question": "Zu welchem Land gehört diese Flagge?", "answer": "Indien", "accepted": ["Indien", "India"], "flag": "in" },
+    { "id": "fl11", "type": "flag", "category": "Länderflaggen", "question": "Zu welchem Land gehört diese Flagge?", "answer": "Südkorea", "accepted": ["Südkorea", "Korea", "South Korea", "Republik Korea"], "flag": "kr" },
+    { "id": "fl12", "type": "flag", "category": "Länderflaggen", "question": "Zu welchem Land gehört diese Flagge?", "answer": "Argentinien", "accepted": ["Argentinien", "Argentina"], "flag": "ar" },
+    { "id": "fl13", "type": "flag", "category": "Länderflaggen", "question": "Zu welchem Land gehört diese Flagge?", "answer": "Türkei", "accepted": ["Türkei", "Turkei", "Turkey", "Türkiye"], "flag": "tr" },
+    { "id": "fl14", "type": "flag", "category": "Länderflaggen", "question": "Zu welchem Land gehört diese Flagge?", "answer": "Südafrika", "accepted": ["Südafrika", "South Africa"], "flag": "za" },
+    { "id": "fl15", "type": "flag", "category": "Länderflaggen", "question": "Zu welchem Land gehört diese Flagge?", "answer": "Portugal", "accepted": ["Portugal"], "flag": "pt" },
+    { "id": "fl16", "type": "flag", "category": "Länderflaggen", "question": "Zu welchem Land gehört diese Flagge?", "answer": "Norwegen", "accepted": ["Norwegen", "Norway"], "flag": "no" },
+    { "id": "fl17", "type": "flag", "category": "Länderflaggen", "question": "Zu welchem Land gehört diese Flagge?", "answer": "Irland", "accepted": ["Irland", "Ireland"], "flag": "ie" },
+    { "id": "fl18", "type": "flag", "category": "Länderflaggen", "question": "Zu welchem Land gehört diese Flagge?", "answer": "Kroatien", "accepted": ["Kroatien", "Croatia"], "flag": "hr" },
+    { "id": "fl19", "type": "flag", "category": "Länderflaggen", "question": "Zu welchem Land gehört diese Flagge?", "answer": "Nepal", "accepted": ["Nepal"], "flag": "np" },
+    { "id": "fl20", "type": "flag", "category": "Länderflaggen", "question": "Zu welchem Land gehört diese Flagge?", "answer": "Jamaika", "accepted": ["Jamaika", "Jamaica"], "flag": "jm" }
   ]
 }

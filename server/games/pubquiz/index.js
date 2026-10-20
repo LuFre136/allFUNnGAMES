@@ -18,6 +18,7 @@ const TYPE_LABELS = {
   'music-title': 'Musik: Interpret & Titel',
   'music-year': 'Musik: Interpret & Jahr',
   image: 'Wer ist das?',
+  flag: 'Länderflagge',
 };
 
 // Welche Teile einer Antwort einzeln bewertet werden
@@ -26,6 +27,7 @@ const PARTS = {
   open: ['main'],
   estimate: ['main'],
   image: ['main'],
+  flag: ['main'],
   'music-title': ['artist', 'title'],
   'music-year': ['artist', 'year'],
 };
@@ -55,7 +57,8 @@ function sanitizeVote(question, raw) {
       return Number.isInteger(idx) && idx >= 0 && idx < question.options.length ? idx : null;
     }
     case 'open':
-    case 'image': {
+    case 'image':
+    case 'flag': {
       const text = cleanText(raw);
       return normalize(text) ? text : null;
     }
@@ -87,6 +90,7 @@ function voteKey(question, value) {
       return String(value);
     case 'open':
     case 'image':
+    case 'flag':
       return normalize(value);
     case 'music-title':
       return `${normalize(value.artist)}|${normalize(value.title)}`;
@@ -107,6 +111,7 @@ function autoJudge(question, value) {
       return { main: value === question.answer };
     case 'open':
     case 'image':
+    case 'flag':
       return { main: fuzzyMatch(value, question.accepted || [question.answer]) };
     case 'estimate':
       return { main: Math.abs(value - question.answer) <= question.tolerance };
@@ -172,6 +177,7 @@ class PubQuiz {
       questionCount: 15,
       categories: DATA.categories.slice(),
       timeLimit: 60,
+      musicTimeLimit: 180,
     };
   }
 
@@ -184,9 +190,10 @@ class PubQuiz {
     if (Array.isArray(patch.categories)) {
       next.categories = patch.categories.filter((c) => DATA.categories.includes(c));
     }
-    if (patch.timeLimit !== undefined) {
-      const t = Math.round(Number(patch.timeLimit));
-      if (Number.isFinite(t)) next.timeLimit = Math.min(Math.max(t, 0), 600);
+    for (const key of ['timeLimit', 'musicTimeLimit']) {
+      if (patch[key] === undefined) continue;
+      const t = Math.round(Number(patch[key]));
+      if (Number.isFinite(t)) next[key] = Math.min(Math.max(t, 0), 600);
     }
     return next;
   }
@@ -223,11 +230,35 @@ class PubQuiz {
     this.excludeVotes = new Set();
     this.notice = null;
     this.countdownEnd = null;
-    const limit = this.lobby.settings.game.timeLimit;
+    this.paused = false;
+    this.remainingMs = null;
+    const { timeLimit, musicTimeLimit } = this.lobby.settings.game;
+    // Musikfragen haben ein eigenes, längeres Zeitlimit
+    const limit = this.question.type.startsWith('music') ? musicTimeLimit ?? 180 : timeLimit;
     this.deadline = limit > 0 ? Date.now() + limit * 1000 : null;
     if (this.deadline) {
       this.timer = setTimeout(() => this.reveal(), limit * 1000);
     }
+  }
+
+  // Der Host kann die Frage anhalten: Zeitlimit und Auflösungs-Countdown stehen still
+  pause() {
+    if (this.phase !== 'question' || this.paused) return;
+    this.paused = true;
+    this.remainingMs = this.deadline ? Math.max(0, this.deadline - Date.now()) : null;
+    this.clearTimers();
+    this.countdownEnd = null;
+  }
+
+  resume() {
+    if (this.phase !== 'question' || !this.paused) return;
+    this.paused = false;
+    if (this.remainingMs !== null) {
+      this.deadline = Date.now() + this.remainingMs;
+      this.timer = setTimeout(() => this.reveal(), this.remainingMs);
+    }
+    this.remainingMs = null;
+    this.checkAllVoted();
   }
 
   // Spieler, die in dieser Runde abstimmen dürfen
@@ -288,7 +319,7 @@ class PubQuiz {
 
   // Haben alle abgestimmt, startet der 3-Sekunden-Countdown bis zur Auflösung
   checkAllVoted() {
-    if (this.phase !== 'question') return;
+    if (this.phase !== 'question' || this.paused) return;
     const voters = this.voters();
     const allVoted = voters.length > 0 && voters.every((p) => this.votes.has(p.id));
     if (allVoted && !this.countdownEnd) {
@@ -387,7 +418,7 @@ class PubQuiz {
     };
     if (q.type === 'choice') out.options = q.options;
     if (q.type === 'estimate') out.unit = q.unit;
-    if (q.type === 'image') out.image = q.image || `/api/quiz-image/${encodeURIComponent(q.id)}`;
+    if (q.type === 'image' || q.type === 'flag') out.image = q.image || `/api/quiz-image/${encodeURIComponent(q.id)}`;
     if (q.type.startsWith('music') && withSpotify) out.spotifyId = spotify.trackIdFor(q);
     return out;
   }
@@ -400,6 +431,7 @@ class PubQuiz {
         return { value: q.answer, tolerance: q.tolerance, unit: q.unit };
       case 'open':
       case 'image':
+    case 'flag':
         return { text: q.answer };
       default:
         return { artist: q.artist, title: q.title, year: q.year, spotifyId: spotify.trackIdFor(q) };
@@ -439,6 +471,8 @@ class PubQuiz {
       exclude: { ids: [...this.excludeVotes], needed: this.voters().length },
       notice: this.notice,
       deadline: this.deadline,
+      paused: !!this.paused,
+      remainingMs: this.remainingMs,
       countdownEnd: this.countdownEnd,
       serverNow: Date.now(),
       totals: this.totals(),
