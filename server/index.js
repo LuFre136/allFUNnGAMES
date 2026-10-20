@@ -54,7 +54,7 @@ function lanAddresses() {
 app.get('/api/server-info', (req, res) => {
   const ip = lanAddresses()[0];
   res.json({
-    publicUrl: process.env.PUBLIC_URL || null,
+    publicUrl: process.env.PUBLIC_URL || process.env.RENDER_EXTERNAL_URL || null,
     lanUrl: ip ? `http://${ip}:${PORT}` : null,
     spotify: spotify.state,
   });
