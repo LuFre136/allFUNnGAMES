@@ -4,12 +4,14 @@ const PubQuiz = require('./pubquiz');
 const JustOne = require('./justone');
 const StadtLandFluss = require('./stadtlandfluss');
 const KreuzQuer = require('./kreuzquer');
+const Hitster = require('./hitster');
 
 const games = {
   pubquiz: PubQuiz,
   justone: JustOne,
   stadtlandfluss: StadtLandFluss,
   kreuzquer: KreuzQuer,
+  hitster: Hitster,
 };
 
 // Platzhalter für die Startseite, bis die Spiele gebaut sind

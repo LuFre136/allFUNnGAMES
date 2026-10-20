@@ -676,6 +676,12 @@ function render() {
 
 function syncMusic() {
   const R = S?.round;
+  // Spiele mit eigener Ansicht (z. B. Hitster) sagen selbst, welcher Song läuft
+  const custom = S?.me.isHost && S.phase === 'playing' ? customGame()?.music?.(R) : null;
+  if (custom) {
+    Music.show(custom.trackId, custom.revealed);
+    return;
+  }
   if (!S?.me.isHost || S.phase !== 'playing' || !R?.question || R.phase === 'final' || !R.question.type.startsWith('music')) {
     Music.hide();
     return;

@@ -129,6 +129,14 @@ Würfelspiel nach Qwixx für 2 bis 8 Mitspieler, ohne Teams. Jeder hat auf dem H
 
 Der Host stellt Bedenkzeit, Startspieler, Hilfen (erlaubte Felder leuchten) und die Zahl der Partien ein. Reagiert jemand nicht, kann er für den Würfelnden würfeln oder den Schritt beenden. Die Regeln prüft `npm test`.
 
+## So läuft Hitster
+
+Musik-Zeitleistenspiel für 1–12 Spieler, jeder für sich oder in Teams (ein Team teilt sich eine Zeitleiste). Jeder startet mit einer offenen Karte. Reihum läuft auf dem Gerät des Hosts ein Song, verdeckt wie bei den Musikfragen im Pub Quiz. Wer dran ist, tippt auf die Stelle seiner Zeitleiste, an die das Erscheinungsjahr passt; gleiche Jahre gelten an beiden Seiten als richtig. Stimmt die Stelle, bleibt die Karte liegen, sonst fliegt sie raus. Wer zuerst die eingestellte Zahl an Karten hat (Standard 10), gewinnt.
+
+Mit Chips (an- und abschaltbar) startet jeder mit 2 Chips, höchstens 5. Wer zusätzlich Interpret und Titel richtig eintippt, bekommt einen Chip (Vorschlag automatisch, der Host kann korrigieren). Ein Chip tauscht den eigenen Song oder setzt bei einem anderen Spieler auf eine andere Stelle; liegt der falsch und der Einspruch richtig, bekommt der Einspruch die Karte. Für 3 Chips gibt es die Karte ohne Raten. Der Host kann einen Song tauschen, der nicht abspielt, und einen Zug überspringen.
+
+Die Songs stehen in `server/games/hitster/songs.json` (Interpret, Titel, Jahr der Veröffentlichung, optional `spotifyId`). Gespielt werden nur Songs mit Spotify-ID. Sind die Spotify-Zugangsdaten gesetzt (siehe „Musik über Spotify“), sucht der Server beim Start alle Songs selbst und alle werden abspielbar. Die Regeln prüft `npm test`.
+
 ## Aufbau
 
 ```
@@ -139,6 +147,7 @@ server/games/pubquiz/        Pub-Quiz-Logik und Fragen
 server/games/stadtlandfluss/ Stadt, Land, Fluss
 server/games/justone/        Just One
 server/games/kreuzquer/      Kreuz & Quer (Würfelspiel)
+server/games/hitster/        Hitster (Songs und Zeitleisten)
 test/                        Regeltests (npm test)
 server/spotify.js            Optionale Spotify-Suche
 public/                      Startseite, Lobby-/Spielseite, Styles, Profilbilder
