@@ -140,6 +140,16 @@ Manche Videos dürfen nicht eingebettet werden. Dann zeigt die Bühne einen Hinw
 
 Ohne Schlüssel öffnet „Auf YouTube suchen“ die YouTube-Suche, den Link kopiert man von dort. Mit `YOUTUBE_API_KEY` gibt es die Suche direkt in der App. Den Schlüssel gibt es kostenlos in der [Google Cloud Console](https://console.cloud.google.com/apis/library/youtube.googleapis.com): Projekt anlegen, „YouTube Data API v3“ aktivieren, unter „Anmeldedaten“ einen API-Schlüssel erstellen und in Render unter Environment eintragen. Das kostenlose Kontingent reicht für rund 100 Suchen am Tag.
 
+## So läuft Dr Kroko
+
+Geschicklichkeitsspiel für 2 bis 20 Mitspieler, ohne Teams. Auf allen Geräten ist dasselbe Krokodil mit offenem Maul zu sehen (Standard 13 Zähne, einstellbar von 5 bis 24). Reihum drückt jeder auf dem Handy einen Zahn. Einer davon ist zufällig der wunde Zahn: Wer ihn erwischt, wird gebissen, das Maul schnappt zu und das Handy vibriert. Die nächste Runde beginnt, wer nach dem Gebissenen an der Reihe ist.
+
+- **Feste Runden:** Nach der eingestellten Rundenzahl gewinnt, wer am wenigsten gebissen wurde.
+- **K.-o.:** Wer gebissen wird, scheidet aus. Wer übrig bleibt, gewinnt.
+- **Reihenfolge:** Der Host lässt sie beim Start auslosen oder legt sie in der Lobby selbst fest, indem er die Spieler am Griff ⠿ in die gewünschte Reihenfolge zieht (klappt auch auf dem Handy). „Mischen“ lost eine Reihenfolge aus, die sich danach noch anpassen lässt.
+- **Mehrere Spieler an einem Gerät:** In der Lobby kann jedes Gerät unter „Mitspieler an diesem Gerät“ weitere Namen eintragen. Diese Spieler bekommen einen eigenen Platz in der Reihenfolge und drücken auf dem Gerät, an dem sie eingetragen sind. Sind sie dran, steht ihr Name oben.
+- Optional gibt es ein Zeitlimit pro Zug. Läuft es ab, wird ein zufälliger Zahn gedrückt. Der Host kann außerdem für den Spieler am Zug drücken oder ihn überspringen.
+
 ## Aufbau
 
 ```
