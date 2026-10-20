@@ -52,4 +52,16 @@ function wikiImage(page) {
   return cache.get(page);
 }
 
-module.exports = { wikiImage };
+// Länderflaggen von flagcdn.com (gemeinfrei), z. B. „de“ für Deutschland
+function flagImage(code) {
+  const key = `flag:${code}`;
+  if (!cache.has(key)) {
+    const promise = fetchOk(`https://flagcdn.com/w640/${encodeURIComponent(code)}.png`, 'image/*')
+      .then(async (res) => ({ type: 'image/png', body: Buffer.from(await res.arrayBuffer()) }));
+    cache.set(key, promise);
+    promise.catch(() => cache.delete(key));
+  }
+  return cache.get(key);
+}
+
+module.exports = { wikiImage, flagImage };

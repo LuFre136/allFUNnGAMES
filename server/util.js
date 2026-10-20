@@ -39,7 +39,7 @@ function normalize(text) {
     .trim();
 }
 
-const FILLER = new Set(['the', 'der', 'die', 'das', 'feat', 'ft', 'featuring', 'and', 'und']);
+const FILLER = new Set(['the', 'der', 'die', 'das', 'ein', 'eine', 'einen', 'a', 'an', 'feat', 'ft', 'featuring', 'and', 'und']);
 
 function stripFiller(text) {
   return normalize(text).split(' ').filter((w) => w && !FILLER.has(w)).join(' ');

@@ -23,7 +23,11 @@ const imageErrors = new Set();
 
 const PART_LABELS = { main: 'Antwort', artist: 'Interpret', title: 'Titel', year: 'Jahr' };
 const LETTERS = ['A', 'B', 'C', 'D', 'E', 'F'];
-const TIME_LIMITS = [0, 15, 20, 30, 45, 60, 90, 120, 180];
+const TIME_LIMITS = [0, 15, 20, 30, 45, 60, 90, 120, 180, 240, 300];
+
+function timeOptions(selected) {
+  return TIME_LIMITS.map((t) => `<option value="${t}" ${t === selected ? 'selected' : ''}>${!t ? 'Kein Zeitlimit' : t % 60 === 0 && t >= 120 ? `${t / 60} Minuten` : `${t} Sekunden`}</option>`).join('');
+}
 
 // ---------- Verbindung ----------
 
@@ -296,7 +300,10 @@ function viewSettings() {
         <input id="set-count" type="number" min="1" max="${S.game.totalQuestions}" value="${g.questionCount}" inputmode="numeric">
       </label>
       <label class="field"><span>Zeitlimit pro Frage</span>
-        <select id="set-time">${TIME_LIMITS.map((t) => `<option value="${t}" ${t === g.timeLimit ? 'selected' : ''}>${t ? `${t} Sekunden` : 'Kein Zeitlimit'}</option>`).join('')}</select>
+        <select id="set-time">${timeOptions(g.timeLimit)}</select>
+      </label>
+      <label class="field"><span>Zeitlimit für Musikfragen</span>
+        <select id="set-music-time">${timeOptions(g.musicTimeLimit ?? 180)}</select>
       </label>
     </div>
     ${g.questionCount > S.availableQuestions ? `<div class="small" style="color:var(--accent)">In den gewählten Kategorien gibt es nur ${S.availableQuestions} Fragen. Es werden alle gespielt.</div>` : ''}
@@ -323,11 +330,11 @@ function viewLobby() {
 // --- Fragerunde ---
 
 function viewMedia(q, phase) {
-  if (q.type === 'image') {
+  if (q.type === 'image' || q.type === 'flag') {
     const failed = imageErrors.has(q.image);
     return `<div class="media">${failed
       ? '<div class="card muted">Bild konnte nicht geladen werden.</div>'
-      : `<img class="quiz-image" src="${esc(q.image)}" alt="Gesuchte Person oder Figur" data-image-src="${esc(q.image)}">`}</div>`;
+      : `<img class="quiz-image" src="${esc(q.image)}" alt="Bild zur Frage" data-image-src="${esc(q.image)}">`}</div>`;
   }
   if (q.type.startsWith('music') && (!S.me.isHost || phase !== 'question')) {
     if (phase !== 'question') return '';
@@ -340,6 +347,7 @@ function answerInputs(q, d) {
   switch (q.type) {
     case 'open':
     case 'image':
+    case 'flag':
       return `<input id="ans-text" type="text" maxlength="80" placeholder="Eure Antwort" value="${esc(d.text)}" autocomplete="off">`;
     case 'estimate':
       return `<label class="field"><span>Schätzung${q.unit ? ` in ${esc(q.unit)}` : ''}</span><input id="ans-number" type="number" step="any" inputmode="decimal" placeholder="z. B. 1234" value="${esc(d.number)}"></label>`;
@@ -366,7 +374,8 @@ function draftFor(q, myVote) {
 function valueToDraft(q, v) {
   switch (q.type) {
     case 'open':
-    case 'image': return { text: v };
+    case 'image':
+    case 'flag': return { text: v };
     case 'estimate': return { number: String(v) };
     case 'music-title': return { artist: v.artist, title: v.title };
     case 'music-year': return { artist: v.artist, year: v.year ?? '' };
@@ -377,7 +386,8 @@ function valueToDraft(q, v) {
 function draftToValue(q, d) {
   switch (q.type) {
     case 'open':
-    case 'image': return d.text;
+    case 'image':
+    case 'flag': return d.text;
     case 'estimate': return d.number;
     case 'music-title': return { artist: d.artist, title: d.title };
     case 'music-year': return { artist: d.artist, year: d.year === '' ? null : Number(d.year) };
@@ -464,9 +474,10 @@ function viewQuestion() {
   else body = viewAnswerArea(R, q);
   return `<div>
     ${R.notice ? `<div class="notice">🚫 ${esc(R.notice)}</div>` : ''}
+    ${R.paused ? '<div class="notice">⏸ Der Host hat die Frage pausiert. Ihr könnt weiter abstimmen.</div>' : ''}
     <div class="q-head">
       <div class="small muted"><b>Frage ${R.index + 1}/${R.total}</b> · ${esc(q.category)} · ${esc(q.typeLabel)}</div>
-      ${R.deadline ? '<span class="timer" id="timer"></span>' : ''}
+      ${R.deadline ? '<span class="timer" id="timer"></span>' : R.paused ? '<span class="timer">⏸</span>' : ''}
     </div>
     <div class="question-text">${esc(q.question)}</div>
     ${viewMedia(q, R.phase)}
@@ -527,7 +538,7 @@ function viewReveal() {
     : '';
   const spotifyLink = R.solution.spotifyId ? `<a class="btn small" href="https://open.spotify.com/track/${esc(R.solution.spotifyId)}" target="_blank" rel="noopener">Auf Spotify öffnen</a>` : '';
   const teamCards = S.teams.filter((t) => results[t.id]).map((t) => viewTeamResult(R, q, t, results[t.id])).join('');
-  const needsJudging = ['open', 'image', 'music-title'].includes(q.type);
+  const needsJudging = ['open', 'image', 'flag', 'music-title'].includes(q.type);
   return `<div class="stack">
     <div class="q-head"><div class="small muted"><b>Frage ${R.index + 1}/${R.total}</b> · ${esc(q.category)} · Auflösung</div></div>
     <div class="question-text">${esc(q.question)}</div>
@@ -572,6 +583,7 @@ function viewHostbar() {
     buttons = `<button class="btn primary" data-action="start">▶︎ Spiel starten</button>`;
   } else if (R.phase === 'question') {
     buttons = `${isGamemaster() ? `<button class="btn" data-action="toggleSolution">${ui.showSolution ? '🙈 Lösung verbergen' : '👁 Lösung anzeigen'}</button>` : ''}
+      <button class="btn" data-action="${R.paused ? 'resume' : 'pause'}">${R.paused ? '▶︎ Weiter' : '⏸ Pause'}</button>
       <button class="btn pink" data-action="reveal">⏭ Zur Auflösung</button>`;
   } else if (R.phase === 'reveal') {
     buttons = `<button class="btn primary" data-action="next">${R.index + 1 >= R.total ? '🏆 Zum Endergebnis' : 'Nächste Frage ▶︎'}</button>`;
@@ -642,8 +654,9 @@ function tick() {
   const now = Date.now() + clockOffset;
   const timer = document.getElementById('timer');
   if (timer && R?.deadline) {
-    const left = Math.max(0, Math.ceil((R.deadline - now) / 1000));
-    timer.textContent = `${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}`;
+    const ms = R.paused ? R.remainingMs ?? 0 : R.deadline - now;
+    const left = Math.max(0, Math.ceil(ms / 1000));
+    timer.textContent = `${R.paused ? '⏸ ' : ''}${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}`;
     timer.classList.toggle('urgent', left <= 10);
   }
   // Nur neu zeichnen, wenn sich die Zahl ändert, sonst startet die Animation ständig neu
@@ -707,6 +720,8 @@ const actions = {
   noCats: () => sendHost('settings', { game: { categories: [] } }),
   start: () => sendHost('start'),
   reveal: () => sendHost('reveal'),
+  pause: () => sendHost('pause'),
+  resume: () => sendHost('resume'),
   next: () => sendHost('next'),
   toLobby: () => sendHost('lobby'),
   endGame: () => { if (confirm('Spiel beenden und zurück zur Lobby?')) sendHost('lobby'); },
@@ -758,6 +773,7 @@ app.addEventListener('change', (e) => {
   else if (el.id === 'set-myName') socket.emit('player:update', { name: el.value });
   else if (el.id === 'set-count') sendHost('settings', { game: { questionCount: Number(el.value) } });
   else if (el.id === 'set-time') sendHost('settings', { game: { timeLimit: Number(el.value) } });
+  else if (el.id === 'set-music-time') sendHost('settings', { game: { musicTimeLimit: Number(el.value) } });
   else if (el.id.startsWith('team-name-')) sendHost('team:rename', { teamId: el.dataset.team, name: el.value });
 });
 

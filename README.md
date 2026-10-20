@@ -1,6 +1,6 @@
 # all Fun n Games
 
-Spieleplattform für Spieleabende: Spiel auswählen, Lobby erstellen, Freunde per Link oder QR-Code einladen. Als erstes Spiel gibt es ein **Pub Quiz** mit 50 Fragen.
+Spieleplattform für Spieleabende: Spiel auswählen, Lobby erstellen, Freunde per Link oder QR-Code einladen. Als erstes Spiel gibt es ein **Pub Quiz** mit 112 Fragen in 13 Kategorien.
 
 ## Starten
 
@@ -47,7 +47,7 @@ Neue Commits auf `main` werden automatisch veröffentlicht. Gut zu wissen beim k
 - Bei Freitext sehen Teammitglieder die Vorschläge der anderen und können sie mit einem Tipp übernehmen.
 - Haben alle abgestimmt, läuft ein 3-Sekunden-Countdown, dann wird aufgelöst. Ist das Zeitlimit abgelaufen, wird ebenfalls aufgelöst.
 - Teamantwort = Antwort mit den meisten Stimmen. Bei Gleichstand wird zwischen den Spitzenreitern gelost.
-- Der Host kann jederzeit zur Auflösung springen. Als reiner Gamemaster kann er sich die richtige Antwort vorab anzeigen lassen.
+- Der Host kann eine Frage pausieren (Zeitlimit und Auflösungs-Countdown stehen still, abstimmen geht weiter) und jederzeit zur Auflösung springen. Als reiner Gamemaster kann er sich die richtige Antwort vorab anzeigen lassen.
 
 **Fragenformate und Punkte**
 
@@ -59,6 +59,9 @@ Neue Commits auf `main` werden automatisch veröffentlicht. Gut zu wissen beim k
 | Musik: Interpret & Titel | Vorschlag automatisch, Host entscheidet | je 1 für Interpret und Titel |
 | Musik: Interpret & Jahr (±3) | automatisch, Host kann korrigieren | je 1 für Interpret und Jahr |
 | Wer ist das? (Bild) | Vorschlag automatisch, Host entscheidet | 1 |
+| Länderflagge | Vorschlag automatisch, Host entscheidet | 1 |
+
+Musikfragen haben ein eigenes Zeitlimit (Standard 3 Minuten), das der Host getrennt einstellt.
 
 Der Host kann bei der Auflösung jede Bewertung mit ✓ oder ✗ ändern.
 
@@ -96,9 +99,10 @@ Alle Fragen stehen in `server/games/pubquiz/questions.json`. Beispiele je Format
 { "type": "music-title", "category": "Musik", "question": "…", "artist": "Queen", "title": "Bohemian Rhapsody", "year": 1975, "spotifyId": "7tFiyTwD0nx5a1eklYtX2J" }
 { "type": "music-year", "category": "Musik", "question": "…", "artist": "ABBA", "title": "Dancing Queen", "year": 1976, "spotifyId": "…" }
 { "type": "image", "category": "Promis & Comics", "question": "…", "answer": "Homer Simpson", "accepted": ["Homer"], "wiki": "Homer_Simpson" }
+{ "type": "flag", "category": "Länderflaggen", "question": "…", "answer": "Japan", "accepted": ["Japan"], "flag": "jp" }
 ```
 
-Bei Bildfragen lädt `wiki` das Hauptbild des englischen Wikipedia-Artikels. Alternativ ein eigenes Bild in `public/quiz-images/` legen und `"image": "/quiz-images/datei.jpg"` eintragen. Neue Kategorien oben in `categories` ergänzen.
+Bei Flaggenfragen ist `flag` der zweistellige Ländercode; das Bild kommt von flagcdn.com. Bei Bildfragen lädt `wiki` das Hauptbild des englischen Wikipedia-Artikels. Alternativ ein eigenes Bild in `public/quiz-images/` legen und `"image": "/quiz-images/datei.jpg"` eintragen. Neue Kategorien oben in `categories` ergänzen.
 
 ## Aufbau
 
