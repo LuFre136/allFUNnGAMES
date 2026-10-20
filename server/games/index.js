@@ -1,9 +1,11 @@
 // Verzeichnis aller Spiele. Neue Spiele werden hier eingetragen.
 
 const PubQuiz = require('./pubquiz');
+const JustOne = require('./justone');
 
 const games = {
   pubquiz: PubQuiz,
+  justone: JustOne,
 };
 
 // Platzhalter für die Startseite, bis die Spiele gebaut sind

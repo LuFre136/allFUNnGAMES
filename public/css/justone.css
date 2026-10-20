@@ -1,0 +1,27 @@
+/* Just One */
+
+.jo-guesser { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; margin-bottom: 14px; border-radius: 999px; background: var(--bg-2); border: 1px solid var(--line); }
+
+.jo-word { text-align: center; border-radius: 18px; padding: 16px 18px; background: linear-gradient(135deg, rgba(255, 204, 51, 0.22), var(--card)); border: 2px solid var(--accent); }
+.jo-word .big { font-family: 'Fredoka', sans-serif; font-size: 2.2rem; overflow-wrap: anywhere; }
+
+.jo-pick { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); margin-top: 8px; }
+.jo-card { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 120px; border-radius: 18px; border: 2px solid var(--line); background: repeating-linear-gradient(45deg, var(--card), var(--card) 10px, var(--card-2) 10px, var(--card-2) 20px); color: var(--text); font-family: 'Fredoka', sans-serif; font-size: 2.4rem; cursor: pointer; }
+button.jo-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+.jo-card.open { background: var(--card); cursor: default; font-size: 1rem; color: var(--muted); }
+.jo-card.open span { font-size: 1.3rem; color: var(--text); font-weight: 800; overflow-wrap: anywhere; }
+
+.jo-clues { display: grid; gap: 8px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+.jo-clue { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 14px; background: var(--card); border: 2px solid var(--line); }
+.jo-clue .text { flex: 1; min-width: 0; font-weight: 800; overflow-wrap: break-word; }
+.jo-clue .text .word { display: block; }
+.jo-clue .reason { display: block; font-size: 0.8rem; font-weight: 800; color: var(--bad); }
+.jo-clue.invalid .word { text-decoration: line-through; color: var(--muted); }
+.jo-clue.invalid { border-color: rgba(248, 113, 113, 0.5); }
+.jo-clue.hidden-clue .text { color: var(--muted); }
+.jo-clues.big .jo-clue { border-color: var(--accent); }
+.jo-clues.big .text { font-family: 'Fredoka', sans-serif; font-size: 1.6rem; font-weight: 500; }
+
+.jo-outcome { text-align: center; border-radius: 18px; padding: 14px; background: var(--bg-2); border: 2px solid var(--line); }
+.jo-outcome.good { background: rgba(52, 211, 153, 0.15); border-color: var(--good); }
+.jo-outcome.bad { background: rgba(248, 113, 113, 0.12); border-color: var(--bad); }

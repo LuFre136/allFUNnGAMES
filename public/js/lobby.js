@@ -21,6 +21,17 @@ const ui = {
 const drafts = {}; // Eingaben pro Frage, damit beim Neuzeichnen nichts verloren geht
 const imageErrors = new Set();
 
+// Spiele mit eigener Spielansicht tragen sich hier ein (siehe justone.js)
+const gameViews = {};
+
+function customGame() {
+  return S ? gameViews[S.game.id] || null : null;
+}
+
+function usesTeams() {
+  return S ? S.game.teams !== false : !!joinInfo?.teams.length;
+}
+
 const PART_LABELS = { main: 'Antwort', artist: 'Interpret', title: 'Titel', year: 'Jahr' };
 const LETTERS = ['A', 'B', 'C', 'D', 'E', 'F'];
 const TIME_LIMITS = [0, 15, 20, 30, 45, 60, 90, 120, 180, 240, 300];
@@ -207,7 +218,7 @@ function viewJoin() {
   return `<form class="card stack" id="join-form" style="max-width:640px;margin:0 auto">
     <div class="small muted">${esc(info.game)} · Lobby ${esc(info.code)}</div>
     <h2>${esc(info.name)}</h2>
-    ${profileFields({ withTeam: true, teams: info.teams, membersOf: (id) => info.teams.find((t) => t.id === id)?.members || [] })}
+    ${profileFields({ withTeam: usesTeams(), teams: info.teams, membersOf: (id) => info.teams.find((t) => t.id === id)?.members || [] })}
     <button class="btn primary big" type="submit">Beitreten</button>
   </form>`;
 }
@@ -217,7 +228,7 @@ function viewProfileModal() {
   return `<div class="modal-backdrop">
     <form class="card modal stack" id="profile-form" style="width:min(640px,100%);max-height:90vh;overflow:auto">
       <h2>Dein Profil</h2>
-      ${profileFields({ withTeam: !gm, teams: S.teams, membersOf: (id) => S.players.filter((p) => p.teamId === id) })}
+      ${profileFields({ withTeam: !gm && usesTeams(), teams: S.teams, membersOf: (id) => S.players.filter((p) => p.teamId === id) })}
       <div class="row">
         <button type="button" class="btn ghost" data-action="closeProfile">Abbrechen</button>
         <button type="submit" class="btn primary" style="flex:1">Speichern</button>
@@ -277,6 +288,17 @@ function viewTeams() {
   </div>`;
 }
 
+// Für Spiele ohne Teams: einfache Liste aller Mitspieler
+function viewPlayers() {
+  const me = S.me;
+  const visiblePlayers = S.players.filter((p) => !(p.isHost && !S.settings.hostPlays));
+  return `<div class="card stack">
+    <h3 style="margin:0">Mitspieler (${visiblePlayers.length})</h3>
+    <div>${visiblePlayers.map((p) => `<div class="member ${p.connected ? '' : 'offline'}">${avatarHtml(p, 'sm')}<span class="name">${esc(p.name)}${p.isHost ? ' 👑' : ''}${p.id === me.id ? ' (du)' : ''}</span>
+      ${me.isHost && !p.isHost ? `<button class="btn small icon ghost" data-action="kick" data-player="${p.id}" title="Entfernen">✕</button>` : ''}</div>`).join('')}</div>
+  </div>`;
+}
+
 function selectedTypes() {
   return S.settings.game.types || S.game.types.map((t) => t.id);
 }
@@ -331,8 +353,8 @@ function viewLobby() {
       <div class="small muted">${esc(S.game.icon)} ${esc(S.game.name)}</div>
       <h1 style="font-size:2rem">${esc(S.settings.lobbyName)}</h1>
     </div>
-    <div class="grid-2">${viewShare()}${viewTeams()}</div>
-    ${host ? viewSettings() : `<div class="card center muted">Warte, bis der Host das Spiel startet … 🎲</div>`}
+    <div class="grid-2">${viewShare()}${usesTeams() ? viewTeams() : viewPlayers()}</div>
+    ${host ? customGame()?.settings?.() ?? viewSettings() : `<div class="card center muted">Warte, bis der Host das Spiel startet … 🎲</div>`}
   </div>`;
 }
 
@@ -588,7 +610,9 @@ function viewHostbar() {
   if (!S?.me.isHost) return '';
   const R = S.round;
   let buttons = '';
-  if (S.phase === 'lobby') {
+  if (S.phase === 'playing' && customGame()) {
+    buttons = customGame().hostbar();
+  } else if (S.phase === 'lobby') {
     buttons = `<button class="btn primary" data-action="start">▶︎ Spiel starten</button>`;
   } else if (R.phase === 'question') {
     buttons = `${isGamemaster() ? `<button class="btn" data-action="toggleSolution">${ui.showSolution ? '🙈 Lösung verbergen' : '👁 Lösung anzeigen'}</button>` : ''}
@@ -599,7 +623,7 @@ function viewHostbar() {
   } else {
     buttons = `<button class="btn primary" data-action="toLobby">Neue Runde (zur Lobby)</button>`;
   }
-  const end = S.phase === 'playing' && R.phase !== 'final' ? '<button class="btn small ghost" data-action="endGame">Beenden</button>' : '';
+  const end = S.phase === 'playing' && R?.phase !== 'final' ? '<button class="btn small ghost" data-action="endGame">Beenden</button>' : '';
   return `<div class="hostbar"><div class="inner"><span class="label">Host</span>${end}${buttons}</div></div>`;
 }
 
@@ -609,6 +633,7 @@ function view() {
   if (!S) return '<div class="empty">Verbinde …</div>';
   let main;
   if (S.phase === 'lobby') main = viewLobby();
+  else if (customGame()) main = customGame().view();
   else if (S.round.phase === 'question') main = viewQuestion();
   else if (S.round.phase === 'reveal') main = viewReveal();
   else main = viewFinal();
@@ -625,7 +650,7 @@ function render() {
   let selection = null;
   try { selection = focusId ? [active.selectionStart, active.selectionEnd] : null; } catch { selection = null; }
 
-  if (S?.round) {
+  if (S?.round?.question) {
     const key = `${S.round.index}:${S.round.question.id}`;
     if (ui.questionKey !== key) {
       ui.questionKey = key;
@@ -651,7 +676,7 @@ function render() {
 
 function syncMusic() {
   const R = S?.round;
-  if (!S?.me.isHost || S.phase !== 'playing' || !R || R.phase === 'final' || !R.question.type.startsWith('music')) {
+  if (!S?.me.isHost || S.phase !== 'playing' || !R?.question || R.phase === 'final' || !R.question.type.startsWith('music')) {
     Music.hide();
     return;
   }
@@ -800,7 +825,7 @@ app.addEventListener('submit', async (e) => {
   if (form.id === 'join-form') {
     const p = ui.profile;
     if (!p.name.trim()) return toast('Bitte gib einen Namen ein.');
-    if (!p.teamId) return toast('Bitte wähle ein Team.');
+    if (!p.teamId && usesTeams()) return toast('Bitte wähle ein Team.');
     store.set('afng:name', p.name.trim());
     const res = await emitAck(socket, 'player:register', { code, name: p.name, avatar: p.avatar, teamId: p.teamId });
     if (res.error) return toast(res.error);
