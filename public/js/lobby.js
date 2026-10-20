@@ -538,9 +538,10 @@ function viewFinal() {
   return `<div class="stack">
     <div class="center"><div style="font-size:3rem">🏆</div><h1>${!ranked[0] ? 'Spiel beendet' : ranked[1] && ranked[1].pts === ranked[0].pts ? 'Unentschieden!' : `${esc(ranked[0].name)} gewinnt!`}</h1></div>
     <div class="podium">${top.map((t) => {
-      const place = ranked.indexOf(t);
+      // Bei Punktgleichheit teilen sich Teams denselben Platz
+      const place = ranked.filter((o) => o.pts > t.pts).length;
       return `<div class="step"><b>${esc(t.name)}</b><div class="small muted">${t.pts} Punkte</div>
-        <div class="block" style="--team:${t.color};height:${heights[place]}px">${place + 1}</div></div>`;
+        <div class="block" style="--team:${t.color};height:${heights[place] ?? 70}px">${place + 1}</div></div>`;
     }).join('')}</div>
     ${viewScoreboard(R.totals)}
     <details class="card"><summary>Alle Fragen und Antworten</summary>
