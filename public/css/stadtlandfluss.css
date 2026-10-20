@@ -1,0 +1,36 @@
+/* Stadt, Land, Fluss */
+
+.slf-letter { margin: 0 auto; width: 120px; height: 120px; display: grid; place-items: center; border-radius: 28px; background: var(--accent); color: var(--accent-ink); font-family: 'Fredoka', sans-serif; font-size: 4.5rem; box-shadow: var(--shadow); }
+.slf-letter.rolling { background: var(--card-2); color: var(--text); border: 2px dashed var(--accent); }
+
+.slf-letters { display: grid; gap: 6px; grid-template-columns: repeat(auto-fill, minmax(42px, 1fr)); }
+.slf-letters .chip { padding: 7px 0; text-align: center; }
+
+.slf-form .field input.slf-wrong { border-color: var(--bad); }
+
+.slf-who { display: inline-flex; align-items: center; gap: 6px; min-width: 0; }
+.slf-who .team-dot { flex: none; }
+
+.slf-cat-head { text-align: center; }
+.slf-cat-head h2 { font-size: 2rem; margin: 2px 0 0; }
+
+.slf-entries { display: grid; gap: 8px; }
+.slf-entry { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 12px; border-radius: 14px; background: var(--card); border: 2px solid var(--line); border-left: 6px solid var(--team); }
+.slf-entry .who { flex: 0 1 170px; min-width: 0; font-weight: 700; }
+.slf-entry .text { flex: 1 1 140px; min-width: 0; font-weight: 800; font-size: 1.15rem; overflow-wrap: anywhere; }
+.slf-entry .reason { display: block; font-size: 0.8rem; font-weight: 800; color: var(--muted); }
+.slf-entry.invalid .word { text-decoration: line-through; color: var(--muted); }
+.slf-entry.invalid .reason { color: var(--bad); }
+
+.slf-pts { display: inline-grid; place-items: center; min-width: 38px; padding: 3px 8px; border-radius: 999px; font-family: 'Fredoka', sans-serif; font-size: 1rem; }
+.slf-pts.good { background: rgba(52, 211, 153, 0.2); color: var(--good); }
+.slf-pts.bad { background: rgba(248, 113, 113, 0.15); color: var(--bad); }
+
+.slf-table-wrap { overflow-x: auto; border-radius: 14px; border: 1px solid var(--line); }
+.slf-table { border-collapse: collapse; width: 100%; font-size: 0.95rem; }
+.slf-table th, .slf-table td { padding: 8px 10px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+.slf-table thead th { background: var(--bg-2); white-space: nowrap; }
+.slf-table tbody th { white-space: nowrap; }
+.slf-table td .word { display: block; font-weight: 700; overflow-wrap: anywhere; min-width: 80px; }
+.slf-table td .slf-pts { margin-top: 4px; font-size: 0.85rem; min-width: 30px; }
+.slf-table td.invalid .word { text-decoration: line-through; color: var(--muted); }

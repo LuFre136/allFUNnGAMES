@@ -2,10 +2,12 @@
 
 const PubQuiz = require('./pubquiz');
 const JustOne = require('./justone');
+const StadtLandFluss = require('./stadtlandfluss');
 
 const games = {
   pubquiz: PubQuiz,
   justone: JustOne,
+  stadtlandfluss: StadtLandFluss,
 };
 
 // Platzhalter für die Startseite, bis die Spiele gebaut sind
