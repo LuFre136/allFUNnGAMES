@@ -129,3 +129,58 @@ test('Reaktionen nur während des Songs und gedrosselt', () => {
   assert.strictEqual(game.view(p(1)).reactions.length, 1);
   assert.ok(game.react(p(3), '💩').error);
 });
+
+const lyrics = require('../server/games/karaoke/lyrics');
+
+test('Spotify-Links werden erkannt, YouTube bleibt YouTube', () => {
+  const id = '2TpxZ7JUBn3uw46aR7qd6V';
+  for (const url of [`https://open.spotify.com/track/${id}?si=abc`, `open.spotify.com/intl-de/track/${id}`, `spotify:track:${id}`]) {
+    assert.deepStrictEqual(Karaoke.parseLink(url), { source: 'spotify', trackId: id, videoId: null }, url);
+  }
+  assert.strictEqual(Karaoke.parseLink('https://youtu.be/dQw4w9WgXcQ').source, 'youtube');
+  assert.strictEqual(Karaoke.parseLink('https://open.spotify.com/album/2TpxZ7JUBn3uw46aR7qd6V'), null);
+});
+
+test('LRC-Texte werden in Zeilen mit Millisekunden zerlegt', () => {
+  const lines = lyrics.parseLrc('[ar: ABBA]\n[00:01.50] Erste Zeile\n[00:10.00][01:00.25]Refrain\n[00:05.00]');
+  assert.deepStrictEqual(lines, [
+    { ms: 1500, text: 'Erste Zeile' },
+    { ms: 5000, text: '' },
+    { ms: 10000, text: 'Refrain' },
+    { ms: 60250, text: 'Refrain' },
+  ]);
+});
+
+test('Bei Karaoke-Versionen wird der Originalinterpret gesucht', () => {
+  assert.deepStrictEqual(lyrics.originalOf('Mamma Mia (Karaoke Version) [Originally Performed By ABBA]', 'Karaoke Version'), { track: 'Mamma Mia', artist: 'ABBA', isCover: true });
+  assert.deepStrictEqual(lyrics.originalOf('Mamma Mia', 'ABBA'), { track: 'Mamma Mia', artist: 'ABBA', isCover: false });
+  assert.strictEqual(lyrics.cleanQuery('ABBA – Mamma Mia (Karaoke)'), 'ABBA Mamma Mia');
+});
+
+test('Spotify-Songs bekommen ihren Text, nur der Host sieht ihn', async () => {
+  const saved = Karaoke.deps;
+  const asked = [];
+  Karaoke.deps = {
+    spotify: { enabled: () => false },
+    lyrics: { find: async (info) => { asked.push(info); return { kind: 'synced', lines: [{ ms: 0, text: 'La' }] }; } },
+  };
+  try {
+    const { game, p } = setup();
+    game.add(p(2), { title: 'ABBA – Mamma Mia', url: 'https://open.spotify.com/track/2TpxZ7JUBn3uw46aR7qd6V', track: { name: 'Mamma Mia', artist: 'ABBA', durationMs: 213000 } });
+    assert.strictEqual(game.songs[0].lyricsStatus, 'pending');
+    await new Promise((r) => setImmediate(r));
+    assert.deepStrictEqual(asked, [{ title: 'ABBA – Mamma Mia', name: 'Mamma Mia', artist: 'ABBA', durationMs: 213000 }]);
+    assert.strictEqual(game.view(p(3)).queue[0].lyricsStatus, 'synced');
+    game.play();
+    assert.strictEqual(game.view(p(1)).lyrics.lines[0].text, 'La');
+    assert.strictEqual(game.view(p(3)).lyrics, undefined);
+    game.shiftLyrics(500);
+    game.shiftLyrics(500);
+    assert.strictEqual(game.view(p(1)).offsetMs, 1000);
+    // YouTube-Songs brauchen keine Textsuche
+    game.add(p(3), { title: 'Queen', url: 'https://youtu.be/dQw4w9WgXcQ' });
+    assert.strictEqual(asked.length, 1);
+  } finally {
+    Karaoke.deps = saved;
+  }
+});

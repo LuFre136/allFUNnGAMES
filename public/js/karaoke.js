@@ -4,7 +4,7 @@
 
 (() => {
   const ka = {
-    draft: { title: '', url: '', partner: '', singer: '' },
+    draft: { title: '', url: '', partner: '', singer: '', source: 'youtube', track: null },
     results: null, // Suchergebnisse (nur mit YOUTUBE_API_KEY)
     searching: false,
     lookedUp: null, // Video-ID, deren Titel schon nachgeschlagen wurde
@@ -42,9 +42,46 @@
     }
   }
 
+  function spotifyTrackId(input) {
+    const text = String(input ?? '').trim();
+    const m = text.match(/^spotify:track:([A-Za-z0-9]{22})$/) || text.match(/^(?:https?:\/\/)?open\.spotify\.com\/(?:intl-[a-z-]+\/)?track\/([A-Za-z0-9]{22})(?:[/?#]|$)/i);
+    return m ? m[1] : null;
+  }
+
+  // Erkennt YouTube- und Spotify-Links (gleiche Regeln wie parseLink auf dem Server)
+  function linkInfo(input) {
+    const track = spotifyTrackId(input);
+    if (track) return { source: 'spotify', id: track };
+    const video = videoId(input);
+    return video ? { source: 'youtube', id: video } : null;
+  }
+
+  function spotifySearchUrl(text) {
+    return `https://open.spotify.com/search/${encodeURIComponent(text.trim())}`;
+  }
+
+  function spotifyUrl(id) {
+    return `https://open.spotify.com/track/${id}`;
+  }
+
   function youtubeSearchUrl(text) {
     const q = /karaoke/i.test(text) ? text : `${text} karaoke`;
     return `https://www.youtube.com/results?search_query=${encodeURIComponent(q.trim())}`;
+  }
+
+  function linkThumb(link, cls = '') {
+    if (link?.source === 'spotify') return `<span class="ka-thumb spotify ${cls}" title="Spotify">🎧</span>`;
+    return thumb(link?.id, cls);
+  }
+
+  function songThumb(song, cls = '') {
+    return song.source === 'spotify' ? `<span class="ka-thumb spotify ${cls}" title="Spotify">🎧</span>` : thumb(song.videoId, cls);
+  }
+
+  const LYRICS_LABELS = { pending: 'Text wird gesucht …', synced: 'mit Text', plain: 'Text ohne Takt', missing: 'kein Text gefunden' };
+
+  function hasLink(song) {
+    return Boolean(song.source === 'spotify' ? song.trackId : song.videoId);
   }
 
   function thumb(id, cls = '') {
@@ -70,11 +107,14 @@
         <div id="ka-player"></div>
         <div class="ka-caption" id="ka-caption"></div>
         <div class="ka-reactions" id="ka-reactions"></div>
+        <div class="ka-lyrics hidden" id="ka-lyrics"></div>
         <div class="ka-error hidden" id="ka-error"></div>
       </div>
+      <div class="ka-spotify hidden" id="ka-spotify-wrap"><div id="ka-spotify"></div></div>
       <div class="row ka-stage-bar">
         <button class="btn small" id="ka-fullscreen">⛶ Vollbild</button>
         <a class="btn small ghost" id="ka-open" target="_blank" rel="noopener">Auf YouTube öffnen ↗</a>
+        <span class="row hidden" id="ka-offset" style="gap:6px"><button class="btn small" data-action="kaOffset" data-ms="-500" title="Text früher">⏪ Text früher</button><span class="small muted" id="ka-offset-value"></span><button class="btn small" data-action="kaOffset" data-ms="500" title="Text später">Text später ⏩</button></span>
         <span class="small muted" id="ka-hint"></span>
       </div>`;
     document.querySelector('main.wrap').insertBefore(el, document.getElementById('app'));
@@ -82,6 +122,9 @@
     const error = el.querySelector('#ka-error');
     const hint = el.querySelector('#ka-hint');
     const reactions = el.querySelector('#ka-reactions');
+    const lyricsEl = el.querySelector('#ka-lyrics');
+    const spotifyWrap = el.querySelector('#ka-spotify-wrap');
+    const offsetBar = el.querySelector('#ka-offset');
     let apiPromise = null;
     let player = null;
     let fallback = false;
@@ -165,16 +208,148 @@
       else player?.stopVideo?.();
     }
 
+    // ----- Spotify mit mitlaufendem Text -----
+    // Der Embed-Player meldet Position und Länge (playback_update), dazwischen rechnet die Uhr weiter.
+    const sp = { controller: null, current: null, pos: 0, at: 0, paused: true, duration: 0, ended: false, maxPos: 0 };
+    const lyr = { key: null, data: null, offsetMs: 0, line: -2, timer: null };
+
+    function spotifyEnded() {
+      if (sp.ended || !sp.current) return;
+      sp.ended = true;
+      act('ended', { songId: sp.current.songId });
+    }
+
+    function onSpotifyUpdate(e) {
+      const { position, duration, isPaused } = e.data;
+      sp.pos = position;
+      sp.at = Date.now();
+      sp.paused = isPaused;
+      sp.duration = duration;
+      sp.maxPos = Math.max(sp.maxPos, position);
+      // Am Ende steht die Position auf der Länge oder springt pausiert auf 0 zurück
+      if (duration > 0 && (position >= duration - 400 || (isPaused && position === 0 && sp.maxPos >= duration - 1500))) spotifyEnded();
+      hint.textContent = duration > 0 && duration <= 31000 ? 'Nur 30 Sekunden? Melde dich in diesem Browser bei open.spotify.com an.' : '';
+    }
+
+    async function playSpotify(songId, trackId) {
+      if (sp.current?.songId === songId && sp.current.trackId === trackId) return;
+      sp.current = { songId, trackId };
+      Object.assign(sp, { pos: 0, at: Date.now(), paused: true, duration: 0, ended: false, maxPos: 0 });
+      hint.textContent = 'Lade Spotify …';
+      const api = await Music.loadApi();
+      if (sp.current?.trackId !== trackId) return;
+      if (!api) {
+        showError('<b>Spotify konnte nicht geladen werden.</b><br>Ist dieses Gerät online?');
+        return;
+      }
+      const uri = `spotify:track:${trackId}`;
+      if (!sp.controller) {
+        await new Promise((resolve) => {
+          api.createController(el.querySelector('#ka-spotify'), { uri, width: '100%', height: 80 }, (c) => {
+            sp.controller = c;
+            c.addListener('playback_update', onSpotifyUpdate);
+            c.addListener('ready', resolve);
+            setTimeout(resolve, 5000);
+          });
+        });
+        hint.textContent = 'Startet der Song nicht von selbst, tippe im Spotify-Player auf Abspielen.';
+      } else {
+        sp.controller.loadUri(uri);
+      }
+      sp.controller.play();
+    }
+
+    function stopSpotify() {
+      if (!sp.current) return;
+      sp.current = null;
+      if (!sp.paused) sp.controller?.pause();
+    }
+
+    function position() {
+      return sp.pos + (sp.paused ? 0 : Date.now() - sp.at) - lyr.offsetMs;
+    }
+
+    function lyricLine(text, cls) {
+      return `<div class="ka-line ${cls}">${text ? esc(text) : '♪'}</div>`;
+    }
+
+    function drawLyrics() {
+      const L = lyr.data;
+      if (!L) return;
+      if (L.kind === 'synced') {
+        const t = position();
+        let i = -1;
+        for (let k = 0; k < L.lines.length && L.lines.at(k).ms <= t; k++) i = k;
+        if (i === lyr.line) return;
+        lyr.line = i;
+        const at = (k) => L.lines.at(k)?.text ?? '';
+        lyricsEl.innerHTML = i < 0
+          ? `<div class="ka-line intro">♪ ♪ ♪</div>${lyricLine(at(0), 'next')}${lyricLine(at(1), 'later')}`
+          : `${lyricLine(at(i - 1), 'past')}${lyricLine(at(i), 'now')}${i + 1 < L.lines.length ? lyricLine(at(i + 1), 'next') : ''}${i + 2 < L.lines.length ? lyricLine(at(i + 2), 'later') : ''}`;
+      } else if (L.kind === 'plain') {
+        // Ohne Zeitstempel: Der Text scrollt gleichmäßig über die Länge des Songs
+        const box = lyricsEl.querySelector('.ka-plain');
+        if (box && sp.duration) box.scrollTop = Math.max(0, Math.min(1, position() / sp.duration)) * (box.scrollHeight - box.clientHeight);
+      }
+    }
+
+    function showLyrics(R) {
+      const song = R.current;
+      lyr.offsetMs = R.offsetMs || 0;
+      el.querySelector('#ka-offset-value').textContent = lyr.offsetMs ? `${lyr.offsetMs > 0 ? '+' : '−'}${(Math.abs(lyr.offsetMs) / 1000).toLocaleString('de-DE')} s` : '';
+      offsetBar.classList.toggle('hidden', song.lyricsStatus !== 'synced');
+      const key = `${song.id}:${song.trackId}:${song.lyricsStatus}`;
+      if (lyr.key === key) return;
+      lyr.key = key;
+      lyr.data = R.lyrics || null;
+      lyr.line = -2;
+      lyricsEl.classList.remove('hidden');
+      if (song.lyricsStatus === 'pending') lyricsEl.innerHTML = '<div class="ka-line intro">Suche Songtext …</div>';
+      else if (!lyr.data) lyricsEl.innerHTML = '<div class="ka-line intro">Kein Songtext gefunden 🤷</div><div class="ka-line next">Singt frei oder nehmt den Song auf YouTube.</div>';
+      else if (lyr.data.kind === 'plain') lyricsEl.innerHTML = `<div class="ka-plain">${lyr.data.text.split(/\n/).map((l) => `<div>${esc(l) || '&nbsp;'}</div>`).join('')}</div>`;
+      drawLyrics();
+      if (!lyr.timer) lyr.timer = setInterval(drawLyrics, 120);
+    }
+
+    function hideLyrics() {
+      lyricsEl.classList.add('hidden');
+      spotifyWrap.classList.add('hidden');
+      offsetBar.classList.add('hidden');
+      clearInterval(lyr.timer);
+      lyr.timer = null;
+      lyr.key = null;
+      stopSpotify();
+    }
+
     function show(R) {
       el.classList.remove('hidden');
       const song = R.current;
       caption.innerHTML = `🎤 <b>${singerNames(song.singers)}</b><span>${esc(song.title)}</span>`;
-      if (song.videoId) {
-        play(song.id, song.videoId);
-      } else {
+      const openLink = el.querySelector('#ka-open');
+      if (song.source === 'spotify') {
         stop();
-        el.querySelector('#ka-open').href = youtubeSearchUrl(song.title);
-        showError('<b>Für diesen Song ist noch kein Video hinterlegt.</b><br>Such ihn auf YouTube und füg den Link unten ein.');
+        openLink.textContent = 'Auf Spotify öffnen ↗';
+        if (song.trackId) {
+          showError('');
+          openLink.href = spotifyUrl(song.trackId);
+          spotifyWrap.classList.remove('hidden');
+          playSpotify(song.id, song.trackId);
+          showLyrics(R);
+        } else {
+          hideLyrics();
+          openLink.href = spotifySearchUrl(song.title);
+          showError('<b>Für diesen Song ist noch kein Spotify-Link hinterlegt.</b><br>Such ihn auf Spotify und füg den Link unten ein.');
+        }
+      } else {
+        hideLyrics();
+        openLink.textContent = 'Auf YouTube öffnen ↗';
+        if (song.videoId) {
+          play(song.id, song.videoId);
+        } else {
+          stop();
+          openLink.href = youtubeSearchUrl(song.title);
+          showError('<b>Für diesen Song ist noch kein Video hinterlegt.</b><br>Such ihn auf YouTube und füg den Link unten ein.');
+        }
       }
       for (const r of R.reactions) {
         if (r.id <= ka.seenReaction) continue;
@@ -192,6 +367,7 @@
       if (el.classList.contains('hidden')) return;
       el.classList.add('hidden');
       stop();
+      hideLyrics();
       if (document.fullscreenElement === el) document.exitFullscreen().catch(() => {});
     }
 
@@ -247,7 +423,7 @@
       <label class="field"><span>Songs pro Person in der Warteschlange</span>
         <select id="ka-max">${[1, 2, 3, 4, 5, 10].map((n) => `<option value="${n}" ${n === g.maxQueued ? 'selected' : ''}>${n}</option>`).join('')}</select>
       </label>
-      <div class="small muted">So geht's: Dieses Gerät ist die Bühne. Am besten an den Fernseher anschließen oder auf den Beamer streamen. Alle tragen auf dem Handy Songs ein, gesungen wird zu Karaoke-Videos von YouTube mit eingeblendetem Text. Bei „Reihum“ kommt immer zuerst dran, wer am wenigsten gesungen hat. Während des Songs schicken die anderen Applaus, danach vergeben sie Sterne.${S.game.search ? '' : ' Songs sucht ihr auf YouTube und fügt den Link ein.'}</div>
+      <div class="small muted">So geht's: Dieses Gerät ist die Bühne. Am besten an den Fernseher anschließen oder auf den Beamer streamen. Alle tragen auf dem Handy Songs ein, gesungen wird zu Karaoke-Videos von YouTube oder zu Songs von Spotify mit mitlaufendem Text. Für ganze Spotify-Songs muss dieser Browser bei Spotify angemeldet sein, sonst gibt es nur 30 Sekunden. Bei „Reihum“ kommt immer zuerst dran, wer am wenigsten gesungen hat. Während des Songs schicken die anderen Applaus, danach vergeben sie Sterne.${S.game.search && S.game.spotifySearch ? '' : ' Ohne eingerichtete Suche sucht ihr den Song auf YouTube oder Spotify und fügt den Link ein.'}</div>
     </div>`;
   }
 
@@ -257,26 +433,37 @@
     const d = ka.draft;
     const others = S.players.filter((p) => p.id !== (d.singer || S.me.id) && !(p.isHost && !S.settings.hostPlays));
     const singers = S.players.filter((p) => !(p.isHost && !S.settings.hostPlays));
-    const id = videoId(d.url);
+    const link = linkInfo(d.url);
+    const spotifyMode = d.source === 'spotify';
+    const searchable = spotifyMode ? S.game.spotifySearch : S.game.search;
     const full = !S.me.isHost && R.myQueued >= S.settings.game.maxQueued;
     if (full) {
       return `<div class="card center muted">Du hast ${R.myQueued} ${R.myQueued === 1 ? 'Song' : 'Songs'} in der Warteschlange. Sobald einer gesungen ist, kannst du den nächsten eintragen.</div>`;
     }
-    const results = ka.results ? `<div class="ka-results">${ka.results.length ? ka.results.map((r, i) => `
-        <button type="button" class="ka-result ${r.videoId === id ? 'on' : ''}" data-action="kaPick" data-i="${i}">${thumb(r.videoId)}<span><b>${esc(r.title)}</b><small class="muted">${esc(r.channel)}</small></span></button>`).join('') : '<div class="small muted">Nichts gefunden.</div>'}</div>` : '';
+    const resultRow = (r, i) => (r.trackId
+      ? `<button type="button" class="ka-result ${r.trackId === link?.id ? 'on' : ''}" data-action="kaPick" data-i="${i}">${linkThumb({ source: 'spotify' })}<span><b>${esc(r.name)}</b><small class="muted">${esc(r.artist)} · ${Math.floor(r.durationMs / 60000)}:${String(Math.round(r.durationMs / 1000) % 60).padStart(2, '0')}</small></span></button>`
+      : `<button type="button" class="ka-result ${r.videoId === link?.id ? 'on' : ''}" data-action="kaPick" data-i="${i}">${thumb(r.videoId)}<span><b>${esc(r.title)}</b><small class="muted">${esc(r.channel)}</small></span></button>`);
+    const results = ka.results ? `<div class="ka-results">${ka.results.length ? ka.results.map(resultRow).join('') : '<div class="small muted">Nichts gefunden.</div>'}</div>` : '';
+    const help = spotifyMode
+      ? 'Such den Song in Spotify, tippe auf ⋯ → Teilen → Link kopieren und füg ihn hier ein. Original oder Karaoke-Version, der Text läuft auf dem großen Bildschirm mit.'
+      : 'Such auf YouTube nach dem Song mit „Karaoke“, tippe auf Teilen → Link kopieren und füg ihn hier ein. Ohne Link sucht der Host das Video, wenn du dran bist.';
     return `<form id="ka-add-form" class="card stack">
       <h3 style="margin:0">🎶 Song eintragen</h3>
+      <div class="segmented">
+        <button type="button" data-action="kaSource" data-value="youtube" class="${spotifyMode ? '' : 'on'}">▶︎ YouTube</button>
+        <button type="button" data-action="kaSource" data-value="spotify" class="${spotifyMode ? 'on' : ''}">🎧 Spotify</button>
+      </div>
       <div class="row" style="align-items:stretch">
         <input id="ka-title" type="text" maxlength="80" placeholder="Interpret – Titel, z. B. ABBA – Mamma Mia" value="${esc(d.title)}" autocomplete="off" style="flex:1;min-width:200px">
-        <button class="btn" type="button" data-action="kaSearch" ${ka.searching ? 'disabled' : ''}>🔎 ${S.game.search ? (ka.searching ? 'Suche …' : 'Suchen') : 'Auf YouTube suchen'}</button>
+        <button class="btn" type="button" data-action="kaSearch" ${ka.searching ? 'disabled' : ''}>🔎 ${searchable ? (ka.searching ? 'Suche …' : 'Suchen') : spotifyMode ? 'Auf Spotify suchen' : 'Auf YouTube suchen'}</button>
       </div>
       ${results}
       <div class="row" style="align-items:center">
-        <span id="ka-url-thumb">${thumb(id, 'sm')}</span>
-        <input id="ka-url" type="text" inputmode="url" placeholder="YouTube-Link (optional)" value="${esc(d.url)}" autocomplete="off" autocapitalize="off" spellcheck="false" style="flex:1;min-width:200px">
+        <span id="ka-url-thumb">${linkThumb(link, 'sm')}</span>
+        <input id="ka-url" type="text" inputmode="url" placeholder="${spotifyMode ? 'Spotify-Link' : 'YouTube-Link (optional)'}" value="${esc(d.url)}" autocomplete="off" autocapitalize="off" spellcheck="false" style="flex:1;min-width:200px">
       </div>
-      <div class="small ${d.url && !id ? '' : 'hidden'}" id="ka-url-bad" style="color:var(--bad)">Das sieht nicht nach einem YouTube-Link aus.</div>
-      ${S.game.search ? '' : '<div class="small muted">Such auf YouTube nach dem Song mit „Karaoke“, tippe auf Teilen → Link kopieren und füg ihn hier ein. Ohne Link sucht der Host das Video, wenn du dran bist.</div>'}
+      <div class="small ${d.url && !link ? '' : 'hidden'}" id="ka-url-bad" style="color:var(--bad)">Das ist weder ein YouTube- noch ein Spotify-Link.</div>
+      ${searchable ? '' : `<div class="small muted">${help}</div>`}
       <div class="grid-2" style="gap:12px">
         ${S.me.isHost ? `<label class="field"><span>Wer singt?</span><select id="ka-singer">${singers.map((p) => `<option value="${p.id}" ${p.id === (d.singer || (S.settings.hostPlays ? S.me.id : singers[0]?.id)) ? 'selected' : ''}>${esc(p.name)}${p.id === S.me.id ? ' (du)' : ''}</option>`).join('')}</select></label>` : ''}
         <label class="field"><span>Duett mit (optional)</span><select id="ka-partner"><option value="">Allein</option>${others.map((p) => `<option value="${p.id}" ${p.id === d.partner ? 'selected' : ''}>${esc(p.name)}</option>`).join('')}</select></label>
@@ -288,14 +475,15 @@
   async function search() {
     const text = ka.draft.title.trim();
     if (!text) return toast('Gib zuerst Interpret und Titel ein.');
-    if (!S.game.search) {
-      window.open(youtubeSearchUrl(text), '_blank', 'noopener');
+    const spotifyMode = ka.draft.source === 'spotify';
+    if (!(spotifyMode ? S.game.spotifySearch : S.game.search)) {
+      window.open(spotifyMode ? spotifySearchUrl(text) : youtubeSearchUrl(text), '_blank', 'noopener');
       return;
     }
     ka.searching = true;
     render();
     try {
-      const res = await fetch(`/api/karaoke/search?q=${encodeURIComponent(text)}`);
+      const res = await fetch(`/api/karaoke/${spotifyMode ? 'spotify-search' : 'search'}?q=${encodeURIComponent(text)}`);
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Die Suche hat nicht geklappt.');
       ka.results = data;
@@ -307,14 +495,17 @@
   }
 
   // Beim Einfügen eines Links den Videotitel als Songname vorschlagen
-  async function lookup(id) {
+  async function lookup(link) {
+    const id = link?.id;
     if (!id || ka.lookedUp === id || ka.draft.title.trim()) return;
     ka.lookedUp = id;
     try {
-      const res = await fetch(`/api/karaoke/video/${id}`);
+      const res = await fetch(link.source === 'spotify' ? `/api/karaoke/spotify-track/${id}` : `/api/karaoke/video/${id}`);
       if (!res.ok) return;
-      const { title } = await res.json();
-      if (title && !ka.draft.title.trim() && videoId(ka.draft.url) === id) {
+      const info = await res.json();
+      if (link.source === 'spotify' && info.artist) ka.draft.track = info;
+      const title = link.source === 'spotify' ? (info.artist ? `${info.artist} – ${info.name}` : info.name) : info.title;
+      if (title && !ka.draft.title.trim() && linkInfo(ka.draft.url)?.id === id) {
         ka.draft.title = title.replace(/\s*[([](?:karaoke|lyrics|instrumental)[^)\]]*[)\]]\s*/gi, ' ').trim().slice(0, 80);
         render();
       }
@@ -328,13 +519,13 @@
     const buttons = [
       host && R.phase !== 'singing' ? `<button class="btn small primary" data-action="kaPlay" data-song="${song.id}" title="Jetzt singen">▶︎</button>` : '',
       host && i > 0 ? `<button class="btn small" data-action="kaBump" data-song="${song.id}" title="Als Nächstes">⬆︎</button>` : '',
-      song.editable && !song.videoId ? `<button class="btn small" data-action="kaLink" data-song="${song.id}" title="Link hinzufügen">🔗</button>` : '',
+      song.editable && !hasLink(song) ? `<button class="btn small" data-action="kaLink" data-song="${song.id}" title="Link hinzufügen">🔗</button>` : '',
       song.editable ? `<button class="btn small ghost" data-action="kaRemove" data-song="${song.id}" title="Entfernen">✕</button>` : '',
     ].join('');
     return `<div class="ka-song ${song.mine ? 'mine' : ''}">
       <span class="ka-pos">${i + 1}</span>
-      ${thumb(song.videoId)}
-      <span class="ka-song-text"><b>${esc(song.title)}</b><span class="small muted">${song.singers.map((id) => avatarHtml(playerById(id), 'sm')).join('')} ${singerNames(song.singers)}${song.videoId ? '' : ' · <span style="color:var(--accent)">ohne Video</span>'}</span></span>
+      ${songThumb(song)}
+      <span class="ka-song-text"><b>${esc(song.title)}</b><span class="small muted">${song.singers.map((id) => avatarHtml(playerById(id), 'sm')).join('')} ${singerNames(song.singers)}${hasLink(song) ? '' : ` · <span style="color:var(--accent)">ohne ${song.source === 'spotify' ? 'Link' : 'Video'}</span>`}${song.source === 'spotify' && LYRICS_LABELS[song.lyricsStatus] ? ` · <span class="ka-lyrics-badge ${song.lyricsStatus}">${LYRICS_LABELS[song.lyricsStatus]}</span>` : ''}</span></span>
       <span class="row" style="gap:6px;flex-wrap:nowrap">${buttons}</span>
     </div>`;
   }
@@ -368,7 +559,7 @@
     if (!song) return '';
     const mine = song.singers.includes(S.me.id);
     return `<div class="ka-next ${mine ? 'mine' : ''}">
-      ${thumb(song.videoId)}
+      ${songThumb(song)}
       <div><div class="small muted">Als Nächstes</div><div class="big">${singerNames(song.singers)}</div><div>${esc(song.title)}</div>
       ${mine ? '<div style="color:var(--accent);font-weight:800;margin-top:4px">Das bist du! Mach dich bereit 🎤</div>' : ''}</div>
     </div>`;
@@ -404,8 +595,8 @@
       return `<div class="stack">
         ${viewNowSinging(R)}
         <form id="ka-video-form" class="row card" style="padding:12px">
-          <input id="ka-video-url" type="text" inputmode="url" placeholder="${song.videoId ? 'Anderes Video? YouTube-Link einfügen' : 'YouTube-Link für diesen Song'}" autocomplete="off" style="flex:1;min-width:200px">
-          ${song.videoId ? '' : `<a class="btn" href="${esc(youtubeSearchUrl(song.title))}" target="_blank" rel="noopener">🔎 Suchen</a>`}
+          <input id="ka-video-url" type="text" inputmode="url" placeholder="${hasLink(song) ? 'Anderer Link? YouTube oder Spotify einfügen' : `${song.source === 'spotify' ? 'Spotify' : 'YouTube'}-Link für diesen Song`}" autocomplete="off" style="flex:1;min-width:200px">
+          ${hasLink(song) ? '' : `<a class="btn" href="${esc(song.source === 'spotify' ? spotifySearchUrl(song.title) : youtubeSearchUrl(song.title))}" target="_blank" rel="noopener">🔎 Suchen</a>`}
           <button class="btn primary" type="submit">Abspielen</button>
         </form>
         ${R.canRate ? `<div class="card stack center"><b>Deine Bewertung</b>${viewStarPicker(R)}</div>` : ''}
@@ -489,18 +680,32 @@
   Object.assign(actions, {
     kaSetting: (el) => sendHost('settings', { game: { [el.dataset.key]: el.dataset.value === '1' } }),
     kaSearch: () => search(),
+    kaSource: (el) => {
+      if (ka.draft.source === el.dataset.value) return;
+      ka.draft.source = el.dataset.value;
+      ka.results = null;
+      render();
+    },
     kaPick: (el) => {
       const r = ka.results[Number(el.dataset.i)];
-      ka.draft.url = `https://youtu.be/${r.videoId}`;
-      ka.draft.title = r.title.slice(0, 80);
-      ka.lookedUp = r.videoId;
+      if (r.trackId) {
+        ka.draft.url = spotifyUrl(r.trackId);
+        ka.draft.title = `${r.artist} – ${r.name}`.slice(0, 80);
+        ka.draft.track = r;
+        ka.lookedUp = r.trackId;
+      } else {
+        ka.draft.url = `https://youtu.be/${r.videoId}`;
+        ka.draft.title = r.title.slice(0, 80);
+        ka.draft.track = null;
+        ka.lookedUp = r.videoId;
+      }
       render();
     },
     kaPlay: (el) => act('play', { songId: el.dataset.song }),
     kaBump: (el) => act('bump', { songId: el.dataset.song }),
     kaRemove: (el) => { if (confirm('Diesen Song aus der Warteschlange nehmen?')) act('remove', { songId: el.dataset.song }); },
     kaLink: (el) => {
-      const url = prompt('YouTube-Link für diesen Song:');
+      const url = prompt('YouTube- oder Spotify-Link für diesen Song:');
       if (url) act('video', { songId: el.dataset.song, url });
     },
     kaEnded: () => act('ended', { songId: S.round.current?.id }),
@@ -509,6 +714,7 @@
     kaFinish: () => { if (confirm('Karaoke-Abend beenden und die Rangliste zeigen?')) act('finish'); },
     kaRate: (el) => act('rate', { stars: Number(el.dataset.n) }),
     kaReact: (el) => act('react', { emoji: el.dataset.emoji }),
+    kaOffset: (el) => act('offset', { deltaMs: Number(el.dataset.ms) }),
   });
 
   app.addEventListener('input', (e) => {
@@ -517,10 +723,15 @@
     if (e.target.id === 'ka-url') {
       ka.draft.url = e.target.value;
       // Nur die Vorschau austauschen: Ein Neuzeichnen würde den nächsten Klick verschlucken
-      const id = videoId(e.target.value);
-      document.getElementById('ka-url-thumb').innerHTML = thumb(id, 'sm');
-      document.getElementById('ka-url-bad').classList.toggle('hidden', !e.target.value.trim() || !!id);
-      if (id) lookup(id);
+      const link = linkInfo(e.target.value);
+      if (link?.id !== ka.lookedUp) ka.draft.track = null;
+      document.getElementById('ka-url-thumb').innerHTML = linkThumb(link, 'sm');
+      document.getElementById('ka-url-bad').classList.toggle('hidden', !e.target.value.trim() || !!link);
+      if (link) {
+        ka.draft.source = link.source;
+        for (const b of document.querySelectorAll('[data-action="kaSource"]')) b.classList.toggle('on', b.dataset.value === link.source);
+        lookup(link);
+      }
     }
   });
 
@@ -539,8 +750,8 @@
       const d = ka.draft;
       if (!d.title.trim()) return toast('Bitte gib Interpret und Titel an.');
       const singerId = S.me.isHost ? (d.singer || document.getElementById('ka-singer')?.value) : undefined;
-      act('add', { title: d.title, url: d.url.trim() || null, partnerId: d.partner || null, singerId }, () => {
-        ka.draft = { title: '', url: '', partner: '', singer: d.singer };
+      act('add', { title: d.title, url: d.url.trim() || null, source: d.source, track: d.track, partnerId: d.partner || null, singerId }, () => {
+        ka.draft = { title: '', url: '', partner: '', singer: d.singer, source: d.source, track: null };
         ka.results = null;
         ka.lookedUp = null;
         render();
@@ -549,7 +760,7 @@
       document.activeElement?.blur?.();
     } else if (e.target.id === 'ka-video-form') {
       const url = document.getElementById('ka-video-url').value;
-      if (!videoId(url)) return toast('Das ist kein YouTube-Link.');
+      if (!linkInfo(url)) return toast('Das ist weder ein YouTube- noch ein Spotify-Link.');
       act('video', { songId: S.round.current.id, url });
     }
   });

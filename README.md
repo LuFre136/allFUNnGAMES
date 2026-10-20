@@ -86,11 +86,18 @@ Eine Frage wieder aktivieren: den Eintrag aus `excluded-questions.json` auf dem 
 Der Song läuft auf dem Gerät des Hosts über den eingebetteten Spotify-Player. Der Player ist bis zur Auflösung verdeckt, Titel und Cover sind also nicht zu sehen (wie bei Hitster). Die Spieler sehen nur „Song läuft“.
 
 - Ist man im Browser des Hosts bei Spotify angemeldet, läuft der ganze Song, sonst eine 30-Sekunden-Vorschau.
-- Die Songs sind mit Spotify-Track-IDs hinterlegt. Mit eigenen Zugangsdaten sucht der Server die Songs beim Start zusätzlich über die Spotify-API und nimmt die gefundenen IDs. Dafür auf [developer.spotify.com](https://developer.spotify.com/dashboard) eine App anlegen und starten mit:
+- Die Songs sind mit Spotify-Track-IDs hinterlegt. Mit eigenen Zugangsdaten sucht der Server die Songs beim Start zusätzlich über die Spotify-API und nimmt die gefundenen IDs. Dieselben Zugangsdaten schalten beim Karaoke die Spotify-Suche frei. Dafür auf [developer.spotify.com](https://developer.spotify.com/dashboard) eine App anlegen (siehe unten) und starten mit:
 
 ```bash
 SPOTIFY_CLIENT_ID=... SPOTIFY_CLIENT_SECRET=... npm start
 ```
+
+So kommt man an die Zugangsdaten:
+
+1. Auf [developer.spotify.com/dashboard](https://developer.spotify.com/dashboard) mit dem Spotify-Konto anmelden und die Nutzungsbedingungen bestätigen.
+2. **Create app**: Name und Beschreibung frei wählen, als Redirect URI die eigene Adresse eintragen (z. B. `https://all-fun-n-games.onrender.com/callback`, sie wird nicht benutzt), bei den APIs **Web API** ankreuzen, speichern.
+3. In der App **Settings** öffnen: Dort steht die **Client ID**, das **Client secret** zeigt „View client secret“.
+4. In Render den Dienst öffnen, **Environment** → die Werte bei `SPOTIFY_CLIENT_ID` und `SPOTIFY_CLIENT_SECRET` eintragen und speichern. Render startet den Dienst danach neu.
 
 ## Profilbilder
 
@@ -138,6 +145,8 @@ Bei „Reihum“ kommt immer zuerst dran, wer am wenigsten gesungen hat. Währen
 
 Manche Videos dürfen nicht eingebettet werden. Dann zeigt die Bühne einen Hinweis, und der Host öffnet das Video auf YouTube oder fügt einen anderen Link ein.
 
+**Spotify statt YouTube:** Beim Eintragen wählt man „🎧 Spotify“. Gespielt wird über den Spotify-Player auf dem Host-Gerät, den Text liefert die freie Datenbank [LRCLIB](https://lrclib.net), denn Spotify gibt keine Songtexte heraus. Mit Zeitstempeln läuft der Text zeilenweise mit, die aktuelle Zeile groß und gelb. Passt der Takt nicht (z. B. bei Karaoke-Versionen mit anderem Intro), verschiebt der Host den Text in halben Sekunden. Gibt es nur Text ohne Zeitstempel, scrollt er gleichmäßig über die Länge des Songs. In der Warteschlange steht, ob ein Text gefunden wurde. Für ganze Songs muss der Host-Browser bei open.spotify.com angemeldet sein, sonst spielt Spotify 30 Sekunden. Mit `SPOTIFY_CLIENT_ID` und `SPOTIFY_CLIENT_SECRET` (siehe [Musik über Spotify](#musik-über-spotify)) gibt es die Suche in der App, Original und Karaoke-Versionen gleichrangig gemischt. Ohne sie fügt man den Spotify-Link ein.
+
 Ohne Schlüssel öffnet „Auf YouTube suchen“ die YouTube-Suche, den Link kopiert man von dort. Mit `YOUTUBE_API_KEY` gibt es die Suche direkt in der App. Den Schlüssel gibt es kostenlos in der [Google Cloud Console](https://console.cloud.google.com/apis/library/youtube.googleapis.com): Projekt anlegen, „YouTube Data API v3“ aktivieren, unter „Anmeldedaten“ einen API-Schlüssel erstellen und in Render unter Environment eintragen. Das kostenlose Kontingent reicht für rund 100 Suchen am Tag.
 
 ## So läuft Dr Kroko
@@ -160,7 +169,7 @@ server/games/pubquiz/        Pub-Quiz-Logik und Fragen
 server/games/stadtlandfluss/ Stadt, Land, Fluss
 server/games/justone/        Just One
 server/games/kreuzquer/      Kreuz & Quer (Würfelspiel)
-server/games/karaoke/        Karaoke (Warteschlange, Bewertung, YouTube-Suche)
+server/games/karaoke/        Karaoke (Warteschlange, Bewertung, YouTube- und Spotify-Suche, Songtexte)
 test/                        Regeltests (npm test)
 server/spotify.js            Optionale Spotify-Suche
 public/                      Startseite, Lobby-/Spielseite, Styles, Profilbilder

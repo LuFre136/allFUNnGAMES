@@ -1,5 +1,8 @@
-// Karaoke: Die Videos (Karaoke-Versionen von YouTube) laufen auf dem Host-Bildschirm,
-// die Handys sind Warteschlange, Applaus und Jury.
+// Karaoke: Die Songs (Karaoke-Videos von YouTube oder Titel von Spotify mit mitlaufendem Text)
+// laufen auf dem Host-Bildschirm, die Handys sind Warteschlange, Applaus und Jury.
+
+const spotify = require('../../spotify');
+const lyrics = require('./lyrics');
 
 const MAX_TITLE = 80;
 const REACTION_MS = 6000;
@@ -28,6 +31,28 @@ function parseVideoId(input) {
   return id && /^[\w-]{11}$/.test(id) ? id : null;
 }
 
+// Spotify-Links (open.spotify.com/track/…, auch mit /intl-de/) oder spotify:track:…
+function parseTrackId(input) {
+  const text = String(input ?? '').trim();
+  const m = text.match(/^spotify:track:([A-Za-z0-9]{22})$/) || text.match(/^(?:https?:\/\/)?open\.spotify\.com\/(?:intl-[a-z-]+\/)?track\/([A-Za-z0-9]{22})(?:[/?#]|$)/i);
+  return m ? m[1] : null;
+}
+
+function parseLink(input) {
+  const trackId = parseTrackId(input);
+  if (trackId) return { source: 'spotify', trackId, videoId: null };
+  const videoId = parseVideoId(input);
+  return videoId ? { source: 'youtube', videoId, trackId: null } : null;
+}
+
+// Titelinfos aus der Spotify-Suche des Handys, nur für die Textsuche verwendet
+function cleanMeta(meta) {
+  if (!meta || typeof meta !== 'object') return null;
+  const text = (v) => String(v ?? '').slice(0, 200);
+  const durationMs = Math.round(Number(meta.durationMs));
+  return { name: text(meta.name), artist: text(meta.artist), durationMs: Number.isFinite(durationMs) && durationMs > 0 ? durationMs : null };
+}
+
 function cleanTitle(raw) {
   return String(raw ?? '').replace(/\s+/g, ' ').trim().slice(0, MAX_TITLE);
 }
@@ -39,7 +64,7 @@ function average(values) {
 class Karaoke {
   constructor(lobby) {
     this.lobby = lobby;
-    this.songs = []; // Warteschlange: { id, title, videoId, singers, addedBy, addedAt, pinned }
+    this.songs = []; // Warteschlange: { id, title, source, videoId, trackId, lyrics, singers, addedBy, addedAt, pinned }
     this.history = []; // gesungene Songs mit Bewertung
     this.seq = 0;
     this.current = null;
@@ -60,6 +85,7 @@ class Karaoke {
       available: true,
       teams: false,
       search: Boolean(process.env.YOUTUBE_API_KEY),
+      spotifySearch: Karaoke.deps.spotify.enabled(),
       reactions: REACTIONS,
     };
   }
@@ -123,12 +149,12 @@ class Karaoke {
     return player.isHost || song.addedBy === player.id || song.singers.includes(player.id);
   }
 
-  add(player, { title, url, singerId, partnerId }) {
+  add(player, { title, url, source, track, singerId, partnerId }) {
     if (this.phase === 'final') return { error: 'Der Karaoke-Abend ist vorbei.' };
     const name = cleanTitle(title);
     if (!name) return { error: 'Bitte gib Interpret und Titel an.' };
-    const videoId = url ? parseVideoId(url) : null;
-    if (url && !videoId) return { error: 'Das ist kein YouTube-Link.' };
+    const link = url ? parseLink(url) : null;
+    if (url && !link) return { error: 'Das ist weder ein YouTube- noch ein Spotify-Link.' };
     // Der Host kann Songs für andere eintragen, z. B. für Gäste ohne Handy
     const lead = player.isHost && singerId ? this.lobby.players.get(singerId) : player;
     if (!lead) return { error: 'Diesen Sänger gibt es nicht.' };
@@ -142,7 +168,23 @@ class Karaoke {
       if (queued >= this.settings.maxQueued) return { error: `Du hast schon ${queued} ${queued === 1 ? 'Song' : 'Songs'} in der Warteschlange.` };
     }
     this.seq++;
-    this.songs.push({ id: `s${this.seq}`, title: name, videoId, singers, addedBy: player.id, addedAt: Date.now() + this.seq / 1000, pinned: 0 });
+    const song = {
+      id: `s${this.seq}`,
+      title: name,
+      source: link?.source || (source === 'spotify' ? 'spotify' : 'youtube'),
+      videoId: link?.videoId || null,
+      trackId: link?.trackId || null,
+      meta: link?.trackId ? cleanMeta(track) : null,
+      lyrics: null,
+      lyricsStatus: 'none', // none | pending | synced | plain | missing
+      offsetMs: 0,
+      singers,
+      addedBy: player.id,
+      addedAt: Date.now() + this.seq / 1000,
+      pinned: 0,
+    };
+    this.songs.push(song);
+    this.loadLyrics(song);
     return { ok: true };
   }
 
@@ -155,13 +197,51 @@ class Karaoke {
   }
 
   // Link nachtragen oder austauschen, z. B. wenn ein Video nicht eingebettet werden darf
-  setVideo(player, songId, url) {
+  setVideo(player, songId, url, track) {
     const song = songId === this.current?.id ? this.current : this.songById(songId);
     if (!song) return { error: 'Diesen Song gibt es nicht mehr.' };
     if (!this.canEdit(player, song)) return { error: 'Das ist nicht dein Song.' };
-    const videoId = parseVideoId(url);
-    if (!videoId) return { error: 'Das ist kein YouTube-Link.' };
-    song.videoId = videoId;
+    const link = parseLink(url);
+    if (!link) return { error: 'Das ist weder ein YouTube- noch ein Spotify-Link.' };
+    const changedTrack = link.trackId !== song.trackId;
+    Object.assign(song, link);
+    if (changedTrack) {
+      song.meta = cleanMeta(track);
+      song.offsetMs = 0;
+      this.loadLyrics(song);
+    }
+    return { ok: true };
+  }
+
+  // Spotify liefert keine Texte: Sie kommen aus LRCLIB, sobald der Song eingetragen ist
+  async loadLyrics(song) {
+    song.lyrics = null;
+    if (song.source !== 'spotify' || !song.trackId) {
+      song.lyricsStatus = 'none';
+      return;
+    }
+    const trackId = song.trackId;
+    song.lyricsStatus = 'pending';
+    const { lyrics: source, spotify: api } = Karaoke.deps;
+    let found = null;
+    try {
+      if (!song.meta?.name && api.enabled()) song.meta = await api.trackInfo(trackId);
+      found = await source.find({ title: song.title, ...(song.meta || {}) });
+    } catch (err) {
+      console.warn(`Songtext für „${song.title}“ nicht geladen: ${err.message}`);
+    }
+    if (song.trackId !== trackId) return;
+    song.lyrics = found;
+    song.lyricsStatus = found ? found.kind : 'missing';
+    this.lobby.broadcast?.();
+  }
+
+  // Host: Text gegenüber der Musik verschieben (z. B. bei Karaoke-Versionen mit längerem Intro)
+  shiftLyrics(deltaMs) {
+    if (!this.current) return { error: 'Gerade läuft kein Song.' };
+    const d = Math.round(Number(deltaMs));
+    if (!Number.isFinite(d)) return { error: 'Ungültiger Wert.' };
+    this.current.offsetMs = Math.min(Math.max(this.current.offsetMs + d, -30000), 30000);
     return { ok: true };
   }
 
@@ -227,7 +307,9 @@ class Karaoke {
     const result = {
       id: this.current.id,
       title: this.current.title,
+      source: this.current.source,
       videoId: this.current.videoId,
+      trackId: this.current.trackId,
       singers: this.current.singers,
       votes: stars.length,
       average: this.settings.rating ? average(stars) : null,
@@ -273,12 +355,13 @@ class Karaoke {
   }
 
   action(player, { type, ...data }) {
-    const hostOnly = ['bump', 'play', 'skip', 'finish', 'closeRating'];
+    const hostOnly = ['bump', 'play', 'skip', 'finish', 'closeRating', 'offset'];
     if (hostOnly.includes(type) && !player.isHost) return { error: 'Nur der Host darf das.' };
     switch (type) {
       case 'add': return this.add(player, data);
       case 'remove': return this.remove(player, data.songId);
-      case 'video': return this.setVideo(player, data.songId, data.url);
+      case 'video': return this.setVideo(player, data.songId, data.url, data.track);
+      case 'offset': return this.shiftLyrics(data.deltaMs);
       case 'bump': return this.bump(data.songId);
       case 'play': return this.play(data.songId);
       case 'ended': return this.ended(player, data.songId);
@@ -317,7 +400,10 @@ class Karaoke {
     return {
       id: song.id,
       title: song.title,
+      source: song.source,
       videoId: song.videoId,
+      trackId: song.trackId,
+      lyricsStatus: song.lyricsStatus,
       singers: song.singers,
       mine: song.addedBy === viewer.id || song.singers.includes(viewer.id),
       editable: this.canEdit(viewer, song),
@@ -341,6 +427,11 @@ class Karaoke {
       sungCount: this.history.length,
       serverNow: now,
     };
+    // Den Text braucht nur die Bühne
+    if (viewer.isHost && this.current?.source === 'spotify') {
+      view.lyrics = this.current.lyrics;
+      view.offsetMs = this.current.offsetMs;
+    }
     if (this.phase === 'final') {
       view.history = this.history;
       view.ranking = this.ranking();
@@ -351,5 +442,8 @@ class Karaoke {
   dispose() {}
 }
 
+// Austauschbar für Tests
+Karaoke.deps = { spotify, lyrics };
 Karaoke.parseVideoId = parseVideoId;
+Karaoke.parseLink = parseLink;
 module.exports = Karaoke;
