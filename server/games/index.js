@@ -5,7 +5,7 @@ const JustOne = require('./justone');
 const StadtLandFluss = require('./stadtlandfluss');
 const KreuzQuer = require('./kreuzquer');
 const DrKroko = require('./drkroko');
-const Kniffel = require('./kniffel');
+const Wuerfelbecher = require('./wuerfelbecher');
 
 const games = {
   pubquiz: PubQuiz,
@@ -13,7 +13,7 @@ const games = {
   stadtlandfluss: StadtLandFluss,
   kreuzquer: KreuzQuer,
   drkroko: DrKroko,
-  kniffel: Kniffel,
+  wuerfelbecher: Wuerfelbecher,
 };
 
 // Platzhalter für die Startseite, bis die Spiele gebaut sind

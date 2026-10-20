@@ -1,4 +1,4 @@
-// Kniffel: Spielansicht für Host und Handys (nutzt die Helfer aus lobby.js)
+// Würfelbecher: Spielansicht für Host und Handys (nutzt die Helfer aus lobby.js)
 
 (() => {
   const TIMES = [0, 30, 45, 60, 90, 120];
@@ -227,7 +227,7 @@
     const pickHint = R.isActive && R.rolls > 0 && !kn.selected ? '<div class="small muted center">Tippe im Block auf ein freies Feld, um einzutragen.</div>' : '';
     return `<div class="stack">
       <div class="q-head">
-        <div class="small muted"><b>${R.games > 1 ? `Partie ${R.gameNo}/${R.games}` : 'Kniffel'}</b></div>
+        <div class="small muted"><b>${R.games > 1 ? `Partie ${R.gameNo}/${R.games}` : 'Würfelbecher'}</b></div>
         ${R.deadline ? '<span class="timer" id="timer"></span>' : ''}
       </div>
       ${viewStatus(R)}
@@ -294,7 +294,7 @@
     return `<button class="btn" data-action="knSkip">⏭ ${name} überspringen</button><button class="btn" data-action="knForce">🎲 Für ${name} spielen</button>`;
   }
 
-  gameViews.kniffel = { settings: viewSettings, lobbyExtra, view, hostbar };
+  gameViews.wuerfelbecher = { settings: viewSettings, lobbyExtra, view, hostbar };
 
   function sendOrder(order) {
     kn.localOrder = order;
@@ -338,7 +338,7 @@
   // Drag and Drop über Pointer-Events, damit es auch auf Handys funktioniert
   app.addEventListener('pointerdown', (e) => {
     const handle = e.target.closest('.kn-handle');
-    if (!handle || S?.game.id !== 'kniffel' || !S.me.isHost) return;
+    if (!handle || S?.game.id !== 'wuerfelbecher' || !S.me.isHost) return;
     e.preventDefault();
     const item = handle.closest('.kn-order-item');
     kn.drag = { id: item.dataset.player, order: lobbyOrder() };
@@ -389,7 +389,7 @@
   });
 
   app.addEventListener('change', (e) => {
-    if (S?.game.id !== 'kniffel') return;
+    if (S?.game.id !== 'wuerfelbecher') return;
     if (e.target.id === 'kn-time') sendHost('settings', { game: { timeLimit: Number(e.target.value) } });
     else if (e.target.id === 'kn-games') sendHost('settings', { game: { games: Number(e.target.value) } });
   });

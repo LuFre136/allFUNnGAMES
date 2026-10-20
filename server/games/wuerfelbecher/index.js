@@ -1,4 +1,4 @@
-// Kniffel: Reihum bis zu drei Würfe mit fünf Würfeln, dann ein Feld auf dem Wertungsblock füllen.
+// Würfelbecher (nach Kniffel): Reihum bis zu drei Würfe mit fünf Würfeln, dann ein Feld auf dem Wertungsblock füllen.
 
 const crypto = require('crypto');
 const { shuffle } = require('../../util');
@@ -69,7 +69,7 @@ function isFull(sheet) {
   return CATEGORIES.every((c) => sheet[c] !== null);
 }
 
-class Kniffel {
+class Wuerfelbecher {
   constructor(lobby) {
     this.lobby = lobby;
     this.order = [];
@@ -83,8 +83,8 @@ class Kniffel {
 
   static meta() {
     return {
-      id: 'kniffel',
-      name: 'Kniffel',
+      id: 'wuerfelbecher',
+      name: 'Würfelbecher',
       icon: '🎲',
       description: 'Fünf Würfel, drei Würfe: Wer füllt den Block am besten?',
       players: `${MIN_PLAYERS}–${MAX_PLAYERS} Spieler`,
@@ -130,8 +130,8 @@ class Kniffel {
 
   start() {
     const players = this.players();
-    if (players.length < MIN_PLAYERS) throw new Error(`Kniffel braucht mindestens ${MIN_PLAYERS} Mitspieler.`);
-    if (players.length > MAX_PLAYERS) throw new Error(`Kniffel geht mit höchstens ${MAX_PLAYERS} Mitspielern.`);
+    if (players.length < MIN_PLAYERS) throw new Error(`Würfelbecher braucht mindestens ${MIN_PLAYERS} Mitspieler.`);
+    if (players.length > MAX_PLAYERS) throw new Error(`Würfelbecher geht mit höchstens ${MAX_PLAYERS} Mitspielern.`);
     const ids = players.map((p) => p.id);
     if (this.settings.orderMode === 'manual') {
       // Reihenfolge des Hosts, wer darin fehlt, kommt hinten dran
@@ -337,7 +337,7 @@ class Kniffel {
   }
 }
 
-Kniffel.scoreFor = scoreFor;
-Kniffel.sheetScore = sheetScore;
-Kniffel.CATEGORIES = CATEGORIES;
-module.exports = Kniffel;
+Wuerfelbecher.scoreFor = scoreFor;
+Wuerfelbecher.sheetScore = sheetScore;
+Wuerfelbecher.CATEGORIES = CATEGORIES;
+module.exports = Wuerfelbecher;

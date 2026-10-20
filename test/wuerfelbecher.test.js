@@ -1,8 +1,8 @@
-// Regeltests für Kniffel: node --test
+// Regeltests für Würfelbecher: node --test
 
 const test = require('node:test');
 const assert = require('node:assert');
-const Kniffel = require('../server/games/kniffel');
+const Wuerfelbecher = require('../server/games/wuerfelbecher');
 
 function fakeLobby(n, game = {}) {
   const players = new Map();
@@ -10,7 +10,7 @@ function fakeLobby(n, game = {}) {
   return {
     hostId: 'p1',
     players,
-    settings: { game: { ...Kniffel.defaultSettings(), orderMode: 'manual', order: [...players.keys()], ...game } },
+    settings: { game: { ...Wuerfelbecher.defaultSettings(), orderMode: 'manual', order: [...players.keys()], ...game } },
     activePlayers: () => [...players.values()].filter((p) => p.connected),
     broadcast() {},
   };
@@ -18,13 +18,13 @@ function fakeLobby(n, game = {}) {
 
 function setup(n = 2, game = {}) {
   const lobby = fakeLobby(n, game);
-  const g = new Kniffel(lobby);
+  const g = new Wuerfelbecher(lobby);
   g.start();
   return { lobby, game: g, p: (i) => lobby.players.get(`p${i}`) };
 }
 
 test('Punkte je Kategorie', () => {
-  const s = Kniffel.scoreFor;
+  const s = Wuerfelbecher.scoreFor;
   assert.strictEqual(s('threes', [3, 3, 1, 3, 6]), 9);
   assert.strictEqual(s('threeKind', [3, 3, 1, 3, 6]), 16);
   assert.strictEqual(s('threeKind', [3, 3, 1, 2, 6]), 0);
@@ -42,11 +42,11 @@ test('Punkte je Kategorie', () => {
 });
 
 test('Bonus ab 63 Punkten oben', () => {
-  const sheet = Object.fromEntries(Kniffel.CATEGORIES.map((c) => [c, null]));
+  const sheet = Object.fromEntries(Wuerfelbecher.CATEGORIES.map((c) => [c, null]));
   Object.assign(sheet, { ones: 3, twos: 6, threes: 9, fours: 12, fives: 15, sixes: 18 });
-  assert.deepStrictEqual(Kniffel.sheetScore(sheet), { upper: 63, bonus: 35, lower: 0, total: 98 });
+  assert.deepStrictEqual(Wuerfelbecher.sheetScore(sheet), { upper: 63, bonus: 35, lower: 0, total: 98 });
   sheet.sixes = 12;
-  assert.strictEqual(Kniffel.sheetScore(sheet).bonus, 0);
+  assert.strictEqual(Wuerfelbecher.sheetScore(sheet).bonus, 0);
 });
 
 test('höchstens drei Würfe, gehaltene Würfel bleiben liegen', () => {
@@ -83,7 +83,7 @@ test('Partie endet, wenn alle Blöcke voll sind', () => {
   for (let turn = 0; turn < 26; turn++) {
     const id = game.activeId;
     game.action(p(Number(id.slice(1))), { type: 'roll' });
-    const free = Kniffel.CATEGORIES.find((c) => game.sheets.get(id)[c] === null);
+    const free = Wuerfelbecher.CATEGORIES.find((c) => game.sheets.get(id)[c] === null);
     game.action(p(Number(id.slice(1))), { type: 'score', category: free });
   }
   assert.strictEqual(game.phase, 'result');

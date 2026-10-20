@@ -139,11 +139,11 @@ Geschicklichkeitsspiel für 2 bis 20 Mitspieler, ohne Teams. Auf allen Geräten 
 - **Mehrere Spieler an einem Gerät:** In der Lobby kann jedes Gerät unter „Mitspieler an diesem Gerät“ weitere Namen eintragen. Diese Spieler bekommen einen eigenen Platz in der Reihenfolge und drücken auf dem Gerät, an dem sie eingetragen sind. Sind sie dran, steht ihr Name oben.
 - Optional gibt es ein Zeitlimit pro Zug. Läuft es ab, wird ein zufälliger Zahn gedrückt. Der Host kann außerdem für den Spieler am Zug drücken oder ihn überspringen.
 
-## So läuft Kniffel
+## So läuft Würfelbecher
 
-Würfelspiel für 1 bis 10 Mitspieler, ohne Teams. Reihum würfelt jeder bis zu dreimal mit fünf Würfeln; zwischen den Würfen tippt man die Würfel an, die liegen bleiben sollen. Danach wird das Ergebnis in ein freies Feld des Wertungsblocks eingetragen, notfalls mit 0 Punkten (streichen). Oben (Einser bis Sechser) zählen nur die passenden Augen, ab 63 Punkten oben gibt es 35 Bonus. Unten: Dreier- und Viererpasch zählen alle Augen, Full House 25, kleine Straße 30, große Straße 40, Kniffel 50, Chance alle Augen. Nach 13 Runden sind alle Blöcke voll.
+Würfelspiel nach Kniffel für 1 bis 10 Mitspieler, ohne Teams. Reihum würfelt jeder bis zu dreimal mit fünf Würfeln; zwischen den Würfen tippt man die Würfel an, die liegen bleiben sollen. Danach wird das Ergebnis in ein freies Feld des Wertungsblocks eingetragen, notfalls mit 0 Punkten (streichen). Oben (Einser bis Sechser) zählen nur die passenden Augen, ab 63 Punkten oben gibt es 35 Bonus. Unten: Dreier- und Viererpasch zählen alle Augen, Full House 25, kleine Straße 30, große Straße 40, Kniffel 50, Chance alle Augen. Nach 13 Runden sind alle Blöcke voll.
 
-- Der Block mit allen Spielern ist auf jedem Gerät zu sehen, auf dem Fernseher also wie ein gemeinsamer Kniffelblock. Mit „Hilfen“ stehen beim Spieler am Zug die möglichen Punkte grau in den freien Feldern.
+- Der Block mit allen Spielern ist auf jedem Gerät zu sehen, auf dem Fernseher also wie ein gemeinsamer Wertungsblock. Mit „Hilfen“ stehen beim Spieler am Zug die möglichen Punkte grau in den freien Feldern.
 - **Reihenfolge:** Der Host lässt sie beim Start auslosen oder legt sie in der Lobby fest, indem er die Spieler am Griff ⠿ verschiebt. Jede weitere Partie beginnt der Nächste in der Reihe.
 - **Mehrere Spieler an einem Gerät:** In der Lobby kann jedes Gerät unter „Mitspieler an diesem Gerät“ weitere Namen eintragen. Sie bekommen eine eigene Spalte im Block und würfeln an dem Gerät, an dem sie eingetragen sind.
 - Optional gibt es ein Zeitlimit pro Zug. Läuft es ab, wird (falls nötig) gewürfelt und das Feld mit den meisten Punkten eingetragen. Das kann der Host auch per Knopf auslösen oder den Spieler überspringen, der dann in der nächsten Runde wieder dran ist.
@@ -159,7 +159,7 @@ server/games/pubquiz/        Pub-Quiz-Logik und Fragen
 server/games/stadtlandfluss/ Stadt, Land, Fluss
 server/games/justone/        Just One
 server/games/kreuzquer/      Kreuz & Quer (Würfelspiel)
-server/games/kniffel/        Kniffel
+server/games/wuerfelbecher/  Würfelbecher (nach Kniffel)
 test/                        Regeltests (npm test)
 server/spotify.js            Optionale Spotify-Suche
 public/                      Startseite, Lobby-/Spielseite, Styles, Profilbilder
