@@ -1,0 +1,36 @@
+/* Musikzeitreise */
+
+.mz-who { display: inline-flex; align-items: center; gap: 6px; font-weight: 800; }
+.mz-chips { white-space: nowrap; font-weight: 800; }
+.mz-turn { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 6px 12px; margin-bottom: 14px; border-radius: 999px; background: var(--bg-2); border: 1px solid var(--line); }
+
+.mz-timeline { display: flex; flex-wrap: wrap; align-items: stretch; gap: 8px; padding: 12px; border-radius: 18px; background: var(--bg-2); border: 1px solid var(--line); }
+.mz-card { display: flex; flex-direction: column; justify-content: center; gap: 2px; width: 104px; min-height: 104px; padding: 8px; border-radius: 14px; background: var(--card); border: 2px solid var(--line); text-align: center; }
+.mz-card .year { font-family: 'Fredoka', sans-serif; font-size: 1.6rem; line-height: 1.1; color: var(--accent); }
+.mz-card .artist { font-size: 0.75rem; font-weight: 800; overflow-wrap: anywhere; }
+.mz-card .title { font-size: 0.75rem; color: var(--muted); overflow-wrap: anywhere; }
+.mz-card.mystery { background: linear-gradient(135deg, #1db954, #0f5f2b); border-color: #1db954; color: #fff; }
+.mz-card.mystery .year { color: #fff; }
+.mz-card.new.good { border-color: var(--good); box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.35); }
+.mz-card.new.bad { border-color: var(--bad); box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.3); }
+.mz-card.big { width: 200px; min-height: 160px; }
+.mz-card.big .year { font-size: 3rem; }
+.mz-card.big .artist, .mz-card.big .title { font-size: 1rem; }
+.mz-reveal { display: flex; justify-content: center; }
+
+.mz-slot { display: grid; place-items: center; min-width: 40px; min-height: 104px; padding: 4px; border-radius: 12px; border: 2px dashed var(--line); background: transparent; color: var(--muted); font-size: 1.3rem; font-weight: 800; }
+button.mz-slot { cursor: pointer; }
+button.mz-slot:hover { border-color: var(--accent); color: var(--accent); }
+.mz-slot.challenged { border-style: solid; border-color: var(--accent); color: var(--text); font-size: 0.8rem; max-width: 120px; text-align: center; }
+
+.mz-unit { padding: 10px 12px; border-radius: 14px; background: var(--card); border: 1px solid var(--line); }
+.mz-unit.offline { opacity: 0.55; }
+.mz-years { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.mz-years span { padding: 2px 8px; border-radius: 999px; background: var(--bg-2); border: 1px solid var(--line); font-size: 0.8rem; font-weight: 800; }
+
+@media (max-width: 480px) {
+  .mz-timeline { gap: 6px; padding: 8px; }
+  .mz-card { width: 88px; min-height: 92px; padding: 6px; }
+  .mz-card .year { font-size: 1.35rem; }
+  .mz-slot { min-width: 30px; min-height: 92px; }
+}
