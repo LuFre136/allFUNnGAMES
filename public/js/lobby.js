@@ -268,7 +268,7 @@ function viewTeams() {
   const visiblePlayers = S.players.filter((p) => !(p.isHost && !S.settings.hostPlays));
   const noTeam = visiblePlayers.filter((p) => !p.teamId || !teamById(p.teamId));
   return `<div class="card stack">
-    <div class="row spread"><h3 style="margin:0">Teams</h3>${host ? '<button class="btn small" data-action="addTeam">+ Team</button>' : ''}</div>
+    <div class="row spread"><h3 style="margin:0">Teams</h3>${host && S.teams.length < (S.game.maxTeams || 12) ? '<button class="btn small" data-action="addTeam">+ Team</button>' : ''}</div>
     ${!gm && !me.teamId ? '<div class="small" style="color:var(--accent);font-weight:800">Wähle ein Team, um mitzuspielen.</div>' : ''}
     <div class="teams">${S.teams.map((t) => {
       const members = visiblePlayers.filter((p) => p.teamId === t.id);

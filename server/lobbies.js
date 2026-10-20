@@ -51,7 +51,7 @@ class Lobby {
   }
 
   addTeam(name) {
-    if (this.teams.length >= MAX_TEAMS || this.teamSupport === false) return null;
+    if (this.teams.length >= (this.Game.meta().maxTeams || MAX_TEAMS) || this.teamSupport === false) return null;
     this.teamSeq++;
     const used = new Set(this.teams.map((t) => t.color));
     const color = TEAM_COLORS.find((c) => !used.has(c)) || TEAM_COLORS[this.teamSeq % TEAM_COLORS.length];
