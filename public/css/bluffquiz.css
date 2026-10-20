@@ -1,0 +1,42 @@
+/* Bluff-Quiz */
+
+.bq-question { font-family: 'Fredoka', sans-serif; font-size: clamp(1.4rem, 3.6vw, 2.4rem); line-height: 1.3; text-align: center; padding: 18px 12px; }
+.bq-blank { display: inline-block; color: var(--accent); border-bottom: 4px solid var(--accent); line-height: 1; letter-spacing: -2px; }
+.bq-double { color: var(--pink); font-weight: 900; }
+
+.bq-who { display: inline-flex; align-items: center; gap: 6px; min-width: 0; }
+.status-team.bq-done { background: rgba(52, 211, 153, 0.12); }
+
+.bq-options { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.bq-option { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; text-align: left; border-radius: 16px; padding: 16px; font: inherit; font-weight: 800; font-size: 1.15rem; color: var(--text); background: var(--card); border: 2px solid var(--line); cursor: pointer; min-height: 64px; overflow-wrap: anywhere; }
+.bq-option:hover:not([disabled]) { border-color: var(--accent); }
+.bq-option.picked { border-color: var(--accent); background: var(--card-2); box-shadow: 0 0 0 3px rgba(255, 204, 51, 0.25); }
+.bq-option.own { opacity: 0.45; cursor: default; }
+.bq-option[disabled]:not(.own) { cursor: default; }
+.bq-votes { display: flex; gap: 2px; }
+
+.bq-reveal { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.bq-card { position: relative; display: flex; flex-direction: column; gap: 8px; padding: 14px 16px; border-radius: 16px; background: var(--card); border: 2px solid var(--line); overflow: hidden; }
+.bq-card .text { font-weight: 900; font-size: 1.2rem; overflow-wrap: anywhere; }
+.bq-card.hidden-card { opacity: 0.55; border-style: dashed; }
+.bq-card.current { border-color: var(--pink); animation: bq-pop 0.4s ease; }
+.bq-card.truth { border-color: var(--good); background: rgba(52, 211, 153, 0.12); }
+.bq-card.truth.current { animation: bq-pop 0.5s ease; }
+.bq-tag { font-weight: 800; font-size: 0.9rem; color: var(--muted); }
+.bq-tag.lie { color: var(--pink); }
+.bq-tag.truth { color: var(--good); font-size: 1rem; }
+.bq-pickers { display: inline-flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.bq-pickers .team-dot { margin-left: 2px; }
+.bq-likes { font-weight: 800; color: var(--muted); }
+
+.bq-fly { position: absolute; bottom: 8px; font-size: 1.6rem; pointer-events: none; animation: bq-fly 1.4s ease-out forwards; }
+
+.bq-answer { font-family: 'Fredoka', sans-serif; font-size: 1.8rem; color: var(--good); }
+.bq-table td { white-space: nowrap; }
+
+.bq-awards { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+.bq-award { display: flex; gap: 12px; align-items: center; }
+.bq-award .icon { font-size: 2.2rem; }
+
+@keyframes bq-pop { 0% { transform: scale(0.92); } 60% { transform: scale(1.04); } 100% { transform: scale(1); } }
+@keyframes bq-fly { 0% { transform: translateY(0) scale(0.8); opacity: 1; } 100% { transform: translateY(-120px) scale(1.4); opacity: 0; } }
