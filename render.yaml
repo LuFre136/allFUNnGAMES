@@ -1,0 +1,14 @@
+# Konfiguration für das Hosting bei Render (https://render.com)
+services:
+  - type: web
+    name: all-fun-n-games
+    runtime: node
+    plan: free
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /api/games
+    envVars:
+      - key: SPOTIFY_CLIENT_ID
+        sync: false
+      - key: SPOTIFY_CLIENT_SECRET
+        sync: false

@@ -18,8 +18,21 @@ Optionale Umgebungsvariablen:
 | Variable | Zweck |
 | --- | --- |
 | `PORT` | Port des Servers (Standard 3000) |
-| `PUBLIC_URL` | Feste Adresse für Einladungslinks, z. B. wenn der Server im Internet läuft |
+| `PUBLIC_URL` | Feste Adresse für Einladungslinks (bei Render automatisch gesetzt) |
 | `SPOTIFY_CLIENT_ID`, `SPOTIFY_CLIENT_SECRET` | Spotify-Zugangsdaten (siehe unten) |
+
+## Online stellen (Render)
+
+So läuft die Plattform dauerhaft im Internet und ist von jedem Handy aus erreichbar, ganz ohne Laptop.
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/LuFre136/allFUNnGAMES)
+
+1. Auf [render.com](https://render.com) ein kostenloses Konto anlegen (am einfachsten mit „Sign in with GitHub“).
+2. Den Button oben klicken (oder im Dashboard **New → Blueprint** und dieses Repository wählen). Render liest die Einstellungen aus `render.yaml`.
+3. Bei den Spotify-Feldern kann man die Zugangsdaten eintragen oder sie leer lassen.
+4. **Apply** klicken. Nach ein paar Minuten gibt es eine Adresse wie `https://all-fun-n-games.onrender.com`. Diese Adresse auf dem Handy öffnen, fertig.
+
+Neue Commits auf `main` werden automatisch veröffentlicht. Gut zu wissen beim kostenlosen Tarif: Nach etwa 15 Minuten ohne Besucher schläft der Server ein. Der erste Aufruf danach dauert rund eine Minute, und Lobbys aus der vorherigen Sitzung sind dann weg. Einfach die Seite kurz vor dem Spieleabend einmal öffnen.
 
 ## So läuft das Pub Quiz
 
