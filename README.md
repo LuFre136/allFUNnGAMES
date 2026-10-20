@@ -20,7 +20,7 @@ Optionale Umgebungsvariablen:
 | `PORT` | Port des Servers (Standard 3000) |
 | `PUBLIC_URL` | Feste Adresse für Einladungslinks (bei Render automatisch gesetzt) |
 | `SPOTIFY_CLIENT_ID`, `SPOTIFY_CLIENT_SECRET` | Spotify-Zugangsdaten (siehe unten) |
-| `GITHUB_TOKEN`, `GITHUB_REPO` | Speichert ausgeschlossene Fragen dauerhaft im Repository (siehe unten) |
+| `GITHUB_TOKEN`, `GITHUB_REPO` | Speichert ausgeschlossene Fragen und die Würfelbecher-Bestenliste dauerhaft im Repository (siehe unten) |
 | `YOUTUBE_API_KEY` | Songsuche direkt in der App beim Karaoke (siehe unten) |
 
 ## Online stellen (Render)
@@ -176,6 +176,7 @@ Würfelspiel nach Kniffel für 1 bis 10 Mitspieler, ohne Teams. Reihum würfelt 
 - **Mehrere Spieler an einem Gerät:** In der Lobby kann jedes Gerät unter „Mitspieler an diesem Gerät“ weitere Namen eintragen. Sie bekommen eine eigene Spalte im Block und würfeln an dem Gerät, an dem sie eingetragen sind.
 - Optional gibt es ein Zeitlimit pro Zug. Läuft es ab, wird (falls nötig) gewürfelt und das Feld mit den meisten Punkten eingetragen. Das kann der Host auch per Knopf auslösen oder den Spieler überspringen, der dann in der nächsten Runde wieder dran ist.
 - Ohne Extra-Kniffel-Bonus und ohne Joker-Regel; ein zweiter Kniffel zählt einfach in einem passenden Feld.
+- **Bestenliste:** Nach jeder Partie kommen volle Blöcke unter die zehn besten aller Zeiten, wenn sie gut genug sind. Am Ende einer Partie blendet der Host sie mit „🏆 Bestenliste“ für alle ein: Rangliste plus die zehn Blöcke nebeneinander, neue Einträge sind markiert. Gespeichert wird sie in `data/wuerfelbecher-highscores.json` und, wie die ausgeschlossenen Quizfragen, mit `GITHUB_TOKEN` zusätzlich auf dem Daten-Branch (sonst ist sie bei Render nach einem Neustart weg). Zum Zurücksetzen die Datei löschen bzw. leeren.
 
 ## So läuft Alias
 

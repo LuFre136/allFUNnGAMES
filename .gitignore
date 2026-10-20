@@ -2,3 +2,4 @@ node_modules/
 data/spotify-cache.json
 .env
 data/excluded-questions.json
+data/wuerfelbecher-highscores.json

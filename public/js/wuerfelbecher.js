@@ -171,9 +171,10 @@
   function viewBlock(R, { interactive }) {
     const cols = R.players;
     const head = `<tr><th></th>${cols.map((p) => {
-      const player = playerById(p.id);
-      const cls = [p.id === R.activeId ? 'active' : '', p.id === S.me.id ? 'me' : '', player?.connected === false ? 'offline' : ''].join(' ');
-      return `<th class="${cls}">${avatarHtml(player, 'sm')}<div class="kn-name">${esc(player?.name || '?')}</div></th>`;
+      // Highscore-Einträge bringen Name und Bild selbst mit
+      const player = p.name ? p : playerById(p.id);
+      const cls = [p.id === R.activeId ? 'active' : '', p.id === S.me.id ? 'me' : '', p.isNew ? 'active' : '', player?.connected === false ? 'offline' : ''].join(' ');
+      return `<th class="${cls}">${p.rank ? `<div class="kn-rank">${p.rank}.</div>` : ''}${avatarHtml(player, 'sm')}<div class="kn-name">${esc(player?.name || '?')}</div>${p.date ? `<div class="kn-date">${p.date}</div>` : ''}</th>`;
     }).join('')}</tr>`;
     const cell = (p, cat) => {
       const value = p.sheet[cat];
@@ -239,7 +240,39 @@
     </div>`;
   }
 
+  function formatDate(iso) {
+    const d = new Date(iso);
+    return Number.isNaN(d.getTime()) ? '' : d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit' });
+  }
+
+  // Die zehn besten Blöcke, die je gespielt wurden, als Rangliste und als gemeinsamer Block
+  function viewHighscores(R) {
+    const list = R.highscores || [];
+    const isNew = (e) => R.newHighscores.includes(e.id);
+    const ranked = list.map((e) => ({ ...e, rank: list.filter((o) => o.total > e.total).length + 1 }));
+    const mine = ranked.filter(isNew);
+    const block = {
+      ...R,
+      games: 1,
+      activeId: null,
+      options: null,
+      last: null,
+      players: ranked.map((e) => ({ id: e.id, name: e.name, avatar: e.avatar, sheet: e.sheet, score: { upper: e.upper, bonus: e.bonus, lower: e.lower }, rank: e.rank, date: formatDate(e.date), isNew: isNew(e) })),
+    };
+    return `<div class="stack">
+      <div class="center"><div style="font-size:3rem">🏆</div><h1>Bestenliste</h1>
+        <p class="muted">${mine.length ? `Neu in der Bestenliste: ${mine.map((e) => `<b>${esc(e.name)}</b> (Platz ${e.rank})`).join(', ')} 🎉` : 'Die zehn besten Blöcke, die je gespielt wurden.'}</p></div>
+      ${ranked.length ? `<div class="card stack">
+        ${ranked.map((e) => `<div class="score-row ${isNew(e) ? 'kn-new' : ''}" style="--team:var(--accent)"><span class="rank">${e.rank}.</span>${avatarHtml(e, 'sm')}
+          <span class="name">${esc(e.name)}${isNew(e) ? ' <span class="badge live">Neu</span>' : ''}</span><span class="small muted">${formatDate(e.date)}</span><span class="pts">${e.total}</span></div>`).join('')}
+      </div>
+      ${viewBlock(block, { interactive: false })}` : '<div class="card center muted">Noch keine Einträge. Spielt eine Partie bis zum Ende!</div>'}
+      ${S.me.isHost ? '' : '<div class="muted center">Der Host kann die Bestenliste wieder ausblenden.</div>'}
+    </div>`;
+  }
+
   function viewEnd(R) {
+    if (R.showHighscores) return viewHighscores(R);
     const ranked = R.players.map((p) => ({ id: p.id, pts: R.totals[p.id] || 0 })).sort((a, b) => b.pts - a.pts);
     const final = R.phase === 'final';
     const top = [ranked[1], ranked[0], ranked[2]].filter(Boolean);
@@ -249,6 +282,7 @@
     const title = final ? (tie ? 'Unentschieden!' : `${esc(playerName(winner.id))} gewinnt!`) : `Partie ${R.gameNo} von ${R.games} ist vorbei`;
     return `<div class="stack">
       <div class="center"><div style="font-size:3rem">${final ? '🏆' : '🎲'}</div><h1>${title}</h1></div>
+      ${R.highscorePlayers.length ? `<div class="notice center">🏆 Neu in der Bestenliste: ${R.highscorePlayers.map((id) => `<b>${esc(playerName(id))}</b>`).join(', ')}!${S.me.isHost ? ' Unten kannst du sie einblenden.' : ''}</div>` : ''}
       ${final ? `<div class="podium">${top.map((t) => {
         const place = ranked.filter((o) => o.pts > t.pts).length;
         return `<div class="step"><div>${avatarHtml(playerById(t.id))}</div><b>${esc(playerName(t.id))}</b><div class="small muted">${t.pts} Punkte</div>
@@ -288,8 +322,9 @@
 
   function hostbar() {
     const R = S.round;
-    if (R.phase === 'final') return '<button class="btn primary" data-action="toLobby">Neue Runde (zur Lobby)</button>';
-    if (R.phase === 'result') return '<button class="btn primary" data-action="next">Nächste Partie ▶︎</button>';
+    const scores = `<button class="btn" data-action="knHighscores">${R.showHighscores ? '✕ Bestenliste ausblenden' : '🏆 Bestenliste'}</button>`;
+    if (R.phase === 'final') return `${scores}<button class="btn primary" data-action="toLobby">Neue Runde (zur Lobby)</button>`;
+    if (R.phase === 'result') return `${scores}<button class="btn primary" data-action="next">Nächste Partie ▶︎</button>`;
     const name = esc(playerName(R.activeId));
     return `<button class="btn" data-action="knSkip">⏭ ${name} überspringen</button><button class="btn" data-action="knForce">🎲 Für ${name} spielen</button>`;
   }
@@ -317,6 +352,7 @@
       kn.selected = null;
       act('score', { category });
     },
+    knHighscores: () => act('highscores'),
     knSkip: () => {
       if (confirm(`${playerName(S.round.activeId)} überspringen? Der Zug verfällt nicht, er ist in der nächsten Runde wieder dran.`)) act('skip');
     },
