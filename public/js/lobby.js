@@ -443,6 +443,17 @@ function viewStatusBar(R) {
   }).join('')}</div>`;
 }
 
+function viewExclude(R) {
+  const ex = R.exclude;
+  const canVote = !isGamemaster() && S.me.teamId && teamById(S.me.teamId);
+  const mine = ex.ids.includes(S.me.id);
+  if (!canVote && !ex.ids.length) return '';
+  return `<div class="exclude-bar">
+    ${canVote ? `<button class="btn small ${mine ? 'pink' : 'ghost'}" data-action="exclude" data-value="${mine ? '0' : '1'}">${mine ? '↩︎ Ausschließen zurücknehmen' : '🚫 Frage ausschließen'}</button>` : ''}
+    ${ex.ids.length ? `<span class="small muted">${ex.ids.length}/${ex.needed} wollen die Frage ausschließen</span>${avatarStack(ex.ids)}` : '<span class="small muted">Stimmen alle dafür, kommt die Frage nie wieder dran.</span>'}
+  </div>`;
+}
+
 function viewQuestion() {
   const R = S.round;
   const q = R.question;
@@ -452,6 +463,7 @@ function viewQuestion() {
   else if (!S.me.teamId || !teamById(S.me.teamId)) body = `<div class="card stack"><h3>Wähle ein Team, um mitzuraten</h3>${teamPicker(S.teams, null, (id) => S.players.filter((p) => p.teamId === id))}</div>`;
   else body = viewAnswerArea(R, q);
   return `<div>
+    ${R.notice ? `<div class="notice">🚫 ${esc(R.notice)}</div>` : ''}
     <div class="q-head">
       <div class="small muted"><b>Frage ${R.index + 1}/${R.total}</b> · ${esc(q.category)} · ${esc(q.typeLabel)}</div>
       ${R.deadline ? '<span class="timer" id="timer"></span>' : ''}
@@ -460,6 +472,7 @@ function viewQuestion() {
     ${viewMedia(q, R.phase)}
     ${body}
     ${viewStatusBar(R)}
+    ${viewExclude(R)}
   </div>`;
 }
 
@@ -700,6 +713,7 @@ const actions = {
   toggleSolution: () => { ui.showSolution = !ui.showSolution; render(); },
   judge: (el) => sendHost('judge', { teamId: el.dataset.team, part: el.dataset.part, value: el.dataset.value === '1' }),
   voteChoice: (el) => vote(Number(el.dataset.i)),
+  exclude: (el) => socket.emit('exclude', el.dataset.value === '1', (res) => { if (res?.error) toast(res.error); }),
   adopt: (el) => {
     const R = S.round;
     const mine = R.teamStatus.find((t) => t.teamId === S.me.teamId);

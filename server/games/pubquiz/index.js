@@ -4,6 +4,7 @@ const path = require('path');
 const fs = require('fs');
 const { shuffle, pick, normalize, fuzzyMatch } = require('../../util');
 const spotify = require('../../spotify');
+const exclusions = require('../../exclusions');
 
 const DATA = JSON.parse(fs.readFileSync(path.join(__dirname, 'questions.json'), 'utf8'));
 
@@ -29,10 +30,16 @@ const PARTS = {
   'music-year': ['artist', 'year'],
 };
 
+// Alle Fragen, die nicht dauerhaft ausgeschlossen wurden
+function activeQuestions() {
+  return DATA.questions.filter((q) => !exclusions.isExcluded(q.id));
+}
+
 function categoryStats() {
+  const active = activeQuestions();
   return DATA.categories.map((name) => ({
     name,
-    count: DATA.questions.filter((q) => q.category === name).length,
+    count: active.filter((q) => q.category === name).length,
   }));
 }
 
@@ -138,6 +145,8 @@ class PubQuiz {
     this.countdownEnd = null;
     this.timer = null;
     this.countdownTimer = null;
+    this.excludeVotes = new Set(); // Spieler, die die aktuelle Frage ausschließen wollen
+    this.notice = null; // Hinweis für alle, z. B. nach einem Ausschluss
   }
 
   static meta() {
@@ -149,7 +158,7 @@ class PubQuiz {
       players: '2–40 Spieler in Teams',
       available: true,
       categories: categoryStats(),
-      totalQuestions: DATA.questions.length,
+      totalQuestions: activeQuestions().length,
       typeLabels: TYPE_LABELS,
     };
   }
@@ -183,12 +192,12 @@ class PubQuiz {
   }
 
   static availableCount(settings) {
-    return DATA.questions.filter((q) => settings.categories.includes(q.category)).length;
+    return activeQuestions().filter((q) => settings.categories.includes(q.category)).length;
   }
 
   start() {
     const { categories, questionCount } = this.lobby.settings.game;
-    const pool = DATA.questions.filter((q) => categories.includes(q.category));
+    const pool = activeQuestions().filter((q) => categories.includes(q.category));
     this.questions = shuffle(pool).slice(0, questionCount);
     if (!this.questions.length) throw new Error('Keine Fragen in den gewählten Kategorien.');
     this.index = 0;
@@ -211,6 +220,8 @@ class PubQuiz {
     this.clearTimers();
     this.phase = 'question';
     this.votes = new Map();
+    this.excludeVotes = new Set();
+    this.notice = null;
     this.countdownEnd = null;
     const limit = this.lobby.settings.game.timeLimit;
     this.deadline = limit > 0 ? Date.now() + limit * 1000 : null;
@@ -233,6 +244,46 @@ class PubQuiz {
     else this.votes.set(player.id, value);
     this.checkAllVoted();
     return { ok: true };
+  }
+
+  // Stimmen alle Mitspieler dafür, wird die Frage dauerhaft ausgeschlossen
+  voteExclude(player, wanted) {
+    if (this.phase !== 'question') return { error: 'Gerade läuft keine Frage.' };
+    if (!this.voters().includes(player)) return { error: 'Nur Mitspieler können eine Frage ausschließen.' };
+    if (wanted) this.excludeVotes.add(player.id);
+    else this.excludeVotes.delete(player.id);
+    this.checkExclude();
+    return { ok: true };
+  }
+
+  checkExclude() {
+    if (this.phase !== 'question' || !this.excludeVotes.size) return;
+    const voters = this.voters();
+    if (voters.length && voters.every((p) => this.excludeVotes.has(p.id))) this.excludeCurrent();
+  }
+
+  // Ersetzt die Frage durch eine unbenutzte mit demselben Format, bevorzugt aus den gewählten Kategorien
+  excludeCurrent() {
+    const old = this.question;
+    exclusions.add(old);
+    const used = new Set(this.questions.map((q) => q.id));
+    const candidates = activeQuestions().filter((q) => q.type === old.type && !used.has(q.id));
+    const preferred = candidates.filter((q) => this.lobby.settings.game.categories.includes(q.category));
+    const replacement = preferred.length ? pick(preferred) : candidates.length ? pick(candidates) : null;
+    if (replacement) {
+      this.questions[this.index] = replacement;
+    } else {
+      this.questions.splice(this.index, 1);
+    }
+    if (this.index >= this.questions.length) {
+      this.clearTimers();
+      this.phase = 'final';
+    } else {
+      this.startQuestion();
+    }
+    this.notice = replacement
+      ? `Die Frage „${exclusions.describe(old)}“ wurde ausgeschlossen und durch eine neue ersetzt.`
+      : `Die Frage „${exclusions.describe(old)}“ wurde ausgeschlossen. Es gab keine Ersatzfrage im selben Format.`;
   }
 
   // Haben alle abgestimmt, startet der 3-Sekunden-Countdown bis zur Auflösung
@@ -311,6 +362,7 @@ class PubQuiz {
   // Ein Spieler hat die Lobby verlassen oder das Team gewechselt
   playersChanged() {
     this.checkAllVoted();
+    this.checkExclude();
   }
 
   totals() {
@@ -384,6 +436,8 @@ class PubQuiz {
       myVote: voteValue(viewer.id),
       canVote: this.phase === 'question' && !!viewer.teamId && !isGamemaster,
       teamStatus,
+      exclude: { ids: [...this.excludeVotes], needed: this.voters().length },
+      notice: this.notice,
       deadline: this.deadline,
       countdownEnd: this.countdownEnd,
       serverNow: Date.now(),

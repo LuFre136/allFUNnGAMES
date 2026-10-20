@@ -12,6 +12,8 @@ const lobbies = require('./lobbies');
 const gameRegistry = require('./games');
 const spotify = require('./spotify');
 const { wikiImage } = require('./images');
+const exclusions = require('./exclusions');
+exclusions.init();
 const PubQuiz = require('./games/pubquiz');
 
 const PORT = Number(process.env.PORT) || 3000;
@@ -143,6 +145,14 @@ io.on('connection', (socket) => {
     const { lobby, player } = ctx();
     if (!player || !lobby.game) return ack?.({ error: 'Kein laufendes Spiel.' });
     const result = lobby.game.vote(player, value);
+    lobby.broadcast();
+    ack?.(result);
+  });
+
+  socket.on('exclude', (wanted, ack) => {
+    const { lobby, player } = ctx();
+    if (!player || !lobby.game) return ack?.({ error: 'Kein laufendes Spiel.' });
+    const result = lobby.game.voteExclude(player, Boolean(wanted));
     lobby.broadcast();
     ack?.(result);
   });

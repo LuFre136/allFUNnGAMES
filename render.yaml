@@ -12,3 +12,8 @@ services:
         sync: false
       - key: SPOTIFY_CLIENT_SECRET
         sync: false
+      # Für dauerhaft ausgeschlossene Fragen (siehe README)
+      - key: GITHUB_TOKEN
+        sync: false
+      - key: GITHUB_REPO
+        value: LuFre136/allFUNnGAMES

@@ -20,6 +20,7 @@ Optionale Umgebungsvariablen:
 | `PORT` | Port des Servers (Standard 3000) |
 | `PUBLIC_URL` | Feste Adresse für Einladungslinks (bei Render automatisch gesetzt) |
 | `SPOTIFY_CLIENT_ID`, `SPOTIFY_CLIENT_SECRET` | Spotify-Zugangsdaten (siehe unten) |
+| `GITHUB_TOKEN`, `GITHUB_REPO` | Speichert ausgeschlossene Fragen dauerhaft im Repository (siehe unten) |
 
 ## Online stellen (Render)
 
@@ -60,6 +61,14 @@ Neue Commits auf `main` werden automatisch veröffentlicht. Gut zu wissen beim k
 | Wer ist das? (Bild) | Vorschlag automatisch, Host entscheidet | 1 |
 
 Der Host kann bei der Auflösung jede Bewertung mit ✓ oder ✗ ändern.
+
+## Fragen ausschließen
+
+Während einer Frage kann jeder Mitspieler auf „🚫 Frage ausschließen“ tippen. Stimmen alle verbundenen Mitspieler dafür, kommt die Frage in keiner Partie mehr vor und wird sofort durch eine unbenutzte Frage im selben Format ersetzt (bevorzugt aus den gewählten Kategorien).
+
+Die ausgeschlossenen Fragen stehen in `data/excluded-questions.json`. Render hat keine dauerhafte Festplatte, deshalb speichert der Server die Liste zusätzlich im Repository auf dem Branch `quiz-daten`, sobald `GITHUB_TOKEN` gesetzt ist. Dafür auf GitHub unter Settings → Developer settings → Fine-grained tokens einen Token nur für dieses Repository mit der Berechtigung „Contents: Read and write“ anlegen und in Render unter Environment als `GITHUB_TOKEN` eintragen. Der Branch löst kein neues Deployment aus.
+
+Eine Frage wieder aktivieren: den Eintrag aus `excluded-questions.json` auf dem Branch `quiz-daten` löschen. Der Server übernimmt das spätestens nach 10 Minuten. Eine Oberfläche dafür ist in [docs/plan-fragen-reaktivieren.md](docs/plan-fragen-reaktivieren.md) geplant.
 
 ## Musik über Spotify
 
