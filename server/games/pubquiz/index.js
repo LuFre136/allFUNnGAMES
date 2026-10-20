@@ -154,6 +154,10 @@ class PubQuiz {
     };
   }
 
+  static questionById(id) {
+    return DATA.questions.find((q) => q.id === id) || null;
+  }
+
   static defaultSettings() {
     return {
       questionCount: 15,
@@ -331,7 +335,7 @@ class PubQuiz {
     };
     if (q.type === 'choice') out.options = q.options;
     if (q.type === 'estimate') out.unit = q.unit;
-    if (q.type === 'image') out.image = { wiki: q.wiki || null, src: q.image || null };
+    if (q.type === 'image') out.image = q.image || `/api/quiz-image/${encodeURIComponent(q.id)}`;
     if (q.type.startsWith('music') && withSpotify) out.spotifyId = spotify.trackIdFor(q);
     return out;
   }
