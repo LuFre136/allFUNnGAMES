@@ -123,6 +123,12 @@ Für 2–20 Spieler, jeder für sich oder in Teams (im Team-Modus füllt jedes T
 
 Pro Runde wird ein Buchstabe gezogen, jeder Buchstabe nur einmal pro Partie. Wer alle Felder ausgefüllt hat, kann Stopp rufen, danach bleibt den anderen die eingestellte Restzeit. Anschließend wird Kategorie für Kategorie geprüft: Leere Antworten und falsche Anfangsbuchstaben zählen automatisch nicht (Ä zählt als A). Zweifelt die Mehrheit der übrigen Mitspieler eine Antwort an, zählt sie ebenfalls nicht; der Host kann jede Antwort fest zulassen oder ablehnen. Punkte: 20 für die einzige gültige Antwort in einer Kategorie, 10 für eine Antwort, die sonst niemand hat, 5 für eine doppelte Antwort.
 
+## So läuft Kreuz & Quer
+
+Würfelspiel nach Qwixx für 2 bis 8 Mitspieler, ohne Teams. Jeder hat auf dem Handy ein Spielblatt mit vier Farbreihen (Rot und Gelb von 2 bis 12, Grün und Blau von 12 bis 2). Reihum würfelt einer mit zwei weißen und vier farbigen Würfeln. Die Summe der weißen Würfel dürfen alle gleichzeitig in einer Reihe ankreuzen, danach darf der Würfelnde noch einen weißen mit einem farbigen Würfel kombinieren. Angekreuzt wird von links nach rechts, übersprungene Felder verfallen. Kreuzt der Würfelnde gar nichts an, gibt es einen Fehlwurf (−5 Punkte). Das letzte Feld einer Reihe gibt es ab fünf Kreuzen, dann ist die Reihe für alle geschlossen. Das Spiel endet bei vier Fehlwürfen oder zwei geschlossenen Reihen. Pro Reihe zählen 1, 3, 6, 10, … Punkte für 1, 2, 3, 4, … Kreuze.
+
+Der Host stellt Bedenkzeit, Startspieler, Hilfen (erlaubte Felder leuchten) und die Zahl der Partien ein. Reagiert jemand nicht, kann er für den Würfelnden würfeln oder den Schritt beenden. Die Regeln prüft `npm test`.
+
 ## Aufbau
 
 ```
@@ -131,6 +137,9 @@ server/lobbies.js            Lobbys, Spieler, Teams, Einstellungen
 server/games/index.js        Verzeichnis der Spiele (neue Spiele hier eintragen)
 server/games/pubquiz/        Pub-Quiz-Logik und Fragen
 server/games/stadtlandfluss/ Stadt, Land, Fluss
+server/games/justone/        Just One
+server/games/kreuzquer/      Kreuz & Quer (Würfelspiel)
+test/                        Regeltests (npm test)
 server/spotify.js            Optionale Spotify-Suche
 public/                      Startseite, Lobby-/Spielseite, Styles, Profilbilder
 ```
