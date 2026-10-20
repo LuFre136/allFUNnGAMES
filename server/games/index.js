@@ -2,10 +2,12 @@
 
 const PubQuiz = require('./pubquiz');
 const JustOne = require('./justone');
+const KreuzQuer = require('./kreuzquer');
 
 const games = {
   pubquiz: PubQuiz,
   justone: JustOne,
+  kreuzquer: KreuzQuer,
 };
 
 // Platzhalter für die Startseite, bis die Spiele gebaut sind

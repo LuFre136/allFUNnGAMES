@@ -117,6 +117,12 @@ Kooperatives Ratespiel ohne Teams für mindestens 3 Mitspieler. Reihum rät eine
 
 Die Begriffe stehen in `server/games/justone/words.json` und lassen sich dort beliebig ergänzen.
 
+## So läuft Kreuz & Quer
+
+Würfelspiel nach Qwixx für 2 bis 8 Mitspieler, ohne Teams. Jeder hat auf dem Handy ein Spielblatt mit vier Farbreihen (Rot und Gelb von 2 bis 12, Grün und Blau von 12 bis 2). Reihum würfelt einer mit zwei weißen und vier farbigen Würfeln. Die Summe der weißen Würfel dürfen alle gleichzeitig in einer Reihe ankreuzen, danach darf der Würfelnde noch einen weißen mit einem farbigen Würfel kombinieren. Angekreuzt wird von links nach rechts, übersprungene Felder verfallen. Kreuzt der Würfelnde gar nichts an, gibt es einen Fehlwurf (−5 Punkte). Das letzte Feld einer Reihe gibt es ab fünf Kreuzen, dann ist die Reihe für alle geschlossen. Das Spiel endet bei vier Fehlwürfen oder zwei geschlossenen Reihen. Pro Reihe zählen 1, 3, 6, 10, … Punkte für 1, 2, 3, 4, … Kreuze.
+
+Der Host stellt Bedenkzeit, Startspieler, Hilfen (erlaubte Felder leuchten) und die Zahl der Partien ein. Reagiert jemand nicht, kann er für den Würfelnden würfeln oder den Schritt beenden. Die Regeln prüft `npm test`.
+
 ## Aufbau
 
 ```
@@ -124,6 +130,9 @@ server/index.js              Webserver, Socket.IO-Ereignisse, QR-Codes
 server/lobbies.js            Lobbys, Spieler, Teams, Einstellungen
 server/games/index.js        Verzeichnis der Spiele (neue Spiele hier eintragen)
 server/games/pubquiz/        Pub-Quiz-Logik und Fragen
+server/games/justone/        Just One
+server/games/kreuzquer/      Kreuz & Quer (Würfelspiel)
+test/                        Regeltests (npm test)
 server/spotify.js            Optionale Spotify-Suche
 public/                      Startseite, Lobby-/Spielseite, Styles, Profilbilder
 ```
