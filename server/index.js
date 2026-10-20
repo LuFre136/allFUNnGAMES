@@ -15,6 +15,7 @@ const { wikiImage, flagImage } = require('./images');
 const exclusions = require('./exclusions');
 exclusions.init();
 const PubQuiz = require('./games/pubquiz');
+const youtube = require('./games/karaoke/youtube');
 
 const PORT = Number(process.env.PORT) || 3000;
 const PUBLIC_DIR = path.join(__dirname, '..', 'public');
@@ -50,6 +51,51 @@ app.get('/api/quiz-image/:id', async (req, res) => {
   } catch (err) {
     console.warn(`Bild für ${question.id} nicht geladen: ${err.message}`);
     res.status(502).end();
+  }
+});
+
+// Karaoke: Songsuche (nur mit YOUTUBE_API_KEY) und Titel zu einem eingefügten Link
+app.get('/api/karaoke/search', async (req, res) => {
+  const q = String(req.query.q || '').trim().slice(0, 100);
+  if (!youtube.enabled()) return res.status(501).json({ error: 'Die Suche ist nicht eingerichtet.' });
+  if (!q) return res.json([]);
+  try {
+    res.json(await youtube.search(q));
+  } catch (err) {
+    console.warn(`YouTube-Suche fehlgeschlagen: ${err.message}`);
+    res.status(502).json({ error: 'YouTube ist gerade nicht erreichbar.' });
+  }
+});
+
+app.get('/api/karaoke/spotify-search', async (req, res) => {
+  const q = String(req.query.q || '').trim().slice(0, 100);
+  if (!spotify.enabled()) return res.status(501).json({ error: 'Die Spotify-Suche ist nicht eingerichtet.' });
+  if (!q) return res.json([]);
+  try {
+    res.json(await spotify.searchTracks(q));
+  } catch (err) {
+    console.warn(`Spotify-Suche fehlgeschlagen: ${err.message}`);
+    res.status(502).json({ error: 'Spotify ist gerade nicht erreichbar.' });
+  }
+});
+
+// Titel zu einem eingefügten Spotify-Link: mit Zugangsdaten samt Interpret, sonst nur der Songname
+app.get('/api/karaoke/spotify-track/:id', async (req, res) => {
+  if (!/^[A-Za-z0-9]{22}$/.test(req.params.id)) return res.status(400).end();
+  try {
+    const info = spotify.enabled() ? await spotify.trackInfo(req.params.id) : { name: await spotify.trackTitle(req.params.id) };
+    res.set('Cache-Control', 'public, max-age=86400').json(info);
+  } catch {
+    res.status(404).end();
+  }
+});
+
+app.get('/api/karaoke/video/:id', async (req, res) => {
+  if (!/^[\w-]{11}$/.test(req.params.id)) return res.status(400).end();
+  try {
+    res.set('Cache-Control', 'public, max-age=86400').json(await youtube.videoTitle(req.params.id));
+  } catch {
+    res.status(404).end();
   }
 });
 

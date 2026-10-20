@@ -672,6 +672,7 @@ function render() {
     }
   }
   syncMusic();
+  for (const g of Object.values(gameViews)) g.afterRender?.();
   tick();
 }
 

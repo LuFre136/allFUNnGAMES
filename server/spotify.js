@@ -78,4 +78,58 @@ async function resolveAll(questions) {
   return state;
 }
 
-module.exports = { trackIdFor, resolveAll, state };
+// Für Karaoke: Suche und Titelinfos über die Web API (nur mit Zugangsdaten)
+let cachedToken = null;
+
+function enabled() {
+  return Boolean(process.env.SPOTIFY_CLIENT_ID && process.env.SPOTIFY_CLIENT_SECRET);
+}
+
+async function apiToken() {
+  if (!cachedToken || cachedToken.expires < Date.now()) {
+    const token = await getToken(process.env.SPOTIFY_CLIENT_ID, process.env.SPOTIFY_CLIENT_SECRET);
+    cachedToken = { token, expires: Date.now() + 50 * 60 * 1000 };
+  }
+  return cachedToken.token;
+}
+
+function publicTrack(t) {
+  return { trackId: t.id, name: t.name, artist: t.artists.map((a) => a.name).join(', '), durationMs: t.duration_ms };
+}
+
+async function apiGet(url) {
+  const res = await fetch(url, { headers: { Authorization: `Bearer ${await apiToken()}` }, signal: AbortSignal.timeout(6000) });
+  if (!res.ok) throw new Error(`Spotify antwortet mit ${res.status}`);
+  return res.json();
+}
+
+// Original und Karaoke-Versionen gleichrangig: beide Suchen abwechselnd zusammengeführt
+async function searchTracks(query) {
+  const search = (q) => apiGet(`https://api.spotify.com/v1/search?type=track&limit=6&q=${encodeURIComponent(q)}`).then((d) => d.tracks?.items || []);
+  const [plain, karaoke] = await Promise.all([search(query), /karaoke|instrumental/i.test(query) ? [] : search(`${query} karaoke`)]);
+  const seen = new Set();
+  const merged = [];
+  for (let i = 0; i < Math.max(plain.length, karaoke.length); i++) {
+    for (const t of [plain[i], karaoke[i]]) {
+      if (t && !seen.has(t.id)) {
+        seen.add(t.id);
+        merged.push(publicTrack(t));
+      }
+    }
+  }
+  return merged.slice(0, 10);
+}
+
+async function trackInfo(id) {
+  return publicTrack(await apiGet(`https://api.spotify.com/v1/tracks/${encodeURIComponent(id)}`));
+}
+
+// Ohne Zugangsdaten: Titel über oEmbed (ohne Interpret)
+async function trackTitle(id) {
+  const url = `https://open.spotify.com/track/${id}`;
+  const res = await fetch(`https://open.spotify.com/oembed?url=${encodeURIComponent(url)}`, { signal: AbortSignal.timeout(6000) });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return (await res.json()).title;
+}
+
+module.exports = { trackIdFor, resolveAll, state, enabled, searchTracks, trackInfo, trackTitle };

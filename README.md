@@ -21,6 +21,7 @@ Optionale Umgebungsvariablen:
 | `PUBLIC_URL` | Feste Adresse für Einladungslinks (bei Render automatisch gesetzt) |
 | `SPOTIFY_CLIENT_ID`, `SPOTIFY_CLIENT_SECRET` | Spotify-Zugangsdaten (siehe unten) |
 | `GITHUB_TOKEN`, `GITHUB_REPO` | Speichert ausgeschlossene Fragen dauerhaft im Repository (siehe unten) |
+| `YOUTUBE_API_KEY` | Songsuche direkt in der App beim Karaoke (siehe unten) |
 
 ## Online stellen (Render)
 
@@ -85,11 +86,18 @@ Eine Frage wieder aktivieren: den Eintrag aus `excluded-questions.json` auf dem 
 Der Song läuft auf dem Gerät des Hosts über den eingebetteten Spotify-Player. Der Player ist bis zur Auflösung verdeckt, Titel und Cover sind also nicht zu sehen (wie bei der Musikzeitreise). Die Spieler sehen nur „Song läuft“.
 
 - Ist man im Browser des Hosts bei Spotify angemeldet, läuft der ganze Song, sonst eine 30-Sekunden-Vorschau.
-- Die Songs sind mit Spotify-Track-IDs hinterlegt. Mit eigenen Zugangsdaten sucht der Server die Songs beim Start zusätzlich über die Spotify-API und nimmt die gefundenen IDs. Dafür auf [developer.spotify.com](https://developer.spotify.com/dashboard) eine App anlegen und starten mit:
+- Die Songs sind mit Spotify-Track-IDs hinterlegt. Mit eigenen Zugangsdaten sucht der Server die Songs beim Start zusätzlich über die Spotify-API und nimmt die gefundenen IDs. Dieselben Zugangsdaten schalten beim Karaoke die Spotify-Suche frei. Dafür auf [developer.spotify.com](https://developer.spotify.com/dashboard) eine App anlegen (siehe unten) und starten mit:
 
 ```bash
 SPOTIFY_CLIENT_ID=... SPOTIFY_CLIENT_SECRET=... npm start
 ```
+
+So kommt man an die Zugangsdaten:
+
+1. Auf [developer.spotify.com/dashboard](https://developer.spotify.com/dashboard) mit dem Spotify-Konto anmelden und die Nutzungsbedingungen bestätigen.
+2. **Create app**: Name und Beschreibung frei wählen, als Redirect URI die eigene Adresse eintragen (z. B. `https://all-fun-n-games.onrender.com/callback`, sie wird nicht benutzt), bei den APIs **Web API** ankreuzen, speichern.
+3. In der App **Settings** öffnen: Dort steht die **Client ID**, das **Client secret** zeigt „View client secret“.
+4. In Render den Dienst öffnen, **Environment** → die Werte bei `SPOTIFY_CLIENT_ID` und `SPOTIFY_CLIENT_SECRET` eintragen und speichern. Render startet den Dienst danach neu.
 
 ## Profilbilder
 
@@ -128,6 +136,18 @@ Pro Runde wird ein Buchstabe gezogen, jeder Buchstabe nur einmal pro Partie. Wer
 Würfelspiel nach Qwixx für 2 bis 8 Mitspieler, ohne Teams. Jeder hat auf dem Handy ein Spielblatt mit vier Farbreihen (Rot und Gelb von 2 bis 12, Grün und Blau von 12 bis 2). Reihum würfelt einer mit zwei weißen und vier farbigen Würfeln. Die Summe der weißen Würfel dürfen alle gleichzeitig in einer Reihe ankreuzen, danach darf der Würfelnde noch einen weißen mit einem farbigen Würfel kombinieren. Angekreuzt wird von links nach rechts, übersprungene Felder verfallen. Kreuzt der Würfelnde gar nichts an, gibt es einen Fehlwurf (−5 Punkte). Das letzte Feld einer Reihe gibt es ab fünf Kreuzen, dann ist die Reihe für alle geschlossen. Das Spiel endet bei vier Fehlwürfen oder zwei geschlossenen Reihen. Pro Reihe zählen 1, 3, 6, 10, … Punkte für 1, 2, 3, 4, … Kreuze.
 
 Der Host stellt Bedenkzeit, Startspieler, Hilfen (erlaubte Felder leuchten) und die Zahl der Partien ein. Reagiert jemand nicht, kann er für den Würfelnden würfeln oder den Schritt beenden. Die Regeln prüft `npm test`.
+
+## So läuft Karaoke
+
+Das Host-Gerät ist die Bühne: am besten an den Fernseher anschließen oder auf den Beamer streamen. Gesungen wird zu Karaoke-Videos von YouTube, der Liedtext kommt also aus dem Video. Alle tragen auf dem Handy Songs in die Warteschlange ein (Interpret und Titel, dazu der YouTube-Link, optional mit Duettpartner). Ohne Link sucht der Host das Video, wenn der Song dran ist. Der Host kann auch Songs für Gäste ohne Handy eintragen, Songs vorziehen, entfernen oder sofort starten.
+
+Bei „Reihum“ kommt immer zuerst dran, wer am wenigsten gesungen hat. Während des Songs schicken die anderen Applaus-Emojis, die über das Video fliegen. Ist das Video zu Ende (oder tippen Sänger oder Host auf „Fertig“), vergeben alle außer den Sängern 1 bis 5 Sterne. Mit „Abschluss“ zeigt der Host die Rangliste nach Durchschnittsbewertung. Die Bewertung lässt sich in den Einstellungen abschalten.
+
+Manche Videos dürfen nicht eingebettet werden. Dann zeigt die Bühne einen Hinweis, und der Host öffnet das Video auf YouTube oder fügt einen anderen Link ein.
+
+**Spotify statt YouTube:** Beim Eintragen wählt man „🎧 Spotify“. Gespielt wird über den Spotify-Player auf dem Host-Gerät, den Text liefert die freie Datenbank [LRCLIB](https://lrclib.net), denn Spotify gibt keine Songtexte heraus. Mit Zeitstempeln läuft der Text zeilenweise mit, die aktuelle Zeile groß und gelb. Passt der Takt nicht (z. B. bei Karaoke-Versionen mit anderem Intro), verschiebt der Host den Text in halben Sekunden. Gibt es nur Text ohne Zeitstempel, scrollt er gleichmäßig über die Länge des Songs. In der Warteschlange steht, ob ein Text gefunden wurde. Für ganze Songs muss der Host-Browser bei open.spotify.com angemeldet sein, sonst spielt Spotify 30 Sekunden. Mit `SPOTIFY_CLIENT_ID` und `SPOTIFY_CLIENT_SECRET` (siehe [Musik über Spotify](#musik-über-spotify)) gibt es die Suche in der App, Original und Karaoke-Versionen gleichrangig gemischt. Ohne sie fügt man den Spotify-Link ein.
+
+Ohne Schlüssel öffnet „Auf YouTube suchen“ die YouTube-Suche, den Link kopiert man von dort. Mit `YOUTUBE_API_KEY` gibt es die Suche direkt in der App. Den Schlüssel gibt es kostenlos in der [Google Cloud Console](https://console.cloud.google.com/apis/library/youtube.googleapis.com): Projekt anlegen, „YouTube Data API v3“ aktivieren, unter „Anmeldedaten“ einen API-Schlüssel erstellen und in Render unter Environment eintragen. Das kostenlose Kontingent reicht für rund 100 Suchen am Tag.
 
 ## So läuft Dr Kroko
 
@@ -177,6 +197,7 @@ server/games/pubquiz/        Pub-Quiz-Logik und Fragen
 server/games/stadtlandfluss/ Stadt, Land, Fluss
 server/games/justone/        Just One
 server/games/kreuzquer/      Kreuz & Quer (Würfelspiel)
+server/games/karaoke/        Karaoke (Warteschlange, Bewertung, YouTube- und Spotify-Suche, Songtexte)
 server/games/musikzeitreise/ Musikzeitreise (Songs und Zeitleisten)
 server/games/wuerfelbecher/  Würfelbecher (nach Kniffel)
 server/games/alias/          Alias (nach Codenames)
