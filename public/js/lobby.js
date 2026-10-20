@@ -277,6 +277,10 @@ function viewTeams() {
   </div>`;
 }
 
+function selectedTypes() {
+  return S.settings.game.types || S.game.types.map((t) => t.id);
+}
+
 function viewSettings() {
   const s = S.settings;
   const g = s.game;
@@ -306,11 +310,16 @@ function viewSettings() {
         <select id="set-music-time">${timeOptions(g.musicTimeLimit ?? 180)}</select>
       </label>
     </div>
-    ${g.questionCount > S.availableQuestions ? `<div class="small" style="color:var(--accent)">In den gewählten Kategorien gibt es nur ${S.availableQuestions} Fragen. Es werden alle gespielt.</div>` : ''}
+    ${g.questionCount > S.availableQuestions ? `<div class="small" style="color:var(--accent)">Für die gewählten Kategorien und Fragenformate gibt es nur ${S.availableQuestions} Fragen. Es werden alle gespielt.</div>` : ''}
     <div>
       <div class="row spread" style="margin-bottom:6px"><span class="small muted" style="font-weight:700">Kategorien</span>
         <span class="row"><button class="btn small ghost" data-action="allCats">Alle</button><button class="btn small ghost" data-action="noCats">Keine</button></span></div>
       <div class="chips">${cats.map((c) => `<button class="chip ${g.categories.includes(c.name) ? 'on' : ''}" data-action="toggleCat" data-cat="${esc(c.name)}">${esc(c.name)} <small>${c.count}</small></button>`).join('')}</div>
+    </div>
+    <div>
+      <div class="row spread" style="margin-bottom:6px"><span class="small muted" style="font-weight:700">Fragenformate</span>
+        <span class="row"><button class="btn small ghost" data-action="allTypes">Alle</button><button class="btn small ghost" data-action="noTypes">Keine</button></span></div>
+      <div class="chips">${S.game.types.map((t) => `<button class="chip ${selectedTypes().includes(t.id) ? 'on' : ''}" data-action="toggleType" data-type="${esc(t.id)}">${esc(t.label)} <small>${t.count}</small></button>`).join('')}</div>
     </div>
   </div>`;
 }
@@ -718,6 +727,14 @@ const actions = {
   },
   allCats: () => sendHost('settings', { game: { categories: S.game.categories.map((c) => c.name) } }),
   noCats: () => sendHost('settings', { game: { categories: [] } }),
+  toggleType: (el) => {
+    const types = new Set(selectedTypes());
+    if (types.has(el.dataset.type)) types.delete(el.dataset.type);
+    else types.add(el.dataset.type);
+    sendHost('settings', { game: { types: [...types] } });
+  },
+  allTypes: () => sendHost('settings', { game: { types: S.game.types.map((t) => t.id) } }),
+  noTypes: () => sendHost('settings', { game: { types: [] } }),
   start: () => sendHost('start'),
   reveal: () => sendHost('reveal'),
   pause: () => sendHost('pause'),

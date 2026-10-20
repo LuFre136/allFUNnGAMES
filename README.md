@@ -33,11 +33,18 @@ So läuft die Plattform dauerhaft im Internet und ist von jedem Handy aus erreic
 3. Bei den Spotify-Feldern kann man die Zugangsdaten eintragen oder sie leer lassen.
 4. **Apply** klicken. Nach ein paar Minuten gibt es eine Adresse wie `https://all-fun-n-games.onrender.com`. Diese Adresse auf dem Handy öffnen, fertig.
 
-Neue Commits auf `main` werden automatisch veröffentlicht. Gut zu wissen beim kostenlosen Tarif: Nach etwa 15 Minuten ohne Besucher schläft der Server ein. Der erste Aufruf danach dauert rund eine Minute, und Lobbys aus der vorherigen Sitzung sind dann weg. Einfach die Seite kurz vor dem Spieleabend einmal öffnen.
+Neue Commits auf `main` werden automatisch veröffentlicht. Falls Render das nicht von selbst mitbekommt (zum Beispiel, wenn der Dienst ohne Verbindung zu GitHub angelegt wurde), übernimmt das ein GitHub-Workflow:
+
+1. In Render den Dienst öffnen, **Settings → Deploy Hook** und die Adresse kopieren.
+2. Auf GitHub im Repository **Settings → Secrets and variables → Actions → New repository secret** öffnen, als Name `RENDER_DEPLOY_HOOK_URL` und als Wert die kopierte Adresse eintragen.
+
+Danach stößt jeder Merge nach `main` ein Deployment an (`.github/workflows/render-deploy.yml`). Unter **Actions → Render-Deployment → Run workflow** lässt es sich auch von Hand starten.
+
+Gut zu wissen beim kostenlosen Tarif: Nach etwa 15 Minuten ohne Besucher schläft der Server ein. Der erste Aufruf danach dauert rund eine Minute, und Lobbys aus der vorherigen Sitzung sind dann weg. Einfach die Seite kurz vor dem Spieleabend einmal öffnen.
 
 ## So läuft das Pub Quiz
 
-**Host (Ersteller der Lobby)** stellt ein: Teams hinzufügen, umbenennen und löschen, Anzahl Fragen, Kategorien, Lobbyname, eigener Spielername, Zeitlimit und ob er mitspielt oder nur Gamemaster ist. Der Einladungslink lässt sich kopieren, teilen oder als QR-Code scannen.
+**Host (Ersteller der Lobby)** stellt ein: Teams hinzufügen, umbenennen und löschen, Anzahl Fragen, Kategorien, Fragenformate (z. B. nur Schätzfragen), Lobbyname, eigener Spielername, Zeitlimit und ob er mitspielt oder nur Gamemaster ist. Der Einladungslink lässt sich kopieren, teilen oder als QR-Code scannen.
 
 **Spieler** wählen beim Beitreten Name, Profilbild und Team.
 

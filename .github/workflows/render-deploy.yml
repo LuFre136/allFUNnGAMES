@@ -1,0 +1,23 @@
+# Veröffentlicht jeden neuen Stand von main auf Render.
+# Dafür in Render unter Settings → Deploy Hook die Adresse kopieren und auf GitHub unter
+# Settings → Secrets and variables → Actions als Secret RENDER_DEPLOY_HOOK_URL eintragen.
+name: Render-Deployment
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy Hook aufrufen
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$RENDER_DEPLOY_HOOK_URL" ]; then
+            echo "::warning::Secret RENDER_DEPLOY_HOOK_URL fehlt, Render wurde nicht benachrichtigt."
+            exit 0
+          fi
+          curl -fsS -X POST "$RENDER_DEPLOY_HOOK_URL"
