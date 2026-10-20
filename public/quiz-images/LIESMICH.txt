@@ -1,0 +1,4 @@
+Eigene Bilder für "Wer ist das?"-Fragen hier ablegen und in
+server/games/pubquiz/questions.json beim Feld "image" eintragen,
+z. B. "image": "/quiz-images/einstein.jpg".
+Ohne "image" lädt das Spiel das Bild von Wikipedia (Feld "wiki").
