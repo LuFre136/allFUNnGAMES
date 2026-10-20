@@ -1,0 +1,62 @@
+/* Dr Kroko */
+
+.cd-order { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.cd-order-item { display: flex; align-items: center; gap: 8px; padding: 6px 6px 6px 12px; border-radius: 12px; background: var(--bg-2); border: 1px solid var(--line); user-select: none; }
+.cd-order-item .name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cd-order-item.offline { opacity: 0.5; }
+.cd-order-item.dragging { border-color: var(--accent); box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4); background: var(--card-2); }
+.cd-pos { font-family: 'Fredoka', sans-serif; width: 26px; color: var(--muted); }
+.cd-handle { display: grid; place-items: center; width: 40px; height: 36px; border-radius: 10px; font-size: 1.3rem; color: var(--muted); cursor: grab; touch-action: none; }
+.cd-handle:hover { background: var(--card-2); color: var(--text); }
+.cd-order-item.dragging .cd-handle { cursor: grabbing; }
+
+.cd-status { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 14px; border-radius: 999px; background: var(--bg-2); border: 1px solid var(--line); text-align: center; flex-wrap: wrap; }
+.cd-status.mine { background: var(--accent); color: var(--accent-ink); border-color: transparent; font-weight: 900; }
+.cd-status.bitten { background: var(--bad); color: #fff; border-color: transparent; font-weight: 900; font-size: 1.1rem; }
+
+/* Das Krokodil: oben der Kopf mit Augen, darunter der offene Unterkiefer mit den Zähnen */
+.cd-croc { --croc: #16a34a; --croc-dark: #166534; position: relative; width: min(100%, 440px); aspect-ratio: 1 / 1.05; margin: 8px auto 0; }
+.cd-head { position: absolute; left: 10%; right: 10%; top: 4%; height: 26%; background: linear-gradient(var(--croc), var(--croc-dark)); border-radius: 50% 50% 20% 20% / 75% 75% 25% 25%; }
+.cd-eye { position: absolute; top: -18%; width: 24%; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle at 50% 58%, #111827 0 22%, #fef9c3 23% 62%, var(--croc) 63%); }
+.cd-eye:first-child { left: 10%; }
+.cd-eye:nth-child(2) { right: 10%; }
+.cd-nose { position: absolute; left: 50%; top: 52%; width: 18%; height: 12%; transform: translateX(-50%); background: radial-gradient(circle at 25% 50%, #052e16 0 26%, transparent 28%), radial-gradient(circle at 75% 50%, #052e16 0 26%, transparent 28%); }
+.cd-jaw { position: absolute; left: 0; right: 0; top: 24%; bottom: 0; padding: 6%; background: linear-gradient(var(--croc), var(--croc-dark)); border-radius: 26% 26% 50% 50% / 18% 18% 55% 55%; box-shadow: var(--shadow); }
+.cd-mouth { position: relative; height: 100%; background: #9d174d; border-radius: 14% 14% 50% 50% / 10% 10% 58% 58%; box-shadow: inset 0 10px 24px rgba(0, 0, 0, 0.45); }
+.cd-tongue { position: absolute; left: 32%; right: 32%; top: 34%; bottom: 14%; border-radius: 50% 50% 45% 45%; background: #f472b6; box-shadow: inset 0 -8px 16px rgba(0, 0, 0, 0.2); }
+.cd-upper { position: absolute; left: 4%; right: 4%; top: 4%; height: 88%; background: linear-gradient(var(--croc-dark), var(--croc)); border-radius: 20% 20% 50% 50% / 12% 12% 55% 55%; transform: scaleY(0); transform-origin: top; pointer-events: none; }
+
+.cd-tooth { position: absolute; aspect-ratio: 0.78; padding: 0; border: 0; transform: translate(-50%, -50%) rotate(var(--rot)); background: #fffdf3; border-radius: 50% 50% 24% 24% / 78% 78% 22% 22%; box-shadow: 0 4px 0 #cfc6a6; transition: transform 0.15s, background 0.15s; }
+.cd-tooth.free { cursor: pointer; }
+.cd-tooth.free:hover { background: #fff; transform: translate(-50%, -50%) rotate(var(--rot)) scale(1.08); }
+.cd-croc.mine .cd-tooth.free { animation: cd-wiggle 1.6s ease-in-out infinite; }
+.cd-tooth.pressed { transform: translate(-50%, -50%) rotate(var(--rot)) scale(0.72); background: #a8a29e; box-shadow: none; }
+.cd-tooth.bad { background: #ef4444; box-shadow: 0 0 0 3px #fff, 0 0 20px #ef4444; }
+@keyframes cd-wiggle {
+  0%, 100% { box-shadow: 0 4px 0 #cfc6a6; }
+  50% { box-shadow: 0 4px 0 #cfc6a6, 0 0 0 3px var(--accent); }
+}
+
+/* Zuschnappen: das Maul klappt zu, die ganze Figur wackelt, danach geht es wieder auf */
+.cd-croc.snap .cd-upper { animation: cd-snap 1.2s ease-in-out; }
+.cd-croc.snap { animation: cd-shake 0.5s 0.15s; }
+@keyframes cd-snap {
+  0% { transform: scaleY(0); }
+  15%, 65% { transform: scaleY(1); }
+  100% { transform: scaleY(0); }
+}
+@keyframes cd-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-8px) rotate(-2deg); }
+  40% { transform: translateX(8px) rotate(2deg); }
+  60% { transform: translateX(-5px) rotate(-1deg); }
+  80% { transform: translateX(5px) rotate(1deg); }
+}
+
+.cd-strip { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+.cd-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px 4px 4px; border-radius: 999px; background: var(--bg-2); border: 1px solid var(--line); font-size: 0.9rem; }
+.cd-chip.active { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+.cd-chip.bitten { border-color: var(--bad); box-shadow: 0 0 0 2px var(--bad); }
+.cd-chip.out { opacity: 0.45; text-decoration: line-through; }
+.cd-chip.offline { opacity: 0.6; }
+.cd-bites { font-size: 0.8rem; }

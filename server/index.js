@@ -141,6 +141,24 @@ io.on('connection', (socket) => {
     lobby.broadcast();
   });
 
+  // Weitere Mitspieler am selben Gerät (z. B. Dr Kroko)
+  socket.on('guest:add', ({ name, avatar } = {}, ack) => {
+    const { lobby, player } = ctx();
+    if (!player) return ack?.({ error: 'Nicht verbunden.' });
+    const error = lobby.addGuest(player, { name, avatar });
+    lobby.broadcast();
+    ack?.(error ? { error } : { ok: true });
+  });
+
+  socket.on('guest:remove', ({ playerId } = {}, ack) => {
+    const { lobby, player } = ctx();
+    const guest = lobby?.players.get(playerId);
+    if (!guest || guest.guestOf !== player?.id) return ack?.({ error: 'Diesen Mitspieler gibt es nicht.' });
+    lobby.removePlayer(playerId);
+    lobby.broadcast();
+    ack?.({ ok: true });
+  });
+
   socket.on('vote', (value, ack) => {
     const { lobby, player } = ctx();
     if (!player || !lobby.game) return ack?.({ error: 'Kein laufendes Spiel.' });
