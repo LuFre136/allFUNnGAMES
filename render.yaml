@@ -4,6 +4,8 @@ services:
     name: all-fun-n-games
     runtime: node
     plan: free
+    branch: main
+    autoDeploy: true
     buildCommand: npm ci
     startCommand: npm start
     healthCheckPath: /api/games

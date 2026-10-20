@@ -45,6 +45,21 @@ function categoryStats() {
   }));
 }
 
+function typeStats() {
+  const active = activeQuestions();
+  return Object.entries(TYPE_LABELS).map(([id, label]) => ({
+    id,
+    label,
+    count: active.filter((q) => q.type === id).length,
+  }));
+}
+
+// Fragen, die zu Kategorien und Fragenformaten der Einstellungen passen
+function matchingQuestions(settings) {
+  const types = settings.types || Object.keys(TYPE_LABELS);
+  return activeQuestions().filter((q) => settings.categories.includes(q.category) && types.includes(q.type));
+}
+
 function cleanText(value, max = 80) {
   return String(value ?? '').replace(/\s+/g, ' ').trim().slice(0, max);
 }
@@ -163,6 +178,7 @@ class PubQuiz {
       players: '2–40 Spieler in Teams',
       available: true,
       categories: categoryStats(),
+      types: typeStats(),
       totalQuestions: activeQuestions().length,
       typeLabels: TYPE_LABELS,
     };
@@ -176,6 +192,7 @@ class PubQuiz {
     return {
       questionCount: 15,
       categories: DATA.categories.slice(),
+      types: Object.keys(TYPE_LABELS),
       timeLimit: 60,
       musicTimeLimit: 180,
     };
@@ -190,6 +207,9 @@ class PubQuiz {
     if (Array.isArray(patch.categories)) {
       next.categories = patch.categories.filter((c) => DATA.categories.includes(c));
     }
+    if (Array.isArray(patch.types)) {
+      next.types = patch.types.filter((t) => Object.hasOwn(TYPE_LABELS, t));
+    }
     for (const key of ['timeLimit', 'musicTimeLimit']) {
       if (patch[key] === undefined) continue;
       const t = Math.round(Number(patch[key]));
@@ -199,14 +219,13 @@ class PubQuiz {
   }
 
   static availableCount(settings) {
-    return activeQuestions().filter((q) => settings.categories.includes(q.category)).length;
+    return matchingQuestions(settings).length;
   }
 
   start() {
-    const { categories, questionCount } = this.lobby.settings.game;
-    const pool = activeQuestions().filter((q) => categories.includes(q.category));
-    this.questions = shuffle(pool).slice(0, questionCount);
-    if (!this.questions.length) throw new Error('Keine Fragen in den gewählten Kategorien.');
+    const settings = this.lobby.settings.game;
+    this.questions = shuffle(matchingQuestions(settings)).slice(0, settings.questionCount);
+    if (!this.questions.length) throw new Error('Keine Fragen für die gewählten Kategorien und Fragenformate.');
     this.index = 0;
     this.history = [];
     this.startQuestion();
