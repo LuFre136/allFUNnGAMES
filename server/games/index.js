@@ -4,12 +4,14 @@ const PubQuiz = require('./pubquiz');
 const JustOne = require('./justone');
 const StadtLandFluss = require('./stadtlandfluss');
 const KreuzQuer = require('./kreuzquer');
+const Karaoke = require('./karaoke');
 
 const games = {
   pubquiz: PubQuiz,
   justone: JustOne,
   stadtlandfluss: StadtLandFluss,
   kreuzquer: KreuzQuer,
+  karaoke: Karaoke,
 };
 
 // Platzhalter für die Startseite, bis die Spiele gebaut sind

@@ -21,6 +21,7 @@ Optionale Umgebungsvariablen:
 | `PUBLIC_URL` | Feste Adresse für Einladungslinks (bei Render automatisch gesetzt) |
 | `SPOTIFY_CLIENT_ID`, `SPOTIFY_CLIENT_SECRET` | Spotify-Zugangsdaten (siehe unten) |
 | `GITHUB_TOKEN`, `GITHUB_REPO` | Speichert ausgeschlossene Fragen dauerhaft im Repository (siehe unten) |
+| `YOUTUBE_API_KEY` | Songsuche direkt in der App beim Karaoke (siehe unten) |
 
 ## Online stellen (Render)
 
@@ -129,6 +130,16 @@ Würfelspiel nach Qwixx für 2 bis 8 Mitspieler, ohne Teams. Jeder hat auf dem H
 
 Der Host stellt Bedenkzeit, Startspieler, Hilfen (erlaubte Felder leuchten) und die Zahl der Partien ein. Reagiert jemand nicht, kann er für den Würfelnden würfeln oder den Schritt beenden. Die Regeln prüft `npm test`.
 
+## So läuft Karaoke
+
+Das Host-Gerät ist die Bühne: am besten an den Fernseher anschließen oder auf den Beamer streamen. Gesungen wird zu Karaoke-Videos von YouTube, der Liedtext kommt also aus dem Video. Alle tragen auf dem Handy Songs in die Warteschlange ein (Interpret und Titel, dazu der YouTube-Link, optional mit Duettpartner). Ohne Link sucht der Host das Video, wenn der Song dran ist. Der Host kann auch Songs für Gäste ohne Handy eintragen, Songs vorziehen, entfernen oder sofort starten.
+
+Bei „Reihum“ kommt immer zuerst dran, wer am wenigsten gesungen hat. Während des Songs schicken die anderen Applaus-Emojis, die über das Video fliegen. Ist das Video zu Ende (oder tippen Sänger oder Host auf „Fertig“), vergeben alle außer den Sängern 1 bis 5 Sterne. Mit „Abschluss“ zeigt der Host die Rangliste nach Durchschnittsbewertung. Die Bewertung lässt sich in den Einstellungen abschalten.
+
+Manche Videos dürfen nicht eingebettet werden. Dann zeigt die Bühne einen Hinweis, und der Host öffnet das Video auf YouTube oder fügt einen anderen Link ein.
+
+Ohne Schlüssel öffnet „Auf YouTube suchen“ die YouTube-Suche, den Link kopiert man von dort. Mit `YOUTUBE_API_KEY` gibt es die Suche direkt in der App. Den Schlüssel gibt es kostenlos in der [Google Cloud Console](https://console.cloud.google.com/apis/library/youtube.googleapis.com): Projekt anlegen, „YouTube Data API v3“ aktivieren, unter „Anmeldedaten“ einen API-Schlüssel erstellen und in Render unter Environment eintragen. Das kostenlose Kontingent reicht für rund 100 Suchen am Tag.
+
 ## Aufbau
 
 ```
@@ -139,6 +150,7 @@ server/games/pubquiz/        Pub-Quiz-Logik und Fragen
 server/games/stadtlandfluss/ Stadt, Land, Fluss
 server/games/justone/        Just One
 server/games/kreuzquer/      Kreuz & Quer (Würfelspiel)
+server/games/karaoke/        Karaoke (Warteschlange, Bewertung, YouTube-Suche)
 test/                        Regeltests (npm test)
 server/spotify.js            Optionale Spotify-Suche
 public/                      Startseite, Lobby-/Spielseite, Styles, Profilbilder
