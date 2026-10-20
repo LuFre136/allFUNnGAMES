@@ -111,6 +111,12 @@ Alle Fragen stehen in `server/games/pubquiz/questions.json`. Beispiele je Format
 
 Bei Flaggenfragen ist `flag` der zweistellige Ländercode; das Bild kommt von flagcdn.com. Bei Bildfragen lädt `wiki` das Hauptbild des englischen Wikipedia-Artikels. Alternativ ein eigenes Bild in `public/quiz-images/` legen und `"image": "/quiz-images/datei.jpg"` eintragen. Neue Kategorien oben in `categories` ergänzen.
 
+## So läuft Just One
+
+Kooperatives Ratespiel ohne Teams für mindestens 3 Mitspieler. Reihum rät einer: Er wählt eine von vier verdeckten Karten, alle anderen sehen den Begriff und schreiben je ein Wort als Hinweis auf. Danach werden doppelte Hinweise automatisch gestrichen, auch bei gleichem Wortstamm („Haus“, „Häuser“, „Häuschen“), ebenso Hinweise aus der Wortfamilie des Begriffs („Apfelbaum“ zu „Apfel“). Die Hinweisgeber können vor dem Aufdecken weitere Hinweise streichen oder eine Streichung aufheben. Richtig geraten gibt einen Punkt, Passen kostet nur die Karte, ein falscher Rateversuch zusätzlich die nächste Karte. Der Host kann die Bewertung korrigieren und Karten überspringen.
+
+Die Begriffe stehen in `server/games/justone/words.json` und lassen sich dort beliebig ergänzen.
+
 ## Aufbau
 
 ```

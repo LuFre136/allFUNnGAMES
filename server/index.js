@@ -157,6 +157,15 @@ io.on('connection', (socket) => {
     ack?.(result);
   });
 
+  // Spielzüge von Spielen mit eigenen Aktionen (z. B. Just One)
+  socket.on('game:action', (data = {}, ack) => {
+    const { lobby, player } = ctx();
+    if (!player || !lobby.game?.action) return ack?.({ error: 'Kein laufendes Spiel.' });
+    const result = lobby.game.action(player, data || {});
+    lobby.broadcast();
+    ack?.(result);
+  });
+
   // Alle Host-Aktionen laufen über ein Ereignis
   socket.on('host', ({ action, ...data } = {}, ack) => {
     const { lobby, player } = ctx();

@@ -28,8 +28,12 @@ class Lobby {
     this.phase = 'lobby'; // lobby | playing
     this.game = null;
     this.touched = Date.now();
-    this.addTeam();
-    this.addTeam();
+    // Spiele ohne Teams (z. B. Just One) spielen alle zusammen
+    this.usesTeams = Game.meta().teams !== false;
+    if (this.usesTeams) {
+      this.addTeam();
+      this.addTeam();
+    }
     const host = this.addPlayer({ name: cleanName(hostName, 'Host'), avatar: hostAvatar, isHost: true });
     this.hostId = host.id;
     this.settings = {
@@ -40,7 +44,7 @@ class Lobby {
   }
 
   addTeam(name) {
-    if (this.teams.length >= MAX_TEAMS) return null;
+    if (this.teams.length >= MAX_TEAMS || this.usesTeams === false) return null;
     this.teamSeq++;
     const used = new Set(this.teams.map((t) => t.color));
     const color = TEAM_COLORS.find((c) => !used.has(c)) || TEAM_COLORS[this.teamSeq % TEAM_COLORS.length];
@@ -68,6 +72,7 @@ class Lobby {
   // „random“ wählt ein Team mit den wenigsten Spielern, damit die Teams gleich groß bleiben
   resolveTeamId(teamId, player = null) {
     if (teamId !== 'random') return this.teamById(teamId) ? teamId : null;
+    if (!this.teams.length) return null;
     const sizes = this.teams.map((t) => ({ id: t.id, size: this.playersInTeam(t.id).filter((p) => p !== player).length }));
     const min = Math.min(...sizes.map((t) => t.size));
     return pick(sizes.filter((t) => t.size === min)).id;
@@ -130,9 +135,11 @@ class Lobby {
   }
 
   start() {
-    const playing = [...this.players.values()].filter((p) => p.teamId && (!p.isHost || this.settings.hostPlays));
-    if (!playing.length) return 'Mindestens ein Spieler muss einem Team beitreten.';
-    if (!this.settings.game.categories.length) return 'Bitte wähle mindestens eine Kategorie.';
+    if (this.usesTeams) {
+      const playing = [...this.players.values()].filter((p) => p.teamId && (!p.isHost || this.settings.hostPlays));
+      if (!playing.length) return 'Mindestens ein Spieler muss einem Team beitreten.';
+    }
+    if (this.settings.game.categories && !this.settings.game.categories.length) return 'Bitte wähle mindestens eine Kategorie.';
     this.game?.dispose();
     this.game = new this.Game(this);
     try {
