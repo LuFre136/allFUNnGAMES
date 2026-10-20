@@ -660,6 +660,8 @@ function render() {
   }
 
   app.innerHTML = view();
+  // Spiele mit Elementen, die das Neuzeichnen überleben müssen (z. B. die Zeichenfläche beim Montagsmaler)
+  customGame()?.afterRender?.();
   document.getElementById('topinfo').innerHTML = fatal || joinInfo ? '' : viewTopInfo();
   document.getElementById('hostbar-root').innerHTML = fatal ? '' : viewHostbar();
 

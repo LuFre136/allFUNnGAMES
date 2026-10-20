@@ -205,6 +205,11 @@ class Lobby {
     };
   }
 
+  // Einzelne Nachricht an einen Spieler, z. B. Striche beim Montagsmaler
+  send(player, event, payload) {
+    if (player.socketId) io.to(player.socketId).emit(event, payload);
+  }
+
   broadcast() {
     this.touched = Date.now();
     for (const p of this.players.values()) {

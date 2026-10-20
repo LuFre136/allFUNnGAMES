@@ -8,6 +8,7 @@ const DrKroko = require('./drkroko');
 const Musikzeitreise = require('./musikzeitreise');
 const Wuerfelbecher = require('./wuerfelbecher');
 const Alias = require('./alias');
+const Montagsmaler = require('./montagsmaler');
 
 const games = {
   pubquiz: PubQuiz,
@@ -18,12 +19,12 @@ const games = {
   musikzeitreise: Musikzeitreise,
   wuerfelbecher: Wuerfelbecher,
   alias: Alias,
+  montagsmaler: Montagsmaler,
 };
 
 // Platzhalter für die Startseite, bis die Spiele gebaut sind
 const comingSoon = [
   { id: 'werbinich', name: 'Wer bin ich?', icon: '🕵️', description: 'Errate die Figur auf deiner Stirn.', available: false },
-  { id: 'activity', name: 'Zeichnen & Raten', icon: '🎨', description: 'Einer zeichnet, alle anderen raten.', available: false },
 ];
 
 function list() {

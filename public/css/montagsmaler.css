@@ -1,0 +1,66 @@
+/* Montagsmaler */
+
+.mm textarea, #mm-custom { width: 100%; font: inherit; color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; resize: vertical; }
+
+.mm-layout { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); }
+.mm-main, .mm-side { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+@media (min-width: 900px) {
+  .mm-layout { grid-template-columns: minmax(0, 1fr) 300px; align-items: start; }
+}
+
+.mm-drawer { display: flex; align-items: center; gap: 8px; }
+.mm-who { display: inline-flex; align-items: center; gap: 6px; min-width: 0; }
+
+/* Zeichenfläche im Seitenverhältnis 4:3, auf großen Bildschirmen so hoch wie möglich */
+.mm-board { position: relative; width: 100%; max-width: calc((100vh - 310px) * 4 / 3); min-width: min(100%, 280px); margin: 0 auto; aspect-ratio: 4 / 3; background: #fff; border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); }
+.mm-board.with-tools { max-width: calc((100vh - 430px) * 4 / 3); }
+.mm-canvas { display: block; width: 100%; height: 100%; touch-action: none; user-select: none; -webkit-user-select: none; }
+.mm-board.drawing .mm-canvas { cursor: crosshair; }
+.mm-board.fill .mm-canvas { cursor: cell; }
+
+.mm-word { display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; }
+.mm-word.known b { font-family: 'Fredoka', sans-serif; font-size: 1.8rem; letter-spacing: 1px; }
+.mm-mask { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; font-family: 'Fredoka', sans-serif; font-size: 1.6rem; }
+.mm-mask .gap, .mm-mask .ch { display: inline-block; width: 0.9em; text-align: center; border-bottom: 3px solid var(--text); line-height: 1.2; min-height: 1.2em; }
+.mm-mask .ch { color: var(--accent); }
+.mm-mask .space { display: inline-block; width: 0.6em; }
+.mm-level { display: inline-block; margin-left: 8px; font-size: 0.75rem; font-weight: 800; padding: 2px 8px; border-radius: 999px; background: var(--card-2); color: var(--muted); vertical-align: middle; }
+
+.mm-tools { display: flex; flex-direction: column; gap: 8px; }
+.mm-colors { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+.mm-color { width: 34px; height: 34px; border-radius: 50%; border: 3px solid var(--line); background: var(--c); cursor: pointer; padding: 0; }
+.mm-color.on { border-color: var(--accent); transform: scale(1.12); }
+.mm-toolrow { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; align-items: center; }
+.mm-tool { min-width: 42px; height: 42px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg-2); color: var(--text); font: inherit; font-size: 1.2rem; cursor: pointer; display: inline-grid; place-items: center; }
+.mm-tool.on { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+.mm-size span { display: block; width: var(--s); height: var(--s); border-radius: 50%; background: currentColor; }
+.mm-sep { width: 1px; height: 28px; background: var(--line); }
+
+.mm-guess { flex-wrap: nowrap; }
+.mm-guess input { flex: 1; min-width: 0; }
+
+.mm-feed-list { display: flex; flex-direction: column; gap: 4px; max-height: 320px; overflow-y: auto; }
+.mm-guess-item { padding: 6px 10px; border-radius: 10px; background: var(--bg-2); overflow-wrap: anywhere; }
+.mm-guess-item.correct { background: rgba(52, 211, 153, 0.18); color: var(--good); }
+.mm-guess-item.close .tag { font-size: 0.75rem; font-weight: 800; color: var(--accent); }
+
+.mm-guessers { display: flex; flex-wrap: wrap; gap: 4px; }
+.mm-guesser { border-radius: 50%; opacity: 0.45; }
+.mm-guesser.done { opacity: 1; box-shadow: 0 0 0 2px var(--good); }
+
+.notice.good { background: rgba(52, 211, 153, 0.15); border-color: var(--good); }
+
+.mm-choices { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+.mm-choice { display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 1.3rem; }
+.mm-choice .mm-level { margin: 0; }
+.mm-wait { padding: 20px 0; }
+.mm-wait .avatar { width: 80px; height: 80px; font-size: 2rem; }
+
+.mm-turn-scores { display: flex; flex-direction: column; gap: 6px; }
+.mm-turn-score { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 10px; background: var(--bg-2); }
+.mm-turn-score b { color: var(--good); }
+
+.mm-gallery { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+.mm-gallery figure { margin: 0; display: flex; flex-direction: column; gap: 4px; }
+.mm-gallery img { width: 100%; aspect-ratio: 4 / 3; border-radius: 12px; background: #fff; display: block; }
+.mm-gallery figcaption { display: flex; flex-direction: column; }

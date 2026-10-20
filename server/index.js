@@ -184,6 +184,13 @@ io.on('connection', (socket) => {
     ack?.(result);
   });
 
+  // Zeichenbefehle (Montagsmaler) gehen ohne kompletten Spielstand direkt an die anderen Geräte
+  socket.on('game:draw', (data = {}, ack) => {
+    const { lobby, player } = ctx();
+    if (!player || !lobby.game?.draw) return ack?.({ error: 'Kein laufendes Spiel.' });
+    ack?.(lobby.game.draw(player, data || {}));
+  });
+
   // Alle Host-Aktionen laufen über ein Ereignis
   socket.on('host', ({ action, ...data } = {}, ack) => {
     const { lobby, player } = ctx();
