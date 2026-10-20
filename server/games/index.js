@@ -4,6 +4,7 @@ const PubQuiz = require('./pubquiz');
 const JustOne = require('./justone');
 const StadtLandFluss = require('./stadtlandfluss');
 const KreuzQuer = require('./kreuzquer');
+const DrKroko = require('./drkroko');
 const Hitster = require('./hitster');
 
 const games = {
@@ -11,6 +12,7 @@ const games = {
   justone: JustOne,
   stadtlandfluss: StadtLandFluss,
   kreuzquer: KreuzQuer,
+  drkroko: DrKroko,
   hitster: Hitster,
 };
 
