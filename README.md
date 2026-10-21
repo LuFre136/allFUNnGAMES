@@ -259,6 +259,18 @@ Kartenspiel nach Flip 7 für 2 bis 12 Spieler, ohne Teams. Zu Beginn jeder Runde
 
 Die Regeln prüft `npm test`.
 
+## So läuft Gleichgesinnt
+
+Wort-Partyspiel nach Dito! für 3 bis 12 Spieler, jeder gegen jeden. Reihum wählt einer eine von zwei Kategorien, etwa „Dinge, die man im Urlaub vergisst“. Alle schreiben geheim drei Antworten in freie Felder ihres 3×3-Rasters, dreimal pro Runde. Dann liest reihum jeder eine offene Antwort vor, und die anderen tippen auf dem Handy ihre gleiche Antwort an („Dito!“) oder „Hab ich nicht“. Gleiche Wörter sind schon markiert, Synonyme tippt man selbst an.
+
+- Haben andere die Antwort auch, wird sie bei allen umkreist (1 Punkt). Hat sie genau einer, gibt es für beide zusätzlich einen Stern (2 Punkte, zu dritt 1). Hat sie niemand, wird sie durchgestrichen.
+- Ganz umkreiste Reihen (oben 3, Mitte 2, unten 1) und Spalten (links 1, Mitte 2, rechts 3) bringen Bonuspunkte.
+- Die Runde endet, sobald einer keine offene Antwort mehr hat. Ab Runde 2 beginnt die Auflösung, wer am wenigsten Punkte hat. Bei Gleichstand am Ende zählt die beste Runde.
+- Einstellungen: Anzahl Runden (Standard 3), Zeitlimit zum Schreiben. Der Host kann zufällig wählen, nicht mehr warten und Abwesende überspringen.
+- Am Ende gibt es Sonderpreise für die Seelenverwandten (meiste gemeinsame Sterne) und den Einzelgänger.
+
+Die 234 Kategorien stehen in `server/games/gleichgesinnt/categories.json`. Die Regeln prüft `npm test`. Der Plan steht in [docs/plan-dito.md](docs/plan-dito.md).
+
 ## So läuft Memekönig
 
 Bildunterschriften-Spiel nach „What Do You Meme?“ für 3 bis 12 Spieler, ohne Teams. Auf dem Fernseher erscheint ein Bild, jeder hat sieben Bildunterschrift-Karten auf dem Handy und legt die, die am lustigsten passt. Danach stehen alle Karten ohne Namen neben dem Bild und die lustigste gewinnt.
@@ -300,6 +312,7 @@ server/games/montagsmaler/   Montagsmaler (Zeichnen und Raten)
 server/games/bluffquiz/      Bluff-Quiz (nach Fibbage)
 server/games/freundeskala/   Freundeskala (nach Fun Facts)
 server/games/sieben/         Sieben auf einen Streich (nach Flip 7)
+server/games/gleichgesinnt/  Gleichgesinnt (nach Dito!)
 server/games/einsbiszehn/    Eins bis Zehn (nach Top Ten)
 test/                        Regeltests (npm test)
 server/spotify.js            Optionale Spotify-Suche
