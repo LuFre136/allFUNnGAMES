@@ -1,0 +1,100 @@
+/* Sieben auf einen Streich */
+
+.si-order { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.si-order-item { display: flex; align-items: center; gap: 8px; padding: 6px 6px 6px 12px; border-radius: 12px; background: var(--bg-2); border: 1px solid var(--line); user-select: none; }
+.si-order-item .name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.si-order-item.offline { opacity: 0.5; }
+.si-order-item.dragging { border-color: var(--accent); box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4); background: var(--card-2); }
+.si-pos { font-family: 'Fredoka', sans-serif; width: 26px; color: var(--muted); }
+.si-handle { display: grid; place-items: center; width: 40px; height: 36px; border-radius: 10px; font-size: 1.3rem; color: var(--muted); cursor: grab; touch-action: none; }
+.si-handle:hover { background: var(--card-2); color: var(--text); }
+
+/* Zug und Zielwahl */
+.si-status { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 14px; border-radius: 999px; background: var(--bg-2); border: 1px solid var(--line); text-align: center; flex-wrap: wrap; }
+.si-panel { display: grid; gap: 12px; padding: 14px; border-radius: 18px; background: var(--card); border: 2px solid var(--accent); box-shadow: var(--shadow); }
+.si-panel-title { font: 700 1.4rem 'Fredoka', sans-serif; text-align: center; }
+.si-panel-head { display: flex; gap: 14px; align-items: center; }
+.si-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.si-buttons .btn.big { font-size: 1.25rem; }
+.si-buttons .btn .small { display: block; font-weight: 700; opacity: 0.8; }
+.si-targets { display: flex; flex-wrap: wrap; gap: 8px; }
+.si-targets .btn { display: inline-flex; align-items: center; gap: 8px; }
+.si-risk { text-align: center; padding: 6px 12px; border-radius: 999px; background: var(--bg-2); font-size: 0.95rem; }
+.si-risk.mid b { color: var(--accent); }
+.si-risk.high b { color: var(--bad); }
+
+/* Stapel und Ereignisse */
+.si-pile { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; padding: 10px 14px; border-radius: 18px; background: radial-gradient(circle at 50% 30%, #1e3a8a, #0f172a); box-shadow: inset 0 0 0 3px #334155; }
+.si-deck { display: grid; justify-items: center; line-height: 1.1; color: #e2e8f0; }
+.si-deck b { font: 700 1.1rem 'Fredoka', sans-serif; }
+.si-deck small { font-size: 0.7rem; opacity: 0.7; }
+.si-back { font-size: 2rem; }
+.si-back.used { opacity: 0.5; }
+.si-log { display: grid; gap: 2px; font-size: 0.85rem; color: #cbd5e1; text-align: center; min-width: 0; }
+.si-log div { overflow: hidden; text-overflow: ellipsis; }
+.si-log .new { font-size: 1rem; font-weight: 800; color: #fff; }
+
+/* Spielertisch: eine Zeile pro Spieler, auf großen Bildschirmen zweispaltig */
+.si-table { display: grid; gap: 8px; }
+@media (min-width: 900px) {
+  .si-table.many { grid-template-columns: 1fr 1fr; }
+}
+.si-player { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: 'who pts' 'cards pts'; gap: 6px 10px; padding: 10px 12px; border-radius: 16px; background: var(--bg-2); border: 2px solid var(--line); transition: border-color 0.2s, opacity 0.2s; }
+.si-player.me { background: var(--card); }
+.si-player.turn { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(255, 204, 51, 0.25); }
+.si-player.pick { cursor: pointer; border-style: dashed; border-color: var(--pink); }
+.si-player.pick:hover { background: var(--card-2); }
+.si-player.offline { opacity: 0.55; }
+.si-player.st-bust { border-color: var(--bad); }
+.si-player.st-bust .si-cards .si-card:not(.si-dup) { opacity: 0.35; }
+.si-player.st-stayed, .si-player.st-frozen { opacity: 0.85; }
+.si-player.st-frozen { border-color: #7dd3fc; }
+.si-player.st-seven { border-color: var(--good); box-shadow: 0 0 0 4px rgba(52, 211, 153, 0.35); }
+.si-player.st-out { opacity: 0.45; }
+.si-who { grid-area: who; display: flex; align-items: center; gap: 8px; min-width: 0; flex-wrap: wrap; }
+.si-who .name { font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 160px; }
+.si-dealer, .si-count, .si-badge { font-size: 0.72rem; font-weight: 800; padding: 2px 8px; border-radius: 999px; background: var(--card-2); border: 1px solid var(--line); color: var(--muted); }
+.si-badge { color: var(--text); }
+.st-bust .si-badge { background: var(--bad); color: #fff; border-color: transparent; }
+.st-seven .si-badge { background: var(--good); color: #052e1c; border-color: transparent; }
+.st-frozen .si-badge { background: #7dd3fc; color: #082f49; border-color: transparent; }
+.si-cards { grid-area: cards; display: flex; flex-wrap: wrap; gap: 5px; align-items: center; min-height: 52px; }
+.si-pts { grid-area: pts; display: grid; justify-items: end; align-content: center; line-height: 1.1; }
+.si-pts b { font: 700 1.8rem 'Fredoka', sans-serif; }
+.si-pts span { font-size: 0.8rem; color: var(--muted); white-space: nowrap; }
+.si-pts .si-gain { color: var(--good); font-weight: 800; font-size: 0.95rem; }
+
+/* Karten */
+.si-card { position: relative; display: inline-grid; place-items: center; width: 38px; height: 52px; border-radius: 7px; background: #fff; color: #111827; box-shadow: 0 2px 0 rgba(0, 0, 0, 0.35); font-family: 'Fredoka', sans-serif; line-height: 1; }
+.si-num { border: 3px solid var(--c); color: var(--c); }
+.si-num b { font-size: 1.35rem; }
+.si-mod { background: #fde68a; border: 3px solid #f59e0b; color: #92400e; }
+.si-mod b { font-size: 1rem; }
+.si-act { width: 52px; background: #ede9fe; border: 3px solid #8b5cf6; align-content: center; gap: 2px; }
+.si-act b { font-size: 1.1rem; }
+.si-act small { font: 800 0.48rem 'Nunito', sans-serif; text-align: center; color: #4c1d95; padding: 0 2px; }
+.si-chance { background: #dcfce7; border-color: #22c55e; }
+.si-chance small { color: #14532d; }
+.si-freeze { background: #e0f2fe; border-color: #38bdf8; }
+.si-freeze small { color: #0c4a6e; }
+.si-used { opacity: 0.6; }
+.si-dup { box-shadow: 0 0 0 3px var(--bad); background: #fee2e2; }
+.si-card.big { width: 72px; height: 96px; flex: none; }
+.si-card.big b { font-size: 2rem; }
+.si-card.big small { font-size: 0.7rem; }
+.si-card.fresh { animation: si-fly 0.65s cubic-bezier(0.2, 0.8, 0.3, 1.2) both; }
+@keyframes si-fly {
+  0% { transform: translateY(-40px) rotateY(90deg) scale(0.6); opacity: 0; }
+  60% { transform: translateY(4px) rotateY(0) scale(1.08); opacity: 1; }
+  100% { transform: none; opacity: 1; }
+}
+.si-prizes { gap: 8px; }
+
+@media (max-width: 420px) {
+  .si-card { width: 32px; height: 44px; }
+  .si-num b { font-size: 1.1rem; }
+  .si-act { width: 44px; }
+  .si-pts b { font-size: 1.5rem; }
+  .si-buttons { grid-template-columns: 1fr; }
+  .si-pile { gap: 8px; padding: 8px 10px; }
+}

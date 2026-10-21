@@ -1,6 +1,6 @@
 # Plan: Sieben auf einen Streich (Flip 7)
 
-Stand: Plan, noch nicht umgesetzt. Offene Fragen stehen am Ende.
+Stand: umgesetzt (21.10.2026). Lukas hat alle Vorschläge angenommen, die Entscheidungen stehen am Ende.
 
 ## Name
 
@@ -68,7 +68,7 @@ darum ist jede weitere hohe Karte riskanter, als sie aussieht.
 | --- | --- | --- |
 | Zielpunktzahl | 200 | 100, 150, 200, 300 |
 | Zeit pro Zug | aus | aus, 15 s, 30 s, 60 s (bei Ablauf: Stopp) |
-| Wahrscheinlichkeit anzeigen | aus | an/aus (Handy zeigt „Risiko: 34 %“ für die nächste Karte) |
+| Risiko anzeigen | aus | an/aus (zeigt beim Spieler am Zug „Risiko für eine doppelte Zahl: 34 %“) |
 | Reihenfolge | zufällig | zufällig oder vom Host festgelegt |
 
 Die Reihenfolge-Einstellung (`orderMode`, `order`) samt Ziehen-und-Ablegen wird wie in Würfelbecher und Dr Kroko
@@ -82,23 +82,22 @@ aufmerksamer Mitspieler mitzählen könnte.
 - Oben Rundennummer, Zielpunktzahl, Stapel und Ablage (mit Anzahl Karten).
 - Für jeden Spieler eine Zeile mit Profilbild, Name, Gesamtpunkten und den offen liegenden Karten dieser Runde,
   dazu die Punkte, die er jetzt sichern würde. Zahlen sortiert, Bonus- und Aktionskarten daneben.
-- Der Spieler am Zug ist hervorgehoben. Status-Schilder: „gestoppt“, „eingefroren“, „raus“ (Karten ausgegraut,
-  Zeile kurz rot), „7!“.
-- Gezogene Karten fliegen vom Stapel in die Zeile und drehen sich um. Bei einer doppelten Zahl blinkt das
-  Zahlenpaar, bei sieben Zahlen gibt es eine kurze Konfetti-Animation.
-- Bei mehr als 8 Spielern werden die Zeilen in zwei Spalten gesetzt.
+- Der Spieler am Zug ist hervorgehoben. Status-Schilder: „gestoppt“, „eingefroren“, „raus“ (Zeile rot
+  umrandet), „Sieben!“, dazu der Geber und wie viele der sieben Zahlen schon liegen.
+- Gezogene Karten fliegen nacheinander in die Zeile und drehen sich um. Die doppelte Zahl ist rot umrandet, die
+  übrigen Karten werden blass; bei sieben Zahlen leuchtet die Zeile grün.
+- Bei mehr als 6 Spielern werden die Zeilen auf großen Bildschirmen in zwei Spalten gesetzt.
 - Rundenende: Wertungstabelle mit Rundenpunkten und neuem Stand, der Host startet mit „Nächste Runde“.
-- Spielende: Podest wie in den anderen Spielen, dazu Sonderpreise „Draufgänger“ (meiste Karten in einer Runde),
-  „Pechvogel“ (am häufigsten raus) und „Sieben auf einen Streich“ (wer es geschafft hat).
+- Spielende: Podest wie in den anderen Spielen, dazu Sonderpreise „Draufgänger“ (meiste Zahlen in einer Runde),
+  „Beste Runde“, „Pechvogel“ (am häufigsten raus) und „Sieben auf einen Streich“ (wer es geschafft hat).
 
 **Handy:**
 
 - Eigene Karten der Runde und die Punkte, die man jetzt hätte, darunter Gesamtstand.
-- Am Zug: zwei große Knöpfe **Ziehen** und **Stopp** (Stopp erst ab der ersten Karte). Nicht am Zug: Hinweis
+- Am Zug: zwei große Knöpfe **Ziehen** und **Stopp** (mit den Punkten, die man dann sichert). Nicht am Zug: Hinweis
   „Anna ist dran“ und eine kleine Übersicht der anderen.
 - Bei „Einfrieren“, „Drei auf einmal“ oder einer überzähligen Zweiten Chance: Auswahl der möglichen Ziele als
   Knöpfe mit Profilbild und deren aktuellen Rundenpunkten.
-- Vibration bei Ausscheiden (wo der Browser das kann).
 
 ## Technik
 
@@ -110,20 +109,23 @@ aufmerksamer Mitspieler mitzählen könnte.
   ab 3 gedacht, zu zweit funktioniert es aber auch. Mehr als 12 passen nicht mehr lesbar auf den Fernseher und
   machen die Wartezeit zu lang.
 - **Spielzüge** über `game:action`: `{ type: 'hit' }`, `{ type: 'stay' }`, `{ type: 'target', playerId }`,
-  `{ type: 'next' }` (nur Host, nächste Runde). Bei geteilten Geräten darf das Gerät für alle seine Gäste ziehen,
+  `{ type: 'force' }` (nur Host: stoppen bzw. Ziel auslosen). Die nächste Runde startet der Host über die übliche
+  Host-Aktion `next`. Bei geteilten Geräten darf das Gerät für alle seine Gäste ziehen,
   wie bei Würfelbecher.
-- **Zustand:** Stapel und Ablage als Arrays von Karten `{ id, kind: 'number'|'bonus'|'action', value }`,
-  pro Spieler `{ cards, status: 'active'|'stayed'|'frozen'|'bust'|'seven', secondChance, roundScore, total }`,
+- **Zustand:** Stapel und Ablage als Arrays von Karten `{ id, kind: 'number'|'plus'|'times'|'freeze'|'flip3'|'chance', value }`,
+  pro Spieler `{ numbers, mods, actions, chance, bustCard, status: 'active'|'stayed'|'frozen'|'bust'|'seven'|'out' }`,
   Geber, Spieler am Zug, eine Warteschlange offener Aktionen (für Aktionen aus „Drei auf einmal“) und
   `pending`, falls gerade ein Ziel gewählt werden muss.
-- **Phasen:** `deal` → `turns` → `roundEnd`, am Ende `final`. Das Austeilen läuft in Schritten mit kurzen Pausen,
-  damit der Fernseher jede Karte zeigen kann; eine Zielwahl unterbricht es.
+- **Phasen:** `play` → `roundEnd`, am Ende `final`. Austeilen, Ziehen und Aktionen laufen auf dem Server als
+  Aufgabenliste, die nur an einer Zielwahl anhält. Jede gezogene Karte bekommt eine fortlaufende Nummer; die Geräte
+  lassen neue Karten daran nacheinander hereinfliegen, so sieht man auch das Austeilen Karte für Karte.
 - **view():** Die Reihenfolge im Stapel wird nie geschickt, nur die Anzahl und, wenn eingestellt, die
   Risikozahl für den Spieler am Zug.
 - **Zeitgeber:** `deadline` im Zustand wie im Pub Quiz; bei Ablauf Stopp, bei offener Zielwahl ein zufälliges
   gültiges Ziel.
-- **Spieler verlässt das Spiel:** Ist er am Zug, gilt das als Stopp; seine Karten bleiben bis Rundenende liegen,
-  danach scheidet er aus der Wertung aus. Wer neu beitritt, macht ab der nächsten Runde mit 0 Punkten mit.
+- **Spieler verlässt das Spiel:** Ist er am Zug, gilt das als Stopp, muss er ein Ziel wählen, wird gelost. Seine
+  Punkte bleiben in der Wertung, in neuen Runden setzt er aus, bis er wieder da ist. Wer neu beitritt, macht ab der
+  nächsten Runde mit 0 Punkten mit.
 - **Wiederverbinden:** Alles liegt auf dem Server, nach einem Neuladen erscheint der Stand wieder.
 - **Spielwechsel:** Funktioniert ohne Zusatzarbeit über `minPlayers`/`maxPlayers`.
 - **Oberfläche:** `public/js/sieben.js` und `public/css/sieben.css` (Präfix `si-`), eingehängt über das
@@ -144,10 +146,9 @@ aufmerksamer Mitspieler mitzählen könnte.
 6. Test mit mehreren Browsern über Playwright (doppelte Zahl, Zweite Chance, Einfrieren auf sich selbst,
    Drei auf einmal mit Aktion darin, sieben Zahlen, leerer Stapel, Spieler verlässt, Wiederverbinden).
 
-## Offene Fragen
+## Entscheidungen
 
-1. **Name:** „Sieben auf einen Streich“ oder einer der anderen Vorschläge?
-2. **Zielpunktzahl:** 200 wie im Original als Standard? Eine Partie dauert damit etwa 20 bis 30 Minuten.
-3. **Risikoanzeige:** als Einstellung anbieten (Standard aus) oder ganz weglassen, weil Mitzählen Teil des Spiels
-   ist?
-4. **Bestenliste** wie bei Würfelbecher (z. B. höchste Rundenpunktzahl)? Vorschlag: erst einmal nicht.
+- Name „Sieben auf einen Streich“.
+- Standard-Zielpunktzahl 200, einstellbar 100, 150, 200, 300.
+- Risikoanzeige als Einstellung, standardmäßig aus.
+- Keine Bestenliste.
