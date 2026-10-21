@@ -116,4 +116,4 @@ function sameFamily(clue, word) {
   return roots.some((r) => full.startsWith(r) || full.endsWith(r));
 }
 
-module.exports = { randomToken, randomCode, shuffle, pick, normalize, fuzzyMatch, stems, sameStem, sameFamily };
+module.exports = { randomToken, randomCode, shuffle, pick, normalize, stripFiller, levenshtein, plain, fuzzyMatch, stems, sameStem, sameFamily };

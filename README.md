@@ -200,6 +200,18 @@ Erklärspiel nach Tabu für 4 bis 20 Spieler in mindestens zwei Teams. Die Teams
 
 Die 300 Karten in 8 Kategorien stehen in `server/games/sagsanders/cards.json`. Die Regeln und den Kartenstapel prüft `npm test`.
 
+## So läuft Montagsmaler
+
+Für 2 bis 20 Spieler, einzeln oder in Teams. Reihum zeichnet einer einen geheimen Begriff auf seinem Handy (oder als Host auf dem Tablet), er sucht sich dafür einen von bis zu drei Vorschlägen aus. Die Striche erscheinen live auf dem Fernseher und allen Handys, die anderen tippen ihre Tipps ein, so oft sie wollen. Falsche Tipps sieht jeder, richtige nur als „hat es!“. Wer einen Buchstaben danebenliegt, sieht für sich „knapp daneben“. Nach der Hälfte und nach drei Vierteln der Zeit wird je ein Buchstabe aufgedeckt.
+
+- Punkte: 10, 8, 7, 6, 5, danach 4 für die Ratenden in der Reihenfolge, in der sie es erraten, plus bis zu 5 Zeitpunkte. Der Zeichner bekommt 3 Punkte pro richtigem Tipp, höchstens 15.
+- Team-Modus: Nur das eigene Team rät (10 Punkte plus Zeitpunkte). Schafft es den Begriff nicht, darf jedes andere Team einmal tippen und 5 Punkte klauen.
+- Werkzeuge: 12 Farben, drei Stiftstärken, Füll-Eimer, Radierer, Rückgängig und Alles löschen.
+- Der Host stellt Durchgänge, Zeit, Schwierigkeit, Anzahl der Vorschläge, Hinweise, eigene Begriffe und die Reihenfolge ein. Spielt er nur als Gamemaster, zeigt sein Bildschirm den Begriff erst bei der Auflösung.
+- Am Ende gibt es eine Galerie aller Zeichnungen der Partie.
+
+Die Begriffe stehen in `server/games/montagsmaler/words.json` (leicht, mittel, schwer; Synonyme nach `|`).
+
 ## Aufbau
 
 ```
@@ -215,6 +227,7 @@ server/games/musikzeitreise/ Musikzeitreise (Songs und Zeitleisten)
 server/games/wuerfelbecher/  Würfelbecher (nach Kniffel)
 server/games/alias/          Alias (nach Codenames)
 server/games/sagsanders/     Sag's anders! (nach Tabu)
+server/games/montagsmaler/   Montagsmaler (Zeichnen und Raten)
 test/                        Regeltests (npm test)
 server/spotify.js            Optionale Spotify-Suche
 public/                      Startseite, Lobby-/Spielseite, Styles, Profilbilder
