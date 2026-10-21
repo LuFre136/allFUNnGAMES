@@ -1,0 +1,72 @@
+{
+  "_hinweis": "Aufbau des Spielblatts. Server und Handys lesen dieselbe Datei. Bonus-Typen: cross (Kreuz in Farbe), number (Zahl in Farbe), reroll (Neuwurf), plusOne (+1), fox (Fuchs), free (Kreuz in einer Farbe nach Wahl).",
+  "colors": ["white", "yellow", "blue", "green", "orange", "purple"],
+  "yellow": {
+    "grid": [[3, 6, 5, 0], [2, 1, 0, 5], [1, 0, 2, 4], [0, 3, 4, 6]],
+    "rowBonus": [
+      { "type": "cross", "color": "blue" },
+      { "type": "number", "color": "orange", "value": 4 },
+      { "type": "cross", "color": "green" },
+      { "type": "fox" }
+    ],
+    "diagonalBonus": { "type": "plusOne" },
+    "columnPoints": [10, 14, 16, 20]
+  },
+  "blue": {
+    "grid": [[0, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]],
+    "rowBonus": [
+      { "type": "number", "color": "orange", "value": 5 },
+      { "type": "cross", "color": "yellow" },
+      { "type": "fox" }
+    ],
+    "columnBonus": [
+      { "type": "reroll" },
+      { "type": "cross", "color": "green" },
+      { "type": "number", "color": "purple", "value": 6 },
+      { "type": "plusOne" }
+    ],
+    "points": [0, 1, 2, 4, 7, 11, 16, 22, 29, 37, 46, 56]
+  },
+  "green": {
+    "min": [1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 6],
+    "bonus": {
+      "3": { "type": "plusOne" },
+      "5": { "type": "cross", "color": "blue" },
+      "6": { "type": "fox" },
+      "8": { "type": "number", "color": "purple", "value": 6 },
+      "9": { "type": "reroll" }
+    },
+    "points": [0, 1, 3, 6, 10, 15, 21, 28, 36, 45, 55, 66]
+  },
+  "orange": {
+    "factor": [1, 1, 1, 2, 1, 1, 2, 1, 2, 1, 3],
+    "bonus": {
+      "2": { "type": "reroll" },
+      "4": { "type": "cross", "color": "yellow" },
+      "5": { "type": "plusOne" },
+      "7": { "type": "fox" },
+      "9": { "type": "number", "color": "purple", "value": 6 }
+    }
+  },
+  "purple": {
+    "length": 11,
+    "bonus": {
+      "2": { "type": "reroll" },
+      "3": { "type": "cross", "color": "blue" },
+      "4": { "type": "plusOne" },
+      "5": { "type": "cross", "color": "yellow" },
+      "6": { "type": "fox" },
+      "7": { "type": "reroll" },
+      "8": { "type": "cross", "color": "green" },
+      "9": { "type": "number", "color": "orange", "value": 6 },
+      "10": { "type": "plusOne" }
+    }
+  },
+  "roundBonus": [
+    { "type": "reroll" },
+    { "type": "plusOne" },
+    { "type": "reroll" },
+    { "type": "free" }
+  ],
+  "rounds": { "1": 6, "2": 6, "3": 5, "4": 4, "5": 4, "6": 4 }
+}

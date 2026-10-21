@@ -1,6 +1,11 @@
 # Plan: Würfelfuchs (Würfelspiel nach „Ganz schön clever“)
 
-Stand: Plan, noch nicht umgesetzt (21.10.2026). Alle Entscheidungen sind getroffen, siehe ganz unten.
+Stand: umgesetzt (21.10.2026). Entscheidungen ganz unten. Abweichungen vom Plan:
+Reihenfolge zufällig oder „Host fängt an“ (wie Kreuz & Quer, ohne Verschieben per Hand), „Rückgängig“ gibt es nur in
+der Tablett-Phase (der Spieler am Zug wählt mit zwei Tipps: Würfel, dann Feld), Spielzug-Aktionen heißen `pick` (am
+Zug), `take` (vom Tablett), `plusOne`, `bonus`, `done`, `undo`. Das Blatt in `sheet.json` ist aus dem Gedächtnis
+nachgebaut und sollte einmal mit der Originalanleitung abgeglichen werden, vor allem der Bonus der Runde 4
+(umgesetzt als Kreuz nach Wahl, in Orange und Lila als 6).
 
 ## Spielidee
 
@@ -23,9 +28,8 @@ Name: „Ganz schön clever“ ist ein Markenname, auf der Plattform heißt das 
 4. Nach drei Würfen (oder früher, wenn keine Würfel mehr übrig sind) landen alle nicht gewählten Würfel auf dem
    Tablett.
 5. **Passive Phase:** Jeder andere Spieler wählt gleichzeitig **einen** Würfel vom Tablett und trägt ihn ein.
-   Mehrere Spieler dürfen denselben Würfel nehmen. Ist das Tablett leer, dürfen sie aus allen sechs Würfeln wählen
-   (Tablett plus gewählte Würfel, so wie die Originalregel es für diesen Fall vorsieht; beim Bauen gegen die
-   Anleitung prüfen).
+   Mehrere Spieler dürfen denselben Würfel nehmen. Das Tablett ist nie leer: Der aktive Spieler nimmt höchstens
+   drei Würfel, also liegen dort immer mindestens drei.
 6. Darf jemand einen Würfel nicht sinnvoll eintragen, kann er ihn trotzdem wählen und „verfallen lassen“, beim
    aktiven Spieler zählt das als Wahl (keine Strafe wie der Fehlwurf bei Kreuz & Quer).
 
@@ -74,8 +78,7 @@ Weil Bonusse Ketten bilden, ist diese Hilfe hier wichtiger als bei Kreuz & Quer.
 | Partien hintereinander | 1 | 1–5, Punkte werden addiert |
 
 Läuft die Bedenkzeit ab, wählt das Spiel für den aktiven Spieler den Würfel, der die meisten Punkte bringt, passive
-Spieler verzichten auf ihren Würfel. Offene Bonus-Kreuze werden nicht verfallen gelassen, sondern bleiben stehen,
-bis der Spieler wieder dran ist.
+Spieler verzichten auf ihren Würfel. Offene Bonus-Kreuze werden dabei automatisch auf das erste passende Feld gesetzt.
 
 ## Ansichten
 
