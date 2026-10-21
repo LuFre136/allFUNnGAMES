@@ -16,6 +16,7 @@ const Wuerfelfuchs = require('./wuerfelfuchs');
 const Freundeskala = require('./freundeskala');
 const Sieben = require('./sieben');
 const Gleichgesinnt = require('./gleichgesinnt');
+const EinsBisZehn = require('./einsbiszehn');
 
 const games = {
   pubquiz: PubQuiz,
@@ -34,6 +35,7 @@ const games = {
   freundeskala: Freundeskala,
   sieben: Sieben,
   gleichgesinnt: Gleichgesinnt,
+  einsbiszehn: EinsBisZehn,
 };
 
 // Platzhalter für die Startseite, bis die Spiele gebaut sind
