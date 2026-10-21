@@ -1,6 +1,6 @@
 # Plan: Würfelfuchs (Würfelspiel nach „Ganz schön clever“)
 
-Stand: Plan, noch nicht umgesetzt (21.10.2026). Entschieden: Name „Würfelfuchs“. Weitere offene Punkte stehen ganz unten.
+Stand: Plan, noch nicht umgesetzt (21.10.2026). Alle Entscheidungen sind getroffen, siehe ganz unten.
 
 ## Spielidee
 
@@ -87,14 +87,14 @@ bis der Spieler wieder dran ist.
   darüber die Rundenleiste. Rundherum alle Spieler mit Profilbild, Punktestand, Füchsen und Häkchen. Das Blatt des
   aktiven Spielers wird verkleinert gezeigt, damit alle seine Kettenreaktionen mitverfolgen können.
 - **Endwertung:** alle Blätter nebeneinander mit Punkten pro Farbe und Füchsen, danach die Siegerehrung wie im
-  Pub Quiz. Optional eine Bestenliste wie bei Würfelbecher.
+  Pub Quiz. Danach lässt sich die Bestenliste einblenden wie bei Würfelbecher.
 
 ## Technik
 
 - **Neues Spiel** `server/games/wuerfelfuchs/index.js` (id `wuerfelfuchs`, CSS-Präfix `wf-`), eingetragen in
   `server/games/index.js`. Gleiche Schnittstelle wie die anderen Spiele: `meta()`, `defaultSettings()`,
   `sanitizeSettings()`, `start()`, `action()`, `view(viewer)`, `playersChanged()`, `dispose()`.
-- **meta():** `teams: false`, `minPlayers: 1`, `maxPlayers: 6` (Original 1–4; mit 5–6 Spielern geht es dank
+- **meta():** `teams: false`, `minPlayers: 1`, `maxPlayers: 6` (entschieden; Original 1–4, mit 5–6 Spielern geht es dank
   gleichzeitiger passiver Phase noch gut, dann 4 Runden). `players: '1–6 Spieler'`. Kein `sharedDevice`, weil die
   passive Phase gleichzeitig läuft und sich zwei Spieler sonst ein Handy hin- und herreichen müssten.
 - **Blatt als Daten:** `server/games/wuerfelfuchs/sheet.json` beschreibt jedes Kästchen (Farbe, Bedingung,
@@ -121,7 +121,7 @@ bis der Spieler wieder dran ist.
 - **Oberfläche:** `public/js/wuerfelfuchs.js` und `public/css/wuerfelfuchs.css`, eingehängt über das
   `gameViews`-Register in `lobby.js`. Würfel als CSS-Punkte wie bei Kreuz & Quer und Würfelbecher, die
   Würfel-Bausteine von dort werden wiederverwendet. Eigene Gestaltung des Blatts, keine Grafiken aus dem Original.
-- **Bestenliste (optional):** `createBoard('wuerfelfuchs-highscores')` aus `server/highscores.js`, genau wie bei
+- **Bestenliste:** `createBoard('wuerfelfuchs-highscores')` aus `server/highscores.js`, genau wie bei
   Würfelbecher.
 - **Startseite:** Kachel „Würfelfuchs“ mit Symbol 🦊, „1–6 Spieler“. README bekommt einen Abschnitt „So läuft
   Würfelfuchs“.
@@ -134,17 +134,13 @@ bis der Spieler wieder dran ist.
    die Ketten und Grenzfälle (leeres Tablett, weißer Würfel in Blau, Lila nach 6).
 3. Handy-Blatt mit Hilfen (passende Kästchen, Bonus-Vorschau, Undo).
 4. Host-Bildschirm mit Würfeln, Tablett, Rundenleiste und Spielerübersicht.
-5. Endwertung, Siegerehrung, mehrere Partien, optional Bestenliste.
+5. Endwertung, Siegerehrung, mehrere Partien und Bestenliste.
 6. Test mit mehreren Browsern über Playwright (Solo, 3 Spieler gleichzeitig passiv, Kettenreaktion,
    Wiederverbinden, Bedenkzeit).
 
-## Entscheidungen
+## Entscheidungen (21.10.2026)
 
-- **Name:** „Würfelfuchs“ (entschieden am 21.10.2026).
-
-## Offene Entscheidungen
-
-- **Spielerzahl:** 1–6 (Vorschlag) oder streng wie im Original 1–4.
-- **Bestenliste** gleich mitbauen oder später.
-- **Varianten** wie „Doppelt so clever“ oder „Clever hoch drei“: aktuell nicht, vielleicht später mit eigener
-  `sheet.json`.
+- **Name:** „Würfelfuchs“.
+- **Spielerzahl:** 1–6 Spieler.
+- **Bestenliste:** wird gleich mitgebaut (die zehn besten Blätter, wie bei Würfelbecher).
+- **Varianten** wie „Doppelt so clever“ oder „Clever hoch drei“: erst später, dann mit eigener `sheet.json`.
