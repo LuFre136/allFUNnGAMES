@@ -15,6 +15,7 @@ const { wikiImage, flagImage } = require('./images');
 const exclusions = require('./exclusions');
 exclusions.init();
 const PubQuiz = require('./games/pubquiz');
+const Memekoenig = require('./games/memekoenig');
 const youtube = require('./games/karaoke/youtube');
 
 const PORT = Number(process.env.PORT) || 3000;
@@ -50,6 +51,19 @@ app.get('/api/quiz-image/:id', async (req, res) => {
     res.set('Cache-Control', 'public, max-age=86400').type(image.type).send(image.body);
   } catch (err) {
     console.warn(`Bild für ${question.id} nicht geladen: ${err.message}`);
+    res.status(502).end();
+  }
+});
+
+// Memekönig: Wikipedia-Bilder unter neutraler Adresse
+app.get('/api/meme-image/:id', async (req, res) => {
+  const entry = Memekoenig.wikiImageById(req.params.id);
+  if (!entry) return res.status(404).end();
+  try {
+    const image = await wikiImage(entry.wiki);
+    res.set('Cache-Control', 'public, max-age=86400').type(image.type).send(image.body);
+  } catch (err) {
+    console.warn(`Bild für ${entry.id} nicht geladen: ${err.message}`);
     res.status(502).end();
   }
 });

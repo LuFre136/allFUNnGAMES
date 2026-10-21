@@ -15,6 +15,7 @@ const BluffQuiz = require('./bluffquiz');
 const Wuerfelfuchs = require('./wuerfelfuchs');
 const Freundeskala = require('./freundeskala');
 const Sieben = require('./sieben');
+const Memekoenig = require('./memekoenig');
 
 const games = {
   pubquiz: PubQuiz,
@@ -32,6 +33,7 @@ const games = {
   wuerfelfuchs: Wuerfelfuchs,
   freundeskala: Freundeskala,
   sieben: Sieben,
+  memekoenig: Memekoenig,
 };
 
 // Platzhalter für die Startseite, bis die Spiele gebaut sind

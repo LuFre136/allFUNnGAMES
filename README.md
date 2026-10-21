@@ -259,6 +259,15 @@ Kartenspiel nach Flip 7 für 2 bis 12 Spieler, ohne Teams. Zu Beginn jeder Runde
 
 Die Regeln prüft `npm test`.
 
+## So läuft Memekönig
+
+Bildunterschriften-Spiel nach „What Do You Meme?“ für 3 bis 12 Spieler, ohne Teams. Auf dem Fernseher erscheint ein Bild, jeder hat sieben Bildunterschrift-Karten auf dem Handy und legt die, die am lustigsten passt. Danach stehen alle Karten ohne Namen neben dem Bild und die lustigste gewinnt.
+
+- **Wer entscheidet:** wie im Original ein Juror, der reihum wechselt, selbst nicht legt und die Gewinnerkarte wählt (1 Punkt), oder alle stimmen für eine fremde Karte ab (1 Punkt pro Stimme). Ist der Juror weg, wählt der Host oder überspringt.
+- **Karten:** 280 eigene deutsche Bildunterschriften in `server/games/memekoenig/captions.json`. Gelegte Karten werden nachgezogen. Einstellbar 0 bis 3 Joker pro Spieler, auf die man selbst etwas schreibt. Einmal pro Spiel darf jeder seine ganze Hand tauschen.
+- **Bilder:** Keine geschützten Meme-Vorlagen. `server/games/memekoenig/images.json` listet Wikipedia-Artikel mit komischen Tieren und gemeinfreien Gemälden; der Server lädt das Hauptbild wie bei den Pub-Quiz-Bildfragen und zeigt die Quelle darunter. Eigene Bilder (jpg, png, gif, webp) in `public/meme-images/` legen; der Host wählt Wikipedia, eigene oder beide. Lädt ein Bild nicht, steht seine Beschreibung da, und der Host kann „Anderes Bild“ drücken.
+- Einstellbar sind außerdem Rundenzahl (5–20) und Zeit zum Legen. Am Ende gibt es die Rangliste und eine Galerie der Gewinnerkarten mit ihren Bildern.
+
 ## Aufbau
 
 ```

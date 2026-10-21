@@ -1,0 +1,48 @@
+/* Memekönig */
+
+.mk-figure { margin: 0; display: grid; gap: 6px; justify-items: center; }
+.mk-img { display: block; max-width: 100%; max-height: 58vh; border-radius: 16px; box-shadow: var(--shadow); background: var(--bg-2); object-fit: contain; }
+.mk-figure.small .mk-img { max-height: 32vh; }
+.mk-figure figcaption { text-align: center; }
+.mk-fallback { display: grid; gap: 6px; place-items: center; text-align: center; min-height: 200px; width: min(520px, 100%); padding: 20px; border-radius: 16px; background: var(--card); border: 2px dashed var(--line); font-family: 'Fredoka', sans-serif; font-size: 1.4rem; }
+.mk-figure.small .mk-fallback { min-height: 120px; font-size: 1.1rem; }
+
+.mk-judge .avatar.sm { vertical-align: middle; }
+.mk-banner { text-align: center; font-size: 1.1rem; padding: 10px; border-radius: 14px; background: var(--card); border: 2px solid var(--line); }
+.mk-banner.me { border-color: var(--pink); background: rgba(255, 95, 162, 0.15); font-weight: 800; }
+.mk-banner .avatar.sm { vertical-align: middle; }
+
+.mk-progress { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+.mk-who { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px 4px 4px; border-radius: 999px; background: var(--card); border: 2px solid var(--line); opacity: 0.6; }
+.mk-who.done { opacity: 1; border-color: var(--good); }
+
+/* Handkarten: weiß wie echte Spielkarten */
+.mk-hand { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+.mk-card { font: inherit; font-weight: 800; text-align: left; min-height: 96px; padding: 12px; border-radius: 14px; border: 3px solid transparent; background: #fff; color: #1d1940; cursor: pointer; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); transition: transform 0.1s; }
+.mk-card:active { transform: scale(0.97); }
+.mk-card.chosen { border-color: var(--pink); transform: translateY(-4px); box-shadow: 0 0 0 4px rgba(255, 95, 162, 0.35), 0 8px 18px rgba(0, 0, 0, 0.35); }
+.mk-card.joker { background: var(--accent); color: var(--accent-ink); text-align: center; }
+
+/* Auswahl und Auflösung: Bild links, Karten rechts auf großen Bildschirmen */
+.mk-stage { display: grid; gap: 16px; align-items: start; }
+@media (min-width: 900px) {
+  .mk-stage:not(.phone) { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); }
+}
+.mk-entries { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+.mk-entry { position: relative; font: inherit; font-weight: 800; font-size: 1.15rem; text-align: left; padding: 14px; border-radius: 14px; border: 3px solid transparent; background: #fff; color: #1d1940; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); animation: mk-in 0.35s ease both; }
+button.mk-entry { cursor: pointer; }
+button.mk-entry:hover { border-color: var(--accent); }
+.mk-entry.mine { opacity: 0.6; }
+.mk-entry.chosen { border-color: var(--pink); }
+.mk-entry.win { font-size: clamp(1.3rem, 3vw, 2rem); font-family: 'Fredoka', sans-serif; border-color: var(--accent); box-shadow: 0 0 0 5px rgba(255, 204, 51, 0.4), var(--shadow); }
+.mk-tag { position: absolute; top: -10px; right: 10px; font-size: 0.75rem; padding: 2px 8px; border-radius: 999px; background: var(--card-2); color: var(--text); }
+.mk-owner { margin-top: 8px; font-size: 0.85rem; font-family: 'Nunito', sans-serif; color: #5b5490; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.mk-title { font-family: 'Fredoka', sans-serif; font-size: clamp(1.4rem, 3.4vw, 2.2rem); text-align: center; color: var(--accent); }
+
+.mk-gallery { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+.mk-gallery-item { display: grid; gap: 10px; align-content: start; }
+.mk-gallery-item .mk-img { max-height: 200px; }
+.mk-gallery-text { font-weight: 800; }
+.mk-gallery-text .avatar.sm { vertical-align: middle; }
+
+@keyframes mk-in { from { opacity: 0; transform: translateY(8px) scale(0.97); } to { opacity: 1; transform: none; } }

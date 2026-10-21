@@ -1,0 +1,4 @@
+Eigene Bilder für Memekönig hier ablegen (jpg, png, gif, webp).
+Jedes Bild hier kommt automatisch in den Bilderstapel, wenn in den
+Einstellungen „Eigene Bilder“ oder „Beide“ gewählt ist.
+Bitte nur Bilder verwenden, die ihr selbst gemacht habt oder nutzen dürft.
