@@ -148,26 +148,35 @@
     }).join('')}</div>`;
   }
 
+  // Kopfzeile und Status haben eine feste Höhe, damit das Krokodil bei jedem Zug an derselben Stelle bleibt
   function viewHead(R) {
     const round = R.mode === 'rounds' ? `Runde ${R.roundNo}/${R.rounds}` : `Runde ${R.roundNo} · ${R.order.length - R.out.length} im Spiel`;
     const pressed = R.teeth.filter((t) => t.pressed).length;
-    return `<div class="q-head">
-      <div class="small muted"><b>${round}</b> · ${pressed} von ${R.teeth.length} Zähnen gedrückt</div>
+    return `<div class="q-head cd-top">
+      <div class="small muted cd-count"><b>${round}</b> · 🦷 ${pressed}/${R.teeth.length} gedrückt</div>
       ${R.deadline && R.phase === 'turn' ? '<span class="timer" id="timer"></span>' : ''}
     </div>`;
+  }
+
+  function status(cls, line1, line2 = '') {
+    return `<div class="cd-status ${cls}"><div class="l1">${line1}</div><div class="l2">${line2}</div></div>`;
+  }
+
+  function nameHtml(p) {
+    return `${avatarHtml(p, 'sm')}<b class="nm">${esc(p?.name || '?')}</b>`;
   }
 
   function viewStatus(R) {
     if (R.phase === 'turn') {
       const active = playerById(R.activeId);
-      if (R.activeId === S.me.id) return '<div class="cd-status mine">Du bist dran! Drück einen Zahn … 🫣</div>';
-      if (R.isActive) return `<div class="cd-status mine">${avatarHtml(active, 'sm')} ${esc(active?.name || '?')} ist dran! Gib das Gerät weiter … 🫣</div>`;
-      return `<div class="cd-status">${avatarHtml(active, 'sm')} <b>${esc(active?.name || '?')}</b>&nbsp;ist dran</div>`;
+      if (R.activeId === S.me.id) return status('mine', 'Du bist dran!', 'Drück einen Zahn … 🫣');
+      if (R.isActive) return status('mine', `${nameHtml(active)}<span>ist dran!</span>`, 'Gib das Gerät weiter … 🫣');
+      return status('', `${nameHtml(active)}<span>ist dran</span>`);
     }
     const bitten = playerById(R.bittenId);
-    const me = R.bittenId === S.me.id;
-    const ko = R.mode === 'ko' ? (me ? ' Du bist raus.' : ' und ist raus.') : '';
-    return `<div class="cd-status bitten">💥 SCHNAPP! ${me ? `Du wurdest gebissen!${ko}` : `${avatarHtml(bitten, 'sm')} <b>${esc(bitten?.name || '?')}</b>&nbsp;wurde gebissen${ko}!`}</div>`;
+    const ko = R.mode === 'ko';
+    if (R.bittenId === S.me.id) return status('bitten', '💥 SCHNAPP!', `Du wurdest gebissen!${ko ? ' Du bist raus.' : ''}`);
+    return status('bitten', '💥 SCHNAPP!', `<span class="nm">${esc(bitten?.name || '?')}</span> wurde gebissen${ko ? ' und ist raus' : ''}!`);
   }
 
   function viewFinal(R) {

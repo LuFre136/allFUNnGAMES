@@ -4,10 +4,12 @@ const PubQuiz = require('./pubquiz');
 const JustOne = require('./justone');
 const StadtLandFluss = require('./stadtlandfluss');
 const KreuzQuer = require('./kreuzquer');
+const Karaoke = require('./karaoke');
 const DrKroko = require('./drkroko');
 const Musikzeitreise = require('./musikzeitreise');
 const Wuerfelbecher = require('./wuerfelbecher');
 const Alias = require('./alias');
+const SagsAnders = require('./sagsanders');
 const Montagsmaler = require('./montagsmaler');
 
 const games = {
@@ -15,10 +17,12 @@ const games = {
   justone: JustOne,
   stadtlandfluss: StadtLandFluss,
   kreuzquer: KreuzQuer,
+  karaoke: Karaoke,
   drkroko: DrKroko,
   musikzeitreise: Musikzeitreise,
   wuerfelbecher: Wuerfelbecher,
   alias: Alias,
+  sagsanders: SagsAnders,
   montagsmaler: Montagsmaler,
 };
 

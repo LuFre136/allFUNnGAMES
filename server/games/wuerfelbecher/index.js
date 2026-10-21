@@ -1,7 +1,8 @@
 // Würfelbecher (nach Kniffel): Reihum bis zu drei Würfe mit fünf Würfeln, dann ein Feld auf dem Wertungsblock füllen.
 
 const crypto = require('crypto');
-const { shuffle } = require('../../util');
+const { shuffle, randomToken } = require('../../util');
+const { createBoard } = require('../../highscores');
 
 const MIN_PLAYERS = 1;
 const MAX_PLAYERS = 10;
@@ -10,6 +11,7 @@ const ROLLS = 3;
 const BONUS_NEEDED = 63;
 const BONUS_POINTS = 35;
 const TIME_LIMITS = [0, 30, 45, 60, 90, 120];
+const HIGHSCORES = 10;
 
 const UPPER = ['ones', 'twos', 'threes', 'fours', 'fives', 'sixes'];
 const LOWER = ['threeKind', 'fourKind', 'fullHouse', 'smallStraight', 'largeStraight', 'kniffel', 'chance'];
@@ -258,6 +260,28 @@ class Wuerfelbecher {
     for (const [id, s] of Object.entries(scores)) this.totals[id] = (this.totals[id] || 0) + s.total;
     this.results.push({ scores });
     this.phase = this.gameNo >= this.settings.games ? 'final' : 'result';
+    this.showHighscores = false;
+    this.saveHighscores();
+  }
+
+  // Volle Blöcke dieser Partie kommen in die Bestenliste, wenn sie gut genug sind
+  saveHighscores() {
+    const date = new Date().toISOString();
+    const full = [...this.sheets.entries()].filter(([, sheet]) => isFull(sheet));
+    const entries = full.map(([id, sheet]) => {
+      const p = this.lobby.players.get(id);
+      return { id: `hs_${randomToken().slice(0, 12)}`, name: p?.name || 'Spieler', avatar: p?.avatar || null, ...sheetScore(sheet), sheet: { ...sheet }, date };
+    });
+    this.newHighscores = Wuerfelbecher.highscores().add(entries);
+    // Wer es aus dieser Partie in die Bestenliste geschafft hat
+    this.highscorePlayers = full.filter((_, i) => this.newHighscores.includes(entries[i].id)).map(([id]) => id);
+  }
+
+  // Host: Bestenliste für alle ein- oder ausblenden
+  toggleHighscores() {
+    if (this.phase !== 'result' && this.phase !== 'final') return { error: 'Die Bestenliste gibt es am Ende einer Partie.' };
+    this.showHighscores = !this.showHighscores;
+    return { ok: true };
   }
 
   // Host: nächste Partie starten
@@ -267,7 +291,7 @@ class Wuerfelbecher {
   }
 
   action(player, { type, ...data }) {
-    const hostOnly = ['force', 'skip'];
+    const hostOnly = ['force', 'skip', 'highscores'];
     if (hostOnly.includes(type) && !player.isHost) return { error: 'Nur der Host darf das.' };
     if (!hostOnly.includes(type) && !(this.phase === 'turn' && this.controls(player, this.activeId))) {
       return { error: 'Du bist nicht dran.' };
@@ -278,6 +302,7 @@ class Wuerfelbecher {
       case 'score': return this.score(data.category);
       case 'force': this.autoPlay(); return { ok: true };
       case 'skip': this.skip(); return { ok: true };
+      case 'highscores': return this.toggleHighscores();
       default: return { error: 'Unbekannte Aktion.' };
     }
   }
@@ -328,6 +353,10 @@ class Wuerfelbecher {
     if (!playing) {
       view.totals = this.totals;
       view.lastScores = this.results[this.results.length - 1].scores;
+      view.showHighscores = this.showHighscores;
+      view.newHighscores = this.newHighscores;
+      view.highscorePlayers = this.highscorePlayers;
+      if (this.showHighscores) view.highscores = Wuerfelbecher.highscores().list();
     }
     return view;
   }
@@ -337,6 +366,10 @@ class Wuerfelbecher {
   }
 }
 
+// Bestenliste erst bei Bedarf anlegen (Tests setzen eine eigene)
+let board = null;
+Wuerfelbecher.highscores = () => board || (board = createBoard('wuerfelbecher-highscores', { limit: HIGHSCORES }));
+Wuerfelbecher.useHighscores = (b) => { board = b; };
 Wuerfelbecher.scoreFor = scoreFor;
 Wuerfelbecher.sheetScore = sheetScore;
 Wuerfelbecher.CATEGORIES = CATEGORIES;

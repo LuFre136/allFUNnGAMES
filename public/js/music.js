@@ -84,5 +84,5 @@ const Music = (() => {
     controller?.resume();
   });
 
-  return { show, reveal, hide };
+  return { show, reveal, hide, loadApi };
 })();

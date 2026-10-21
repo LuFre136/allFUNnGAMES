@@ -20,7 +20,8 @@ Optionale Umgebungsvariablen:
 | `PORT` | Port des Servers (Standard 3000) |
 | `PUBLIC_URL` | Feste Adresse für Einladungslinks (bei Render automatisch gesetzt) |
 | `SPOTIFY_CLIENT_ID`, `SPOTIFY_CLIENT_SECRET` | Spotify-Zugangsdaten (siehe unten) |
-| `GITHUB_TOKEN`, `GITHUB_REPO` | Speichert ausgeschlossene Fragen dauerhaft im Repository (siehe unten) |
+| `GITHUB_TOKEN`, `GITHUB_REPO` | Speichert ausgeschlossene Fragen und die Würfelbecher-Bestenliste dauerhaft im Repository (siehe unten) |
+| `YOUTUBE_API_KEY` | Songsuche direkt in der App beim Karaoke (siehe unten) |
 
 ## Online stellen (Render)
 
@@ -85,11 +86,18 @@ Eine Frage wieder aktivieren: den Eintrag aus `excluded-questions.json` auf dem 
 Der Song läuft auf dem Gerät des Hosts über den eingebetteten Spotify-Player. Der Player ist bis zur Auflösung verdeckt, Titel und Cover sind also nicht zu sehen (wie bei der Musikzeitreise). Die Spieler sehen nur „Song läuft“.
 
 - Ist man im Browser des Hosts bei Spotify angemeldet, läuft der ganze Song, sonst eine 30-Sekunden-Vorschau.
-- Die Songs sind mit Spotify-Track-IDs hinterlegt. Mit eigenen Zugangsdaten sucht der Server die Songs beim Start zusätzlich über die Spotify-API und nimmt die gefundenen IDs. Dafür auf [developer.spotify.com](https://developer.spotify.com/dashboard) eine App anlegen und starten mit:
+- Die Songs sind mit Spotify-Track-IDs hinterlegt. Mit eigenen Zugangsdaten sucht der Server die Songs beim Start zusätzlich über die Spotify-API und nimmt die gefundenen IDs. Dieselben Zugangsdaten schalten beim Karaoke die Spotify-Suche frei. Dafür auf [developer.spotify.com](https://developer.spotify.com/dashboard) eine App anlegen (siehe unten) und starten mit:
 
 ```bash
 SPOTIFY_CLIENT_ID=... SPOTIFY_CLIENT_SECRET=... npm start
 ```
+
+So kommt man an die Zugangsdaten:
+
+1. Auf [developer.spotify.com/dashboard](https://developer.spotify.com/dashboard) mit dem Spotify-Konto anmelden und die Nutzungsbedingungen bestätigen.
+2. **Create app**: Name und Beschreibung frei wählen, als Redirect URI die eigene Adresse eintragen (z. B. `https://all-fun-n-games.onrender.com/callback`, sie wird nicht benutzt), bei den APIs **Web API** ankreuzen, speichern.
+3. In der App **Settings** öffnen: Dort steht die **Client ID**, das **Client secret** zeigt „View client secret“.
+4. In Render den Dienst öffnen, **Environment** → die Werte bei `SPOTIFY_CLIENT_ID` und `SPOTIFY_CLIENT_SECRET` eintragen und speichern. Render startet den Dienst danach neu.
 
 ## Profilbilder
 
@@ -129,6 +137,18 @@ Würfelspiel nach Qwixx für 2 bis 8 Mitspieler, ohne Teams. Jeder hat auf dem H
 
 Der Host stellt Bedenkzeit, Startspieler, Hilfen (erlaubte Felder leuchten) und die Zahl der Partien ein. Reagiert jemand nicht, kann er für den Würfelnden würfeln oder den Schritt beenden. Die Regeln prüft `npm test`.
 
+## So läuft Karaoke
+
+Das Host-Gerät ist die Bühne: am besten an den Fernseher anschließen oder auf den Beamer streamen. Gesungen wird zu Karaoke-Videos von YouTube, der Liedtext kommt also aus dem Video. Alle tragen auf dem Handy Songs in die Warteschlange ein (Interpret und Titel, dazu der YouTube-Link, optional mit Duettpartner). Ohne Link sucht der Host das Video, wenn der Song dran ist. Der Host kann auch Songs für Gäste ohne Handy eintragen, Songs vorziehen, entfernen oder sofort starten.
+
+Bei „Reihum“ kommt immer zuerst dran, wer am wenigsten gesungen hat. Während des Songs schicken die anderen Applaus-Emojis, die über das Video fliegen. Ist das Video zu Ende (oder tippen Sänger oder Host auf „Fertig“), vergeben alle außer den Sängern 1 bis 5 Sterne. Mit „Abschluss“ zeigt der Host die Rangliste nach Durchschnittsbewertung. Die Bewertung lässt sich in den Einstellungen abschalten.
+
+Manche Videos dürfen nicht eingebettet werden. Dann zeigt die Bühne einen Hinweis, und der Host öffnet das Video auf YouTube oder fügt einen anderen Link ein.
+
+**Spotify statt YouTube:** Beim Eintragen wählt man „🎧 Spotify“. Gespielt wird über den Spotify-Player auf dem Host-Gerät, den Text liefert die freie Datenbank [LRCLIB](https://lrclib.net), denn Spotify gibt keine Songtexte heraus. Mit Zeitstempeln läuft der Text zeilenweise mit, die aktuelle Zeile groß und gelb. Passt der Takt nicht (z. B. bei Karaoke-Versionen mit anderem Intro), verschiebt der Host den Text in halben Sekunden. Gibt es nur Text ohne Zeitstempel, scrollt er gleichmäßig über die Länge des Songs. In der Warteschlange steht, ob ein Text gefunden wurde. Für ganze Songs muss der Host-Browser bei open.spotify.com angemeldet sein, sonst spielt Spotify 30 Sekunden. Mit `SPOTIFY_CLIENT_ID` und `SPOTIFY_CLIENT_SECRET` (siehe [Musik über Spotify](#musik-über-spotify)) gibt es die Suche in der App, Original und Karaoke-Versionen gleichrangig gemischt. Ohne sie fügt man den Spotify-Link ein.
+
+Ohne Schlüssel öffnet „Auf YouTube suchen“ die YouTube-Suche, den Link kopiert man von dort. Mit `YOUTUBE_API_KEY` gibt es die Suche direkt in der App. Den Schlüssel gibt es kostenlos in der [Google Cloud Console](https://console.cloud.google.com/apis/library/youtube.googleapis.com): Projekt anlegen, „YouTube Data API v3“ aktivieren, unter „Anmeldedaten“ einen API-Schlüssel erstellen und in Render unter Environment eintragen. Das kostenlose Kontingent reicht für rund 100 Suchen am Tag.
+
 ## So läuft Dr Kroko
 
 Geschicklichkeitsspiel für 2 bis 20 Mitspieler, ohne Teams. Auf allen Geräten ist dasselbe Krokodil mit offenem Maul zu sehen (Standard 13 Zähne, einstellbar von 5 bis 24). Reihum drückt jeder auf dem Handy einen Zahn. Einer davon ist zufällig der wunde Zahn: Wer ihn erwischt, wird gebissen, das Maul schnappt zu und das Handy vibriert. Die nächste Runde beginnt, wer nach dem Gebissenen an der Reihe ist.
@@ -156,6 +176,7 @@ Würfelspiel nach Kniffel für 1 bis 10 Mitspieler, ohne Teams. Reihum würfelt 
 - **Mehrere Spieler an einem Gerät:** In der Lobby kann jedes Gerät unter „Mitspieler an diesem Gerät“ weitere Namen eintragen. Sie bekommen eine eigene Spalte im Block und würfeln an dem Gerät, an dem sie eingetragen sind.
 - Optional gibt es ein Zeitlimit pro Zug. Läuft es ab, wird (falls nötig) gewürfelt und das Feld mit den meisten Punkten eingetragen. Das kann der Host auch per Knopf auslösen oder den Spieler überspringen, der dann in der nächsten Runde wieder dran ist.
 - Ohne Extra-Kniffel-Bonus und ohne Joker-Regel; ein zweiter Kniffel zählt einfach in einem passenden Feld.
+- **Bestenliste:** Nach jeder Partie kommen volle Blöcke unter die zehn besten aller Zeiten, wenn sie gut genug sind. Am Ende einer Partie blendet der Host sie mit „🏆 Bestenliste“ für alle ein: Rangliste plus die zehn Blöcke nebeneinander, neue Einträge sind markiert. Gespeichert wird sie in `data/wuerfelbecher-highscores.json` und, wie die ausgeschlossenen Quizfragen, mit `GITHUB_TOKEN` zusätzlich auf dem Daten-Branch (sonst ist sie bei Render nach einem Neustart weg). Zum Zurücksetzen die Datei löschen bzw. leeren.
 
 ## So läuft Alias
 
@@ -166,6 +187,18 @@ Teamspiel nach Codenames für 4 bis 20 Spieler in genau zwei Teams. Auf dem Fern
 - Während des Spiels kann der Host eine Karte direkt aufdecken (Karte antippen), den Zug beenden, einen Hinweis zurückweisen und Hinweisgeber neu vergeben.
 
 Die Wörter stehen in `server/games/alias/words.json`. Die Regeln prüft `npm test`.
+
+## So läuft Sag's anders!
+
+Erklärspiel nach Tabu für 4 bis 20 Spieler in mindestens zwei Teams. Die Teams sind abwechselnd dran, in jedem Team erklärt reihum ein anderer Spieler. Er sieht auf seinem Handy einen Begriff und fünf verbotene Wörter und erklärt ihn, ohne diese Wörter, den Begriff selbst oder Teile davon zu sagen. Sein Team rät laut im Raum. Die Spieler der anderen Teams sehen dieselbe Karte und drücken „Buzz!“, wenn etwas Verbotenes fällt. Pro Zug läuft eine Sanduhr (Standard 60 Sekunden).
+
+- Der Erklärer wertet mit „Richtig“ (+1) und „Überspringen“ und kann die letzte Wertung zurücknehmen. Ein Buzz kostet einen Punkt, nur der erste Buzz pro Karte zählt. Der Punktestand eines Teams fällt nie unter 0.
+- Der Host-Bildschirm ist der Fernseher und zeigt die Karte nie, nur Team, Erklärer, Sanduhr und Zwischenstand. Spielt der Host mit, rät er mit seinem Team.
+- Nach jedem Zug zeigt der Fernseher alle Karten mit Ergebnis. Der Host kann jedes Ergebnis ändern, z. B. einen Begriff zählen lassen, der genau beim Gong gerufen wurde.
+- Einstellbar: Zeit pro Zug, Spielende nach Runden (jeder erklärt so oft) oder bei Zielpunktzahl, Überspringen (Anzahl und Strafe), Strafe für Buzz, 3 bis 5 verbotene Wörter, Schwierigkeit, Kategorien und Reihenfolge. Der Host kann pausieren, den Zug beenden und den Erklärer vor dem Zug wechseln. Verliert der Erklärer die Verbindung, hält die Sanduhr an.
+- Töne für Buzz, Treffer und Gong kommen aus dem Browser (Web Audio), es braucht keine Dateien.
+
+Die 300 Karten in 8 Kategorien stehen in `server/games/sagsanders/cards.json`. Die Regeln und den Kartenstapel prüft `npm test`.
 
 ## So läuft Montagsmaler
 
@@ -189,9 +222,11 @@ server/games/pubquiz/        Pub-Quiz-Logik und Fragen
 server/games/stadtlandfluss/ Stadt, Land, Fluss
 server/games/justone/        Just One
 server/games/kreuzquer/      Kreuz & Quer (Würfelspiel)
+server/games/karaoke/        Karaoke (Warteschlange, Bewertung, YouTube- und Spotify-Suche, Songtexte)
 server/games/musikzeitreise/ Musikzeitreise (Songs und Zeitleisten)
 server/games/wuerfelbecher/  Würfelbecher (nach Kniffel)
 server/games/alias/          Alias (nach Codenames)
+server/games/sagsanders/     Sag's anders! (nach Tabu)
 server/games/montagsmaler/   Montagsmaler (Zeichnen und Raten)
 test/                        Regeltests (npm test)
 server/spotify.js            Optionale Spotify-Suche

@@ -660,10 +660,11 @@ function render() {
   }
 
   app.innerHTML = view();
-  // Spiele mit Elementen, die das Neuzeichnen überleben müssen (z. B. die Zeichenfläche beim Montagsmaler)
-  customGame()?.afterRender?.();
   document.getElementById('topinfo').innerHTML = fatal || joinInfo ? '' : viewTopInfo();
   document.getElementById('hostbar-root').innerHTML = fatal ? '' : viewHostbar();
+  // Platz unter dem Inhalt, damit die Host-Leiste nichts verdeckt (sie kann auf Handys mehrzeilig sein)
+  const bar = document.querySelector('.hostbar');
+  document.querySelector('main.wrap').style.paddingBottom = bar ? `${bar.offsetHeight + 24}px` : '';
 
   if (focusId) {
     const el = document.getElementById(focusId);
@@ -674,6 +675,7 @@ function render() {
     }
   }
   syncMusic();
+  for (const g of Object.values(gameViews)) g.afterRender?.();
   tick();
 }
 

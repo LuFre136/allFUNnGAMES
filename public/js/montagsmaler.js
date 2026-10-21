@@ -614,7 +614,8 @@
 
   // Nach jedem Neuzeichnen der Seite: Zeichenfläche wieder einhängen
   function afterRender() {
-    if (S?.phase !== 'playing') {
+    if (S?.game.id !== 'montagsmaler') return;
+    if (S.phase !== 'playing') {
       mm.gallery = null;
       return;
     }
