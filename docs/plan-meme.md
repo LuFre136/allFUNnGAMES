@@ -1,6 +1,6 @@
 # Plan: Memekönig (nach „What Do You Meme?“)
 
-Stand: umgesetzt (Pull Request auf GitHub). Arbeitsname „Memekönig“ (id `memekoenig`, CSS-Präfix `mk-`), weil
+Stand: umgesetzt (Pull Request auf GitHub). Name „Memekönig“ (von Lukas bestätigt) (id `memekoenig`, CSS-Präfix `mk-`), weil
 „What Do You Meme?“ ein Markenname ist.
 
 ## Spielidee
