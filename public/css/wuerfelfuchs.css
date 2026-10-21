@@ -1,0 +1,152 @@
+/* Würfelfuchs */
+
+.wf-status { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 14px; border-radius: 999px; background: var(--bg-2); border: 1px solid var(--line); text-align: center; flex-wrap: wrap; }
+.wf-status.mine { background: var(--accent); color: var(--accent-ink); border-color: transparent; font-weight: 900; }
+
+/* Runden */
+.wf-rounds { display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; }
+.wf-round { display: flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: 10px; background: var(--bg-2); border: 1px solid var(--line); font-family: 'Fredoka', sans-serif; }
+.wf-round.on { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+.wf-round.past { opacity: 0.45; }
+
+/* Würfeltisch */
+.wf-table { display: grid; gap: 10px; justify-items: center; padding: 14px 10px; border-radius: 20px; background: radial-gradient(circle at 50% 30%, #1e3a8a, #0b1437); box-shadow: inset 0 0 0 4px #57534e, var(--shadow); }
+.wf-dice { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; min-height: 44px; align-items: center; }
+.wf-zones { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
+.wf-zone { display: grid; gap: 6px; padding: 8px; border-radius: 14px; background: rgba(255, 255, 255, 0.07); }
+.wf-zone.tray { background: linear-gradient(135deg, rgba(226, 232, 240, 0.3), rgba(148, 163, 184, 0.2)); box-shadow: inset 0 0 0 2px rgba(226, 232, 240, 0.5); }
+.wf-zone-label { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: rgba(255, 255, 255, 0.75); text-align: center; }
+.wf-zone .wf-die { width: 40px; height: 40px; padding: 5px; border-radius: 9px; }
+.wf-table .muted { color: rgba(255, 255, 255, 0.6); }
+
+.wf-die { --pip: #111827; width: 56px; height: 56px; border-radius: 12px; border: 0; padding: 7px; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); gap: 2px; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.35); transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s; }
+.wf-die span { display: block; }
+.wf-die .pip { border-radius: 50%; background: var(--pip); margin: 1px; }
+.wf-die.white { background: #f8fafc; }
+.wf-die.yellow { background: #facc15; }
+.wf-die.blue { background: #3b82f6; --pip: #fff; }
+.wf-die.green { background: #22c55e; --pip: #fff; }
+.wf-die.orange { background: #f97316; --pip: #fff; }
+.wf-die.purple { background: #a855f7; --pip: #fff; }
+.wf-die.empty { opacity: 0.35; }
+.wf-die.can { cursor: pointer; box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.85), 0 4px 0 rgba(0, 0, 0, 0.35); }
+.wf-die.can:hover { transform: translateY(-3px); }
+.wf-die.dead { opacity: 0.45; }
+.wf-die.sel { transform: translateY(-6px) scale(1.08); box-shadow: 0 0 0 4px var(--accent), 0 8px 0 rgba(0, 0, 0, 0.35); }
+.wf-die.rolling { animation: wf-roll 0.7s ease-out; }
+@keyframes wf-roll {
+  0% { transform: rotate(-200deg) scale(0.6); }
+  60% { transform: rotate(20deg) scale(1.1); }
+  100% { transform: rotate(0) scale(1); }
+}
+.wf-rolls { display: flex; gap: 6px; }
+.wf-rolls span { width: 12px; height: 12px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.6); }
+.wf-rolls span.on { background: var(--accent); border-color: var(--accent); }
+
+.wf-actions { display: grid; gap: 10px; text-align: center; padding: 12px; border-radius: 16px; background: var(--card); border: 2px solid var(--accent); }
+.wf-actions .btn.on { background: var(--accent); color: var(--accent-ink); }
+
+/* Bonus-Symbole */
+.wf-b { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 3px; border-radius: 6px; font: 800 0.75rem 'Fredoka', sans-serif; line-height: 1; color: #111827; background: #fff; border: 1.5px solid #111827; vertical-align: middle; }
+.wf-b.c-yellow { background: #facc15; }
+.wf-b.c-blue { background: #3b82f6; color: #fff; }
+.wf-b.c-green { background: #22c55e; color: #fff; }
+.wf-b.c-orange { background: #f97316; color: #fff; }
+.wf-b.c-purple { background: #a855f7; color: #fff; }
+.wf-b.t-reroll { background: #e2e8f0; }
+.wf-b.t-plusOne { background: #fde68a; }
+.wf-b.t-fox { background: #fed7aa; border-color: #c2410c; }
+.wf-b.t-free { background: #111827; color: #fff; }
+
+/* Spielblatt */
+.wf-sheet { display: grid; gap: 6px; padding: 8px; border-radius: 16px; background: #f1f5f9; color: #111827; }
+.wf-top { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.wf-area { padding: 6px; border-radius: 12px; display: grid; gap: 4px; align-content: start; }
+.wf-area.yellow { background: #facc15; --soft: #fef9c3; }
+.wf-area.blue { background: #3b82f6; --soft: #dbeafe; }
+.wf-area.green { background: #22c55e; --soft: #dcfce7; }
+.wf-area.orange { background: #f97316; --soft: #ffedd5; }
+.wf-area.purple { background: #a855f7; --soft: #f3e8ff; }
+.wf-area-head { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; }
+.wf-area.blue .wf-area-head, .wf-area.green .wf-area-head, .wf-area.orange .wf-area-head, .wf-area.purple .wf-area-head { color: #fff; }
+.wf-pts { margin-left: auto; min-width: 32px; padding: 1px 6px; border-radius: 8px; background: #fff; color: #111827; font: 800 0.95rem 'Fredoka', sans-serif; text-align: center; }
+
+.wf-grid { display: grid; grid-template-columns: repeat(4, 1fr) 24px; gap: 3px; align-items: center; }
+.wf-side, .wf-foot { display: grid; place-items: center; font: 700 0.75rem 'Fredoka', sans-serif; }
+.wf-foot { color: #111827; background: rgba(255, 255, 255, 0.5); border-radius: 6px; padding: 1px 0; }
+.wf-area.blue .wf-foot { background: transparent; }
+.wf-foot.got { background: #fff; box-shadow: inset 0 0 0 2px #111827; }
+.wf-b.diag { transform: rotate(-12deg); }
+
+.wf-cell { position: relative; aspect-ratio: 1; min-width: 0; border: 0; border-radius: 7px; background: var(--soft); color: #111827; font: 800 clamp(0.75rem, 3vw, 1.05rem) 'Fredoka', sans-serif; padding: 0; display: grid; place-items: center; cursor: default; }
+.wf-cell small { font-size: 0.65em; font-weight: 600; opacity: 0.75; }
+.wf-cell.val small { position: absolute; right: 2px; bottom: 0; }
+.wf-cell.pre { background: rgba(255, 255, 255, 0.35); color: rgba(0, 0, 0, 0.35); }
+.wf-cell.diag { box-shadow: inset 0 0 0 1.5px rgba(0, 0, 0, 0.25); }
+.wf-cell.sym { background: rgba(255, 255, 255, 0.35); font-size: 0.7rem; gap: 0; grid-auto-flow: column; }
+.wf-cell.sym .d { display: block; width: 10px; height: 10px; border-radius: 3px; border: 1px solid #111827; }
+.wf-cell.sym .d.blue { background: #3b82f6; }
+.wf-cell.sym .d.white { background: #fff; }
+.wf-cell.x { background: #fff; }
+.wf-grid .wf-cell.x::after, .wf-area.green .wf-cell.x::after { content: '✕'; position: absolute; inset: 0; display: grid; place-items: center; font-size: 1.5em; color: #111827; }
+.wf-grid .wf-cell.x, .wf-area.green .wf-cell.x { color: rgba(0, 0, 0, 0.3); }
+.wf-area.green .wf-cell.x { font-size: 0; }
+.wf-area.green .wf-cell.x::after { font-size: clamp(0.9rem, 3.4vw, 1.2rem); }
+.wf-cell.can { cursor: pointer; background: #fff; box-shadow: 0 0 0 3px #111827, 0 0 12px 2px #fff; animation: wf-glow 1s ease-in-out infinite alternate; z-index: 1; }
+@keyframes wf-glow { from { box-shadow: 0 0 0 3px #111827, 0 0 4px 1px #fff; } to { box-shadow: 0 0 0 3px #111827, 0 0 14px 4px #fff; } }
+
+.wf-row { display: grid; grid-template-columns: repeat(11, 1fr); gap: 3px; }
+.wf-slot { display: grid; gap: 2px; justify-items: center; align-content: start; }
+.wf-slot .wf-cell { width: 100%; }
+.wf-slot .wf-b { min-width: 16px; height: 16px; font-size: 0.62rem; border-radius: 5px; }
+
+.wf-ladder { display: grid; grid-template-columns: repeat(11, 1fr); gap: 2px; }
+.wf-ladder span { display: grid; text-align: center; font: 700 0.62rem/1.1 'Fredoka', sans-serif; color: #fff; border-radius: 4px; padding: 1px 0; }
+.wf-ladder small { font-size: 0.55rem; opacity: 0.75; }
+.wf-ladder span.got { background: #fff; color: #1d4ed8; }
+
+.wf-extras { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 4px 6px; font-weight: 800; }
+.wf-total { margin-left: auto; font: 800 1.1rem 'Fredoka', sans-serif; }
+
+/* Mitspieler */
+.wf-players { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+.wf-player { display: flex; align-items: center; gap: 6px; padding: 4px 10px 4px 4px; border-radius: 999px; background: var(--bg-2); border: 1px solid var(--line); color: var(--text); font: inherit; cursor: pointer; }
+.wf-player.active { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+.wf-player.open { background: var(--card-2); }
+.wf-player.offline { opacity: 0.5; }
+.wf-player .name { max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wf-player .st { width: 18px; text-align: center; }
+
+.wf-log { display: grid; gap: 2px; padding: 8px 12px; border-radius: 12px; background: var(--bg-2); font-size: 0.85rem; }
+.wf-log > div:last-child { font-weight: 700; }
+
+/* Fernseher */
+.wf-tv-top { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; align-items: start; }
+.wf-all { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 12px; }
+.wf-active-card { box-shadow: 0 0 0 3px var(--accent); }
+
+/* Wertung */
+.wf-score-wrap { overflow-x: auto; }
+.wf-score { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+.wf-score th, .wf-score td { padding: 6px; border-bottom: 1px solid var(--line); text-align: center; white-space: nowrap; }
+.wf-score tbody th { text-align: left; }
+.wf-score thead th.c-yellow { color: #facc15; }
+.wf-score thead th.c-blue { color: #60a5fa; }
+.wf-score thead th.c-green { color: #4ade80; }
+.wf-score thead th.c-orange { color: #fb923c; }
+.wf-score thead th.c-purple { color: #c084fc; }
+.wf-score tr.new { background: rgba(255, 204, 51, 0.15); }
+
+@media (max-width: 720px) {
+  .wf-tv-top { grid-template-columns: 1fr; }
+}
+@media (max-width: 420px) {
+  .wf-die { width: 48px; height: 48px; padding: 6px; }
+  .wf-zone .wf-die { width: 34px; height: 34px; padding: 4px; }
+  .wf-dice { gap: 7px; }
+  .wf-top { gap: 4px; }
+  .wf-area { padding: 4px; }
+  .wf-grid { grid-template-columns: repeat(4, 1fr) 20px; gap: 2px; }
+  .wf-row { gap: 2px; }
+  .wf-all { grid-template-columns: 1fr; }
+}

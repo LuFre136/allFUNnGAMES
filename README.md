@@ -20,7 +20,7 @@ Optionale Umgebungsvariablen:
 | `PORT` | Port des Servers (Standard 3000) |
 | `PUBLIC_URL` | Feste Adresse für Einladungslinks (bei Render automatisch gesetzt) |
 | `SPOTIFY_CLIENT_ID`, `SPOTIFY_CLIENT_SECRET` | Spotify-Zugangsdaten (siehe unten) |
-| `GITHUB_TOKEN`, `GITHUB_REPO` | Speichert ausgeschlossene Fragen und die Würfelbecher-Bestenliste dauerhaft im Repository (siehe unten) |
+| `GITHUB_TOKEN`, `GITHUB_REPO` | Speichert ausgeschlossene Fragen und die Bestenlisten von Würfelbecher und Würfelfuchs dauerhaft im Repository (siehe unten) |
 | `YOUTUBE_API_KEY` | Songsuche direkt in der App beim Karaoke (siehe unten) |
 
 ## Online stellen (Render)
@@ -178,6 +178,18 @@ Würfelspiel nach Kniffel für 1 bis 10 Mitspieler, ohne Teams. Reihum würfelt 
 - Ohne Extra-Kniffel-Bonus und ohne Joker-Regel; ein zweiter Kniffel zählt einfach in einem passenden Feld.
 - **Bestenliste:** Nach jeder Partie kommen volle Blöcke unter die zehn besten aller Zeiten, wenn sie gut genug sind. Am Ende einer Partie blendet der Host sie mit „🏆 Bestenliste“ für alle ein: Rangliste plus die zehn Blöcke nebeneinander, neue Einträge sind markiert. Gespeichert wird sie in `data/wuerfelbecher-highscores.json` und, wie die ausgeschlossenen Quizfragen, mit `GITHUB_TOKEN` zusätzlich auf dem Daten-Branch (sonst ist sie bei Render nach einem Neustart weg). Zum Zurücksetzen die Datei löschen bzw. leeren.
 
+## So läuft Würfelfuchs
+
+Würfelspiel nach „Ganz schön clever“ für 1 bis 6 Mitspieler, ohne Teams. Es gibt sechs Würfel (Weiß, Gelb, Blau, Grün, Orange, Lila) und auf jedem Handy ein Blatt mit fünf Farbfeldern. Wer am Zug ist, würfelt bis zu dreimal und nimmt nach jedem Wurf einen Würfel für das Feld seiner Farbe; Weiß ist ein Joker für jede Farbe. Alle Würfel, die kleiner sind als der genommene, wandern aufs Tablett. Danach nehmen sich alle anderen gleichzeitig einen Würfel vom Tablett. Gelb: passende Zahl im Raster ankreuzen, volle Spalten bringen 10/14/16/20 Punkte. Blau: Summe aus Blau und Weiß ankreuzen, Punkte nach Anzahl der Kreuze. Grün: von links nach rechts, mindestens die angegebene Zahl. Orange: Wert eintragen, manche Kästchen zählen doppelt oder dreifach. Lila: jeder Wert größer als der vorige, nach einer 6 geht alles. Gespielt wird je nach Spielerzahl 6, 5 oder 4 Runden.
+
+- **Bonusse:** Volle Reihen und Spalten in Gelb und Blau sowie bestimmte Kästchen in Grün, Orange und Lila lösen Bonusse aus: Kreuze in anderen Farben (auch als Kettenreaktion), Neuwürfe, +1 (am Ende eines Zuges einen der sechs Würfel zusätzlich nutzen) und Füchse (jeder Fuchs zählt am Ende so viel wie das schwächste Farbfeld). Die Runden 1 bis 4 bringen allen einen Neuwurf, ein +1, einen Neuwurf und ein Kreuz nach Wahl.
+- **Bedienung:** Würfel antippen, dann leuchten die Felder, in die er passt; ein Tipp auf das Feld trägt ein. In der Tablett-Phase lässt sich alles mit „Rückgängig“ zurücknehmen, bis man auf „Fertig“ tippt. Mit „Hilfen“ sind Würfel, die nirgends passen, ausgegraut.
+- **Fernseher:** Würfel mit Tablett, Rundenleiste, die letzten Züge und alle Blätter nebeneinander.
+- **Allein:** Nach dem eigenen Zug würfelt das Spiel alle sechs Würfel für einen gedachten Mitspieler, die drei kleinsten kommen aufs Tablett.
+- Optional gibt es eine Bedenkzeit pro Schritt. Läuft sie ab, nimmt das Spiel für den Spieler am Zug jeweils den Würfel mit den meisten Punkten, in der Tablett-Phase verzichtet, wer nicht fertig ist. Der Host kann das auch per Knopf auslösen oder den Spieler am Zug überspringen.
+- Aufbau des Blatts (Zahlen, Bonusse, Punkte) steht in `server/games/wuerfelfuchs/sheet.json`.
+- **Bestenliste:** wie bei Würfelbecher, gespeichert in `data/wuerfelfuchs-highscores.json` (mit `GITHUB_TOKEN` zusätzlich auf dem Daten-Branch).
+
 ## So läuft Alias
 
 Teamspiel nach Codenames für 4 bis 20 Spieler in genau zwei Teams. Auf dem Fernseher liegen 25 Wortkarten. Pro Team ist ein Spieler Hinweisgeber und sieht auf seinem Handy die geheime Karte: 9 Karten für das Startteam, 8 für das andere, 7 neutrale Passanten und 1 Attentäter. Er gibt seinem Team ein Wort und eine Zahl; Wörter, die noch auf dem Tisch liegen, und ihre Wortfamilie lehnt das Spiel ab. Die Ermittler tippen auf dem Handy Karten an, ihre Profilbilder erscheinen auf den Karten. Aufgedeckt wird, sobald die Mehrheit des Teams dieselbe Karte gewählt hat (oder per Einstellung beim ersten Tipp). Pro Hinweis gibt es Zahl + 1 Versuche, bei 0 und ∞ beliebig viele. Ein Passant oder eine gegnerische Karte beendet den Zug, der Attentäter verliert sofort. Wer zuerst alle eigenen Karten gefunden hat, gewinnt die Partie.
@@ -260,6 +272,7 @@ server/games/kreuzquer/      Kreuz & Quer (Würfelspiel)
 server/games/karaoke/        Karaoke (Warteschlange, Bewertung, YouTube- und Spotify-Suche, Songtexte)
 server/games/musikzeitreise/ Musikzeitreise (Songs und Zeitleisten)
 server/games/wuerfelbecher/  Würfelbecher (nach Kniffel)
+server/games/wuerfelfuchs/   Würfelfuchs (nach Ganz schön clever)
 server/games/alias/          Alias (nach Codenames)
 server/games/sagsanders/     Sag's anders! (nach Tabu)
 server/games/montagsmaler/   Montagsmaler (Zeichnen und Raten)
