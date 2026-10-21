@@ -236,6 +236,18 @@ Für 3 bis 12 Spieler, einzeln oder in Teams (wie Fibbage). Auf dem Fernseher st
 
 Die Fragen stehen in `server/games/bluffquiz/questions.json`. Die Regeln prüft `npm test`.
 
+## So läuft die Freundeskala
+
+Für 3 bis 12 Spieler, alle zusammen (nach Fun Facts). Auf dem Fernseher steht eine Frage über die Mitspieler selbst, z. B. „Wie viele Paar Schuhe besitzt du?“ oder „Wie sehr magst du Spinnen, von 0 bis 100?“. Jeder tippt geheim eine Zahl ins Handy. Danach legen sich alle der Reihe nach mit ihrem Profilbild in eine Reihe von wenig nach viel, ohne die Zahlen der anderen zu kennen. Gelegte Bilder bleiben liegen. Bei der Auflösung werden die Zahlen Bild für Bild aufgedeckt.
+
+- Punkte wie im Brettspiel: ein gemeinsamer Punkt für jedes Bild genau am richtigen Platz. Gleiche Zahlen sind austauschbar.
+- Einstellungen: Anzahl Fragen, Kategorien, Fragearten (Anzahl, Skala 0–100 oder beide), Zeit zum Antworten.
+- Wer beim Legen dran ist und weg ist, rückt ans Ende; der Host kann ihn überspringen.
+- Am Ende gibt es eine Bewertung und Sonderpreise für den Gedankenleser, das Überraschungsei und den Extremisten.
+- Fragen lassen sich wie im Pub Quiz einstimmig dauerhaft ausschließen. In derselben Lobby kommt keine Frage doppelt, solange es neue gibt.
+
+Die 205 Fragen in 9 Kategorien stehen in `server/games/freundeskala/questions.json`. Die Regeln prüft `npm test`. Der Plan steht in [docs/plan-fun-facts.md](docs/plan-fun-facts.md).
+
 ## So läuft Sieben auf einen Streich
 
 Kartenspiel nach Flip 7 für 2 bis 12 Spieler, ohne Teams. Zu Beginn jeder Runde bekommt jeder eine offene Karte, dann zieht reihum jeder eine weitere Karte oder stoppt und sichert seine Punkte. Wer eine Zahl zieht, die er in dieser Runde schon hat, ist raus und bekommt 0 Punkte. Wer sieben verschiedene Zahlen schafft, beendet die Runde sofort und bekommt 15 Bonus. Gespielt wird, bis nach einer Runde jemand die Zielpunktzahl (Standard 200) erreicht hat und allein vorne liegt.
@@ -265,6 +277,7 @@ server/games/alias/          Alias (nach Codenames)
 server/games/sagsanders/     Sag's anders! (nach Tabu)
 server/games/montagsmaler/   Montagsmaler (Zeichnen und Raten)
 server/games/bluffquiz/      Bluff-Quiz (nach Fibbage)
+server/games/freundeskala/   Freundeskala (nach Fun Facts)
 server/games/sieben/         Sieben auf einen Streich (nach Flip 7)
 test/                        Regeltests (npm test)
 server/spotify.js            Optionale Spotify-Suche

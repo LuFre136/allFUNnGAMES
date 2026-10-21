@@ -13,6 +13,7 @@ const SagsAnders = require('./sagsanders');
 const Montagsmaler = require('./montagsmaler');
 const BluffQuiz = require('./bluffquiz');
 const Wuerfelfuchs = require('./wuerfelfuchs');
+const Freundeskala = require('./freundeskala');
 const Sieben = require('./sieben');
 
 const games = {
@@ -29,6 +30,7 @@ const games = {
   montagsmaler: Montagsmaler,
   bluffquiz: BluffQuiz,
   wuerfelfuchs: Wuerfelfuchs,
+  freundeskala: Freundeskala,
   sieben: Sieben,
 };
 
