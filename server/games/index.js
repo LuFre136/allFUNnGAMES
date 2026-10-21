@@ -13,6 +13,7 @@ const SagsAnders = require('./sagsanders');
 const Montagsmaler = require('./montagsmaler');
 const BluffQuiz = require('./bluffquiz');
 const Wuerfelfuchs = require('./wuerfelfuchs');
+const Sieben = require('./sieben');
 
 const games = {
   pubquiz: PubQuiz,
@@ -28,6 +29,7 @@ const games = {
   montagsmaler: Montagsmaler,
   bluffquiz: BluffQuiz,
   wuerfelfuchs: Wuerfelfuchs,
+  sieben: Sieben,
 };
 
 // Platzhalter für die Startseite, bis die Spiele gebaut sind
