@@ -156,7 +156,8 @@
 
   function viewStatus(R) {
     const active = playerById(R.activeId);
-    if (R.activeId === S.me.id) return '<div class="kn-status mine">Du bist dran! 🎲</div>';
+    // Am geteilten Gerät immer den Namen zeigen, damit klar ist, wer würfeln soll
+    if (R.activeId === S.me.id) return `<div class="kn-status mine">${avatarHtml(active, 'sm')} ${esc(active?.name || '?')} ist dran! 🎲</div>`;
     if (R.isActive) return `<div class="kn-status mine">${avatarHtml(active, 'sm')} ${esc(active?.name || '?')} ist dran! Gib das Gerät weiter.</div>`;
     return `<div class="kn-status">${avatarHtml(active, 'sm')} <b>${esc(active?.name || '?')}</b>&nbsp;ist dran</div>`;
   }
