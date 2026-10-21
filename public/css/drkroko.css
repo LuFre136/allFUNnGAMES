@@ -10,9 +10,16 @@
 .cd-handle:hover { background: var(--card-2); color: var(--text); }
 .cd-order-item.dragging .cd-handle { cursor: grabbing; }
 
-.cd-status { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 14px; border-radius: 999px; background: var(--bg-2); border: 1px solid var(--line); text-align: center; flex-wrap: wrap; }
-.cd-status.mine { background: var(--accent); color: var(--accent-ink); border-color: transparent; font-weight: 900; }
-.cd-status.bitten { background: var(--bad); color: #fff; border-color: transparent; font-weight: 900; font-size: 1.1rem; }
+.cd-top { height: 40px; flex-wrap: nowrap; margin-bottom: 0; }
+.cd-count { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cd-status { height: 64px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 2px; padding: 6px 16px; border-radius: 20px; background: var(--bg-2); border: 1px solid var(--line); text-align: center; overflow: hidden; }
+.cd-status .l1, .cd-status .l2 { display: flex; align-items: center; justify-content: center; gap: 6px; max-width: 100%; white-space: nowrap; }
+.cd-status .l1 { height: 28px; font-weight: 800; }
+.cd-status .l2 { height: 20px; font-size: 0.9rem; }
+.cd-status .l2:empty { display: none; }
+.cd-status .nm { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.cd-status.mine { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+.cd-status.bitten { background: var(--bad); color: #fff; border-color: transparent; }
 
 /* Das Krokodil: oben der Kopf mit Augen, darunter der offene Unterkiefer mit den Zähnen */
 .cd-croc { --croc: #16a34a; --croc-dark: #166534; position: relative; width: min(100%, 440px); aspect-ratio: 1 / 1.05; margin: 8px auto 0; }
