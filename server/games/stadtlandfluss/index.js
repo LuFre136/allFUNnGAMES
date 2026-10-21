@@ -63,6 +63,8 @@ class StadtLandFluss {
       icon: '🗺️',
       description: 'Der Klassiker mit eigenen Kategorien: Buchstabe ziehen, ausfüllen, Stopp rufen.',
       players: '2–20 Spieler, einzeln oder in Teams',
+      minPlayers: 2,
+      maxPlayers: 20,
       available: true,
       teams: 'optional',
       suggestions: SUGGESTIONS,

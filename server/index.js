@@ -253,6 +253,7 @@ io.on('connection', (socket) => {
       case 'judge': lobby.game?.judge(data.teamId, data.part, data.value); break;
       case 'next': lobby.game?.next(); break;
       case 'lobby': lobby.backToLobby(); break;
+      case 'switchGame': error = lobby.switchGame(data.gameId); break;
       default: error = 'Unbekannte Aktion.';
     }
     lobby.broadcast();

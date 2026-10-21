@@ -85,6 +85,8 @@ class KreuzQuer {
       icon: '🎲',
       description: 'Würfeln und ankreuzen: Wer füllt die Farbreihen am geschicktesten?',
       players: '2–8 Spieler',
+      minPlayers: MIN_PLAYERS,
+      maxPlayers: MAX_PLAYERS,
       available: true,
       teams: false,
     };

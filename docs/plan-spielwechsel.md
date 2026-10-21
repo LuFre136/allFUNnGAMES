@@ -1,6 +1,6 @@
 # Plan: Nach Spielende ein anderes Spiel starten
 
-Stand: Plan, noch nicht gebaut. Offene Fragen stehen am Ende.
+Stand: umgesetzt (21.10.2026). Lukas’ Antworten auf die offenen Fragen stehen am Ende.
 
 ## Ziel
 
@@ -9,7 +9,8 @@ spielen will, muss eine neue Lobby erstellen, und alle müssen mit neuem Code wi
 Host am Ende eines Spiels (und auch vorher in der Lobby) einfach ein anderes Spiel auswählen. Alle Mitspieler
 bleiben mit ihrem Namen, Avatar und Gerät in derselben Lobby, der Code bleibt gleich.
 
-Spiele, für die gerade zu viele (oder zu wenige) Spieler da sind, erscheinen in der Auswahl ausgegraut, mit Grund.
+Spiele, für die gerade zu viele Spieler da sind, erscheinen in der Auswahl ausgegraut, mit Grund. Zu wenige
+Spieler sperren nicht, das meldet wie bisher der Spielstart.
 
 ## Ablauf aus Sicht der Spieler
 
@@ -18,7 +19,7 @@ Spiele, für die gerade zu viele (oder zu wenige) Spieler da sind, erscheinen in
 3. Der Knopf öffnet ein Auswahlfenster mit denselben Spielkarten wie auf der Startseite (Symbol, Name,
    Beschreibung, Spielerzahl). Das aktuelle Spiel ist markiert.
 4. Karten, die gerade nicht passen, sind ausgegraut und nicht anklickbar. Darunter steht kurz, warum, z. B.
-   „Höchstens 8 Spieler, ihr seid 11“ oder „Mindestens 3 Spieler, ihr seid 2“.
+   „Höchstens 8 Spieler, ihr seid 11.“
 5. Der Host tippt ein Spiel an. Alle Geräte springen gleichzeitig in die Lobby des neuen Spiels, mit dessen
    Einstellungen. Der Host prüft die Einstellungen und tippt auf „Spiel starten“.
 6. Die Mitspieler sehen kurz eine Meldung „Weiter geht’s mit Würfelbecher 🎲“.
@@ -38,12 +39,12 @@ Spielen, die erst beim Start eine Fehlermeldung werfen. Dafür bekommt jedes `me
 | Kreuz & Quer | 2 | 8 | |
 | Karaoke | 1 | 30 | |
 | Dr Kroko | 2 | 20 | Mitspieler am selben Gerät zählen mit |
-| Musikzeitreise | 1 | 12 | im Teammodus: 12 Teams |
+| Musikzeitreise | 1 | 40 | in Teams; einzeln höchstens 12, das prüft der Spielstart |
 | Würfelbecher | 1 | 10 | Mitspieler am selben Gerät zählen mit |
 | Alias | 4 | 20 | genau 2 Teams |
 
-Die Zahlen stammen aus den heutigen Texten und Konstanten. `players` wird daraus erzeugt, damit Text und Prüfung
-nicht auseinanderlaufen. Die Start-Prüfungen in den Spielen bleiben als Sicherheitsnetz.
+Die Zahlen stammen aus den heutigen Texten und Konstanten. Der Text in `players` bleibt, weil er mehr sagt
+(„in Teams“, „Sänger“). Die Start-Prüfungen in den Spielen bleiben als Sicherheitsnetz.
 
 **Wer zählt:** alle verbundenen Spieler, die mitspielen, also `lobby.activePlayers()`. Der Host zählt nur, wenn
 „Host spielt mit“ an ist. Getrennte Spieler zählen nicht. Gäste am selben Gerät zählen nur bei Spielen mit
@@ -90,7 +91,7 @@ nicht auseinanderlaufen. Die Start-Prüfungen in den Spielen bleiben als Sicherh
   Knopf kommt einmal zentral dazu, statt in jede Datei kopiert zu werden.
 - Kein Neuladen nötig: `lobby.html` lädt schon alle Spiel-Skripte und -Stile, und die Ansicht richtet sich nach
   `S.game.id`. Nach dem Wechsel zeichnet jedes Gerät einfach die Lobby des neuen Spiels.
-- Musik: Läuft auf dem Host noch der Spotify-Player vom letzten Spiel, wird er beim Wechsel gestoppt.
+- Musik: Der Spotify-Player auf dem Host verschwindet wie bisher, sobald die Lobby angezeigt wird.
 - Startseite: `home.js` liest `minPlayers`/`maxPlayers` nicht, dort ändert sich nichts.
 
 **Test**
@@ -100,14 +101,11 @@ prüfen, dass Kreuz & Quer ausgegraut ist, Würfelbecher wählbar ist, alle Ger�
 und der Lobbycode gleich bleibt. Außerdem Teamwechsel (Pub Quiz mit 3 Teams → Alias) und Gäste
 (Würfelbecher → Just One).
 
-## Offene Fragen an Lukas
+## Entscheidungen (Lukas, 21.10.2026)
 
-1. **Wer wählt das nächste Spiel?** Nur der Host (Vorschlag), oder sollen alle abstimmen können?
-2. **Direkt starten oder erst in die Lobby?** Vorschlag: erst in die Lobby des neuen Spiels, damit der Host die
-   Einstellungen prüfen kann. Alternative: sofort mit Standardeinstellungen starten.
-3. **Zu viele Spieler:** komplett ausgegraut (Vorschlag), oder trotzdem wählbar, und der Host bestimmt, wer
-   zuschaut?
-4. **Zu wenige Spieler** ebenfalls ausgrauen? Vorschlag: ja, mit demselben Hinweis.
-5. **Gäste am selben Gerät** beim Wechsel zu einem Spiel ohne geteiltes Gerät entfernen (Vorschlag), oder sollen
-   sie erhalten bleiben und nur nicht mitspielen?
-6. **Gesamtwertung über den Abend** (Punkte oder Siege über mehrere Spiele) ist nicht Teil dieses Plans. Gewünscht?
+1. Das nächste Spiel wählt nur der Host.
+2. Nach der Wahl geht es erst in die Lobby des neuen Spiels, nicht direkt ins Spiel.
+3. Zu volle Spiele sind ganz gesperrt.
+4. Zu wenige Spieler sperren nicht.
+5. Gäste am selben Gerät werden entfernt, wenn das neue Spiel nicht an einem Gerät spielbar ist.
+6. Keine Gesamtwertung über mehrere Spiele.

@@ -10,6 +10,7 @@ const SONGS = JSON.parse(fs.readFileSync(path.join(__dirname, 'songs.json'), 'ut
 const START_CHIPS = 2;
 const MAX_CHIPS = 5;
 const BUY_COST = 3;
+const MAX_SOLO = 12; // mehr Spieler nur im Teammodus
 
 // Nur Songs mit Spotify-ID lassen sich abspielen
 function playableSongs() {
@@ -75,6 +76,8 @@ class Musikzeitreise {
       icon: '🎶',
       description: 'Song hören, Jahr schätzen und auf der eigenen Zeitleiste richtig einordnen.',
       players: '1–12 Spieler oder Teams',
+      minPlayers: 1,
+      maxPlayers: 40, // in Teams, einzeln höchstens MAX_SOLO
       available: true,
       teams: 'optional',
       totalSongs: SONGS.length,
@@ -135,6 +138,7 @@ class Musikzeitreise {
   start() {
     const keys = this.presentKeys();
     if (!keys.length) throw new Error(this.teamMode ? 'Mindestens ein Team braucht Spieler.' : 'Musikzeitreise braucht mindestens einen Mitspieler.');
+    if (!this.teamMode && keys.length > MAX_SOLO) throw new Error(`Einzeln geht Musikzeitreise mit höchstens ${MAX_SOLO} Spielern. Schalte den Teammodus ein.`);
     this.deck = shuffle(playableSongs());
     if (this.deck.length < keys.length * 2) {
       throw new Error('Es sind zu wenige Songs mit Spotify-ID hinterlegt. Mit Spotify-Zugangsdaten auf dem Server werden alle Songs abspielbar.');
