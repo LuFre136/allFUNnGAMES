@@ -46,6 +46,9 @@
 .kn-block thead th.active { background: var(--accent); }
 .kn-block thead th.offline { opacity: 0.5; }
 .kn-name { font-size: 0.8rem; max-width: 90px; margin: 2px auto 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.kn-rank { font: 700 1rem 'Fredoka', sans-serif; }
+.kn-date { font-size: 0.7rem; font-weight: 400; color: #78716c; }
+.score-row.kn-new { box-shadow: 0 0 0 2px var(--accent); }
 .kn-cat { text-align: left !important; white-space: nowrap; background: #fffbeb; position: sticky; left: 0; }
 .kn-cat b { display: block; }
 .kn-cat span { display: block; font-size: 0.72rem; font-weight: 400; color: #78716c; }

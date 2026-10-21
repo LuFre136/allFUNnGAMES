@@ -9,6 +9,7 @@ const DrKroko = require('./drkroko');
 const Musikzeitreise = require('./musikzeitreise');
 const Wuerfelbecher = require('./wuerfelbecher');
 const Alias = require('./alias');
+const SagsAnders = require('./sagsanders');
 const BluffQuiz = require('./bluffquiz');
 
 const games = {
@@ -21,6 +22,7 @@ const games = {
   musikzeitreise: Musikzeitreise,
   wuerfelbecher: Wuerfelbecher,
   alias: Alias,
+  sagsanders: SagsAnders,
   bluffquiz: BluffQuiz,
 };
 
