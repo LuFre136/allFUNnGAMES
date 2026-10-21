@@ -41,6 +41,12 @@
       "type": "flag",
       "question": "Zu welchem Land gehört diese Flagge?",
       "excludedAt": "2026-10-21T12:26:16.159Z"
+    },
+    {
+      "id": "fl18",
+      "type": "flag",
+      "question": "Zu welchem Land gehört diese Flagge?",
+      "excludedAt": "2026-10-21T12:26:17.992Z"
     }
   ]
 }
