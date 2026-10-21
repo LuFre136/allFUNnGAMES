@@ -12,6 +12,7 @@ const Alias = require('./alias');
 const SagsAnders = require('./sagsanders');
 const Montagsmaler = require('./montagsmaler');
 const BluffQuiz = require('./bluffquiz');
+const Freundeskala = require('./freundeskala');
 
 const games = {
   pubquiz: PubQuiz,
@@ -26,6 +27,7 @@ const games = {
   sagsanders: SagsAnders,
   montagsmaler: Montagsmaler,
   bluffquiz: BluffQuiz,
+  freundeskala: Freundeskala,
 };
 
 // Platzhalter für die Startseite, bis die Spiele gebaut sind

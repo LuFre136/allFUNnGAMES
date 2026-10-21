@@ -1,0 +1,57 @@
+/* Freundeskala */
+
+.fk-question { font-family: 'Fredoka', sans-serif; font-size: clamp(1.4rem, 3.6vw, 2.4rem); line-height: 1.3; text-align: center; padding: 18px 12px; }
+.fk-mine { text-align: center; font-size: 1.1rem; }
+.fk-mine b { color: var(--accent); }
+
+.fk-slider { display: grid; gap: 8px; }
+.fk-slider-value { font-family: 'Fredoka', sans-serif; font-size: 3rem; text-align: center; color: var(--accent); line-height: 1; }
+.fk-slider input[type=range] { width: 100%; accent-color: var(--accent); height: 36px; }
+
+.fk-progress { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+.fk-who { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px 4px 4px; border-radius: 999px; background: var(--card); border: 2px solid var(--line); opacity: 0.6; }
+.fk-who.done { opacity: 1; border-color: var(--good); }
+
+.fk-turn { text-align: center; font-size: 1.15rem; display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; padding: 10px; border-radius: 14px; background: var(--card); border: 2px solid var(--line); }
+.fk-turn.me { border-color: var(--pink); background: rgba(255, 95, 162, 0.15); font-weight: 800; animation: fk-pulse 1.6s ease-in-out infinite; }
+
+/* Die Linie: waagerecht auf großen Bildschirmen, senkrecht (oben viel) auf dem Handy */
+.fk-line { display: flex; align-items: stretch; gap: 10px; padding: 14px; border-radius: 18px; background: var(--bg-2); border: 2px solid var(--line); }
+.fk-end { flex: none; display: grid; place-items: center; font-weight: 800; color: var(--muted); font-size: 0.9rem; writing-mode: vertical-rl; transform: rotate(180deg); }
+.fk-end:last-child { transform: none; }
+.fk-track { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; min-height: 120px; position: relative; }
+.fk-track::before { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 4px; border-radius: 2px; background: linear-gradient(90deg, var(--line), var(--accent)); z-index: 0; }
+.fk-chip { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 92px; padding: 10px 8px; border-radius: 16px; background: var(--card); border: 2px solid var(--line); text-align: center; }
+.fk-chip.me { border-color: var(--accent); }
+.fk-chip.correct { border-color: var(--good); background: linear-gradient(rgba(52, 211, 153, 0.2), rgba(52, 211, 153, 0.2)), var(--card); animation: fk-pop 0.4s ease; }
+.fk-chip.wrong { border-color: var(--bad); background: linear-gradient(rgba(248, 113, 113, 0.2), rgba(248, 113, 113, 0.2)), var(--card); animation: fk-pop 0.4s ease; }
+.fk-name { font-weight: 800; font-size: 0.95rem; max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fk-value { font-family: 'Fredoka', sans-serif; font-size: 1.3rem; color: var(--accent); }
+.fk-mark { position: absolute; top: -10px; right: -8px; font-size: 1.2rem; }
+.fk-gap { position: relative; z-index: 1; align-self: stretch; min-width: 44px; border-radius: 14px; border: 2px dashed var(--pink); background: linear-gradient(rgba(255, 95, 162, 0.15), rgba(255, 95, 162, 0.15)), var(--bg-2); color: var(--text); font: inherit; font-weight: 800; cursor: pointer; padding: 6px; }
+.fk-gap:hover { background: linear-gradient(rgba(255, 95, 162, 0.35), rgba(255, 95, 162, 0.35)), var(--bg-2); }
+.fk-gap span { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 0.85rem; }
+
+@media (max-width: 700px) {
+  .fk-line { flex-direction: column-reverse; padding: 10px; }
+  .fk-end, .fk-end:last-child { display: block; text-align: center; writing-mode: horizontal-tb; transform: none; }
+  .fk-end.low::before { content: '▼ '; }
+  .fk-end.high::before { content: '▲ '; }
+  .fk-track { flex-direction: column-reverse; flex-wrap: nowrap; align-items: stretch; min-height: 0; }
+  .fk-track::before { left: 50%; right: auto; top: 0; bottom: 0; width: 4px; height: auto; background: linear-gradient(0deg, var(--line), var(--accent)); }
+  .fk-chip { flex-direction: row; justify-content: flex-start; padding: 8px 12px; min-width: 0; }
+  .fk-chip .avatar.lg { width: 44px; height: 44px; }
+  .fk-name { max-width: none; flex: 1; text-align: left; }
+  .fk-gap { min-height: 44px; }
+  .fk-gap span { writing-mode: horizontal-tb; transform: none; }
+}
+
+.fk-hits { font-family: 'Fredoka', sans-serif; font-size: 1.8rem; text-align: center; color: var(--good); }
+.fk-total { font-family: 'Fredoka', sans-serif; font-size: 2rem; color: var(--accent); }
+
+.fk-awards { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+.fk-award { display: flex; gap: 12px; align-items: center; }
+.fk-award .icon { font-size: 2.2rem; }
+
+@keyframes fk-pop { 0% { transform: scale(0.9); } 60% { transform: scale(1.06); } 100% { transform: scale(1); } }
+@keyframes fk-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(255, 95, 162, 0.4); } 50% { box-shadow: 0 0 0 6px rgba(255, 95, 162, 0); } }
