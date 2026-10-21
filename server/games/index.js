@@ -12,6 +12,7 @@ const Alias = require('./alias');
 const SagsAnders = require('./sagsanders');
 const Montagsmaler = require('./montagsmaler');
 const BluffQuiz = require('./bluffquiz');
+const Freundeskala = require('./freundeskala');
 const Sieben = require('./sieben');
 
 const games = {
@@ -27,6 +28,7 @@ const games = {
   sagsanders: SagsAnders,
   montagsmaler: Montagsmaler,
   bluffquiz: BluffQuiz,
+  freundeskala: Freundeskala,
   sieben: Sieben,
 };
 
