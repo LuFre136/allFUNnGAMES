@@ -1,6 +1,6 @@
 # Plan: Würfelfuchs (Würfelspiel nach „Ganz schön clever“)
 
-Stand: Plan, noch nicht umgesetzt (21.10.2026). Offene Entscheidungen stehen ganz unten.
+Stand: Plan, noch nicht umgesetzt (21.10.2026). Entschieden: Name „Würfelfuchs“. Weitere offene Punkte stehen ganz unten.
 
 ## Spielidee
 
@@ -10,8 +10,8 @@ Wer clever wählt, löst Bonusse aus, die wieder neue Kreuze bringen, und baut s
 die Summe aller Felder plus die Füchse. Wie bei Kreuz & Quer sind alle bei jedem Zug beteiligt: Der aktive Spieler
 wählt Würfel, die anderen dürfen danach aus den liegengebliebenen Würfeln einen nehmen.
 
-Name: „Ganz schön clever“ ist ein Markenname. Vorschlag für die Plattform: **„Würfelfuchs“**, weil der Fuchs im
-Spiel das Bonus-Symbol ist und der Name zu „Würfelbecher“ passt. Alternativen: „Schlaufuchs“, „Clever gewürfelt“.
+Name: „Ganz schön clever“ ist ein Markenname, auf der Plattform heißt das Spiel **„Würfelfuchs“** (entschieden am
+21.10.2026), weil der Fuchs im Spiel das Bonus-Symbol ist und der Name zu „Würfelbecher“ passt.
 
 ## Ablauf eines Zuges
 
@@ -138,9 +138,12 @@ bis der Spieler wieder dran ist.
 6. Test mit mehreren Browsern über Playwright (Solo, 3 Spieler gleichzeitig passiv, Kettenreaktion,
    Wiederverbinden, Bedenkzeit).
 
+## Entscheidungen
+
+- **Name:** „Würfelfuchs“ (entschieden am 21.10.2026).
+
 ## Offene Entscheidungen
 
-- **Name:** „Würfelfuchs“ (Vorschlag), „Schlaufuchs“, „Clever gewürfelt“ oder ein eigener.
 - **Spielerzahl:** 1–6 (Vorschlag) oder streng wie im Original 1–4.
 - **Bestenliste** gleich mitbauen oder später.
 - **Varianten** wie „Doppelt so clever“ oder „Clever hoch drei“: aktuell nicht, vielleicht später mit eigener
