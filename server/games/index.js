@@ -16,6 +16,7 @@ const Wuerfelfuchs = require('./wuerfelfuchs');
 const Freundeskala = require('./freundeskala');
 const Sieben = require('./sieben');
 const Gleichgesinnt = require('./gleichgesinnt');
+const Memekoenig = require('./memekoenig');
 const EinsBisZehn = require('./einsbiszehn');
 
 const games = {
@@ -35,6 +36,7 @@ const games = {
   freundeskala: Freundeskala,
   sieben: Sieben,
   gleichgesinnt: Gleichgesinnt,
+  memekoenig: Memekoenig,
   einsbiszehn: EinsBisZehn,
 };
 
