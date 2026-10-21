@@ -15,6 +15,7 @@ const BluffQuiz = require('./bluffquiz');
 const Wuerfelfuchs = require('./wuerfelfuchs');
 const Freundeskala = require('./freundeskala');
 const Sieben = require('./sieben');
+const Memekoenig = require('./memekoenig');
 const EinsBisZehn = require('./einsbiszehn');
 
 const games = {
@@ -33,6 +34,7 @@ const games = {
   wuerfelfuchs: Wuerfelfuchs,
   freundeskala: Freundeskala,
   sieben: Sieben,
+  memekoenig: Memekoenig,
   einsbiszehn: EinsBisZehn,
 };
 
