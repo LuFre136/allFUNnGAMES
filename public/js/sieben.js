@@ -214,14 +214,14 @@
   function viewControls(R) {
     if (R.pending) {
       const a = ACTIONS[R.pending.kind];
-      const by = R.pending.pid === S.me.id ? 'Du' : esc(playerName(R.pending.pid));
+      const by = esc(playerName(R.pending.pid));
       if (!R.pending.mine) return `<div class="si-status">${avatarHtml(playerById(R.pending.pid), 'sm')} <b>${by}</b>&nbsp;wählt ein Ziel für ${a.icon} ${a.name} …</div>`;
       const forGuest = R.pending.pid !== S.me.id ? `<div class="small">für ${esc(playerName(R.pending.pid))}</div>` : '';
       return `<div class="si-panel mine">
         <div class="si-panel-head">${cardHtml({ kind: R.pending.kind, n: -1 }, 'big')}<div><h2 style="margin:0">${a.ask}</h2>${forGuest}<div class="small">${a.hint}</div></div></div>
         <div class="si-targets">${R.pending.targets.map((id) => {
           const p = R.players.find((x) => x.id === id);
-          return `<button class="btn" data-action="siTarget" data-player="${id}">${avatarHtml(playerById(id), 'sm')} ${id === S.me.id ? 'Mich selbst' : esc(playerName(id))} <span class="small muted">${p.points} P.</span></button>`;
+          return `<button class="btn" data-action="siTarget" data-player="${id}">${avatarHtml(playerById(id), 'sm')} ${id === R.pending.pid ? 'Mich selbst' : esc(playerName(id))} <span class="small muted">${p.points} P.</span></button>`;
         }).join('')}</div>
       </div>`;
     }
@@ -230,7 +230,8 @@
     if (!R.myTurn) {
       return `<div class="si-status">${avatarHtml(playerById(R.turnId), 'sm')} <b>${esc(playerName(R.turnId))}</b>&nbsp;ist dran</div>${viewRisk(R, R.turnId)}`;
     }
-    const who = R.turnId === S.me.id ? 'Du bist dran!' : `${esc(playerName(R.turnId))} ist dran! Gib das Gerät weiter.`;
+    // Am geteilten Gerät immer den Namen zeigen, damit klar ist, wer ziehen soll
+    const who = `${esc(playerName(R.turnId))} ist dran!${R.turnId === S.me.id ? '' : ' Gib das Gerät weiter.'}`;
     return `<div class="si-panel mine">
       <div class="si-panel-title">${who}</div>
       ${viewRisk(R, R.turnId)}

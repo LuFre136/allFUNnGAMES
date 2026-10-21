@@ -169,7 +169,8 @@
   function viewStatus(R) {
     if (R.phase === 'turn') {
       const active = playerById(R.activeId);
-      if (R.activeId === S.me.id) return status('mine', 'Du bist dran!', 'Drück einen Zahn … 🫣');
+      // Am geteilten Gerät immer den Namen zeigen, damit klar ist, wer drücken soll
+      if (R.activeId === S.me.id) return status('mine', `${nameHtml(active)}<span>ist dran!</span>`, 'Drück einen Zahn … 🫣');
       if (R.isActive) return status('mine', `${nameHtml(active)}<span>ist dran!</span>`, 'Gib das Gerät weiter … 🫣');
       return status('', `${nameHtml(active)}<span>ist dran</span>`);
     }
