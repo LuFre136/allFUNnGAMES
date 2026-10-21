@@ -1,0 +1,16 @@
+{
+  "excluded": [
+    {
+      "id": "fl02",
+      "type": "flag",
+      "question": "Zu welchem Land gehört diese Flagge?",
+      "excludedAt": "2026-10-21T12:26:03.204Z"
+    },
+    {
+      "id": "fl15",
+      "type": "flag",
+      "question": "Zu welchem Land gehört diese Flagge?",
+      "excludedAt": "2026-10-21T12:26:05.233Z"
+    }
+  ]
+}
