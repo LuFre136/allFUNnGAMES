@@ -12,6 +12,7 @@ const PICK_TIMES = [15, 20, 30, 45, 60];
 const MIN_OPTIONS = 4;
 const REVEAL_STEP_MS = 4500;
 const POINTS = { truth: 1000, fooled: 500, like: 100 };
+const MAX_SOLO = 12; // mehr Spieler nur im Team-Modus
 
 // Alle Fragen, die nicht dauerhaft ausgeschlossen wurden
 function activeQuestions() {
@@ -77,6 +78,8 @@ class BluffQuiz {
       icon: '🤥',
       description: 'Erfinde eine glaubwürdige falsche Antwort und finde die echte unter allen Lügen.',
       players: '3–12 Spieler, einzeln oder in Teams',
+      minPlayers: 3,
+      maxPlayers: 40, // in Teams, einzeln höchstens MAX_SOLO
       available: true,
       teams: 'optional',
       categories: categoryStats(),
@@ -154,6 +157,7 @@ class BluffQuiz {
     const sheets = this.activeSheetKeys();
     if (this.teamMode && sheets.length < 2) throw new Error('Es braucht mindestens zwei Teams mit Spielern.');
     if (!this.teamMode && sheets.length < 3) throw new Error('Das Bluff-Quiz braucht mindestens 3 Mitspieler.');
+    if (!this.teamMode && sheets.length > MAX_SOLO) throw new Error(`Einzeln geht das Bluff-Quiz mit höchstens ${MAX_SOLO} Spielern. Schalte den Team-Modus ein.`);
     // Fragen, die in dieser Lobby schon dran waren, kommen erst wieder, wenn die neuen ausgehen
     if (!this.lobby.bluffPlayed) this.lobby.bluffPlayed = new Set();
     const played = this.lobby.bluffPlayed;

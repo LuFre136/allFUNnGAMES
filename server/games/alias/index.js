@@ -39,6 +39,8 @@ class Alias {
       icon: '🕵️',
       description: 'Zwei Teams, ein geheimer Plan: Mit einem Wort als Hinweis die eigenen Agenten finden.',
       players: '4–20 Spieler in zwei Teams',
+      minPlayers: 4,
+      maxPlayers: 20,
       available: true,
       maxTeams: 2,
     };

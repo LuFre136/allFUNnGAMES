@@ -26,6 +26,8 @@ class DrKroko {
       icon: '🐊',
       description: 'Reihum Zähne drücken. Bei einem schnappt das Krokodil zu!',
       players: `${MIN_PLAYERS}–${MAX_PLAYERS} Spieler`,
+      minPlayers: MIN_PLAYERS,
+      maxPlayers: MAX_PLAYERS,
       available: true,
       teams: false,
       sharedDevice: true, // mehrere Spieler können sich ein Gerät teilen

@@ -40,6 +40,8 @@ class JustOne {
       icon: '💡',
       description: 'Gemeinsam raten: Alle geben einen Hinweis, doppelte Hinweise fliegen raus.',
       players: '3–20 Spieler, alle zusammen',
+      minPlayers: MIN_PLAYERS,
+      maxPlayers: 20,
       available: true,
       teams: false,
       totalWords: WORDS.length,

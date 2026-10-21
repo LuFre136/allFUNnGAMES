@@ -176,6 +176,8 @@ class PubQuiz {
       icon: '🍻',
       description: 'Rate im Team: Multiple Choice, Schätzfragen, offene Fragen, Musik und berühmte Gesichter.',
       players: '2–40 Spieler in Teams',
+      minPlayers: 2,
+      maxPlayers: 40,
       available: true,
       categories: categoryStats(),
       types: typeStats(),

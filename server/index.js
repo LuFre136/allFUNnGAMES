@@ -230,6 +230,13 @@ io.on('connection', (socket) => {
     ack?.(result);
   });
 
+  // Zeichenbefehle (Montagsmaler) gehen ohne kompletten Spielstand direkt an die anderen Geräte
+  socket.on('game:draw', (data = {}, ack) => {
+    const { lobby, player } = ctx();
+    if (!player || !lobby.game?.draw) return ack?.({ error: 'Kein laufendes Spiel.' });
+    ack?.(lobby.game.draw(player, data || {}));
+  });
+
   // Alle Host-Aktionen laufen über ein Ereignis
   socket.on('host', ({ action, ...data } = {}, ack) => {
     const { lobby, player } = ctx();
@@ -253,6 +260,7 @@ io.on('connection', (socket) => {
       case 'judge': lobby.game?.judge(data.teamId, data.part, data.value); break;
       case 'next': lobby.game?.next(); break;
       case 'lobby': lobby.backToLobby(); break;
+      case 'switchGame': error = lobby.switchGame(data.gameId); break;
       default: error = 'Unbekannte Aktion.';
     }
     lobby.broadcast();
