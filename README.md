@@ -212,6 +212,18 @@ Für 2 bis 20 Spieler, einzeln oder in Teams. Reihum zeichnet einer einen geheim
 
 Die Begriffe stehen in `server/games/montagsmaler/words.json` (leicht, mittel, schwer; Synonyme nach `|`).
 
+## So läuft das Bluff-Quiz
+
+Für 3 bis 12 Spieler, einzeln oder in Teams (wie Fibbage). Auf dem Fernseher steht eine Frage mit Lücke, deren echte Antwort kaum jemand kennt. Jeder erfindet auf dem Handy eine glaubwürdige falsche Antwort; ist sie zu nah an der Wahrheit, lehnt das Spiel sie ab. Danach stehen alle Lügen und die echte Antwort gemischt zur Auswahl, die eigene Lüge ist gesperrt. Bei der Auflösung zeigt der Fernseher Lüge für Lüge, wer darauf hereingefallen ist und von wem sie stammt, zum Schluss die Wahrheit.
+
+- Punkte: 1000 für die echte Antwort, 500 für jeden, der auf die eigene Lüge hereinfällt, 100 für jedes 👍. Während der Auflösung kann jeder fremde Lügen liken.
+- „Mir fällt nichts ein“ schlägt eine Lüge vor; damit gibt es fürs Reinlegen nur halbe Punkte. Wer bis zum Ende der Zeit nichts abschickt, bekommt automatisch einen Vorschlag.
+- Einstellungen: Anzahl Fragen, Kategorien, Zeit zum Schreiben und Wählen, letzte Frage doppelt, Team-Modus (eine Lüge pro Team, gewählt wird per Mehrheit).
+- Am Ende gibt es Sonderpreise für den besten Lügner, den Wahrheitsfinder und den Publikumsliebling sowie die beliebteste Lüge der Partie.
+- Fragen lassen sich wie im Pub Quiz einstimmig dauerhaft ausschließen. In derselben Lobby kommt keine Frage doppelt, solange es neue gibt.
+
+Die Fragen stehen in `server/games/bluffquiz/questions.json`. Die Regeln prüft `npm test`.
+
 ## Aufbau
 
 ```
@@ -228,6 +240,7 @@ server/games/wuerfelbecher/  Würfelbecher (nach Kniffel)
 server/games/alias/          Alias (nach Codenames)
 server/games/sagsanders/     Sag's anders! (nach Tabu)
 server/games/montagsmaler/   Montagsmaler (Zeichnen und Raten)
+server/games/bluffquiz/      Bluff-Quiz (nach Fibbage)
 test/                        Regeltests (npm test)
 server/spotify.js            Optionale Spotify-Suche
 public/                      Startseite, Lobby-/Spielseite, Styles, Profilbilder
