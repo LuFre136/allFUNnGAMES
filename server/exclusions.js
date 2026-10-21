@@ -118,7 +118,11 @@ async function refresh() {
 
 function init() {
   entries = readFile();
-  if (githubEnabled) {
+  if (!githubEnabled) {
+    const missing = ['GITHUB_TOKEN', 'GITHUB_REPO'].filter((k) => !process.env[k]);
+    console.log(`GitHub-Speicher aus, es fehlt ${missing.join(' und ')}`);
+  } else {
+    console.log(`GitHub-Speicher an: ${GITHUB.repo}, Branch ${GITHUB.branch}`);
     refresh();
     setInterval(refresh, 10 * 60 * 1000).unref();
   }

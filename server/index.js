@@ -121,6 +121,7 @@ app.get('/api/server-info', (req, res) => {
     publicUrl: process.env.PUBLIC_URL || process.env.RENDER_EXTERNAL_URL || null,
     lanUrl: ip ? `http://${ip}:${PORT}` : null,
     spotify: spotify.state,
+    githubStorage: exclusions.githubEnabled,
   });
 });
 
