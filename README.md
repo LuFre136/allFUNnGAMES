@@ -259,6 +259,18 @@ Kartenspiel nach Flip 7 für 2 bis 12 Spieler, ohne Teams. Zu Beginn jeder Runde
 
 Die Regeln prüft `npm test`.
 
+## So läuft Eins bis Zehn
+
+Für 3 bis 11 Spieler, alle zusammen (nach Top Ten). Jede Runde ist ein anderer Spieler Kapitän und wählt auf dem Handy eins von zwei Themen, z. B. „Etwas, das man auf eine einsame Insel mitnimmt: 1 = völlig nutzlos, 10 = rettet dein Leben“. Alle anderen bekommen geheim eine Zahl von 1 bis 10, jede Zahl gibt es nur einmal, und schreiben eine passende Antwort. Danach stehen alle Antworten auf dem Fernseher und der Kapitän deckt sie von der kleinsten zur größten Zahl auf.
+
+- Die Gruppe startet mit Herzen (Standard 8). Jede aufgedeckte Zahl, die kleiner ist als eine schon aufgedeckte, kostet ein Herz. Eine fehlerfreie Runde bringt ein Herz zurück. Sind alle Herzen weg, ist das Spiel verloren.
+- Einstellungen: Runden (Standard: jeder einmal Kapitän), Herzen, Zeit zum Antworten, Kategorien.
+- Ist der Kapitän bei der Themenwahl weg, wird gelost; der Host kann auch auslosen, einen anderen Kapitän bestimmen und beim Aufdecken für den Kapitän antippen.
+- Am Ende gibt es eine Bewertung, den besten Kapitän und die rätselhafteste Antwort.
+- Themen lassen sich wie im Pub Quiz einstimmig dauerhaft ausschließen. In derselben Lobby kommt kein Thema doppelt, solange es neue gibt.
+
+Die 143 Themen in 8 Kategorien stehen in `server/games/einsbiszehn/themes.json`. Die Regeln prüft `npm test`. Der Plan steht in [docs/plan-top-ten.md](docs/plan-top-ten.md).
+
 ## Aufbau
 
 ```
@@ -279,6 +291,7 @@ server/games/montagsmaler/   Montagsmaler (Zeichnen und Raten)
 server/games/bluffquiz/      Bluff-Quiz (nach Fibbage)
 server/games/freundeskala/   Freundeskala (nach Fun Facts)
 server/games/sieben/         Sieben auf einen Streich (nach Flip 7)
+server/games/einsbiszehn/    Eins bis Zehn (nach Top Ten)
 test/                        Regeltests (npm test)
 server/spotify.js            Optionale Spotify-Suche
 public/                      Startseite, Lobby-/Spielseite, Styles, Profilbilder
