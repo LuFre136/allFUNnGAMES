@@ -17,6 +17,7 @@ const ui = {
   editProfile: false,
   showSolution: false,
   questionKey: null,
+  pickGame: false, // Auswahlfenster „Anderes Spiel“
 };
 const drafts = {}; // Eingaben pro Frage, damit beim Neuzeichnen nichts verloren geht
 const imageErrors = new Set();
@@ -44,6 +45,10 @@ function timeOptions(selected) {
 
 socket.on('connect', join);
 socket.on('state', (state) => {
+  if (S && S.game.id !== state.game.id) {
+    ui.pickGame = false;
+    toast(`Weiter geht’s mit ${state.game.name} ${state.game.icon}`, true);
+  }
   S = state;
   joinInfo = null;
   if (S.round) clockOffset = S.round.serverNow - Date.now();
@@ -607,6 +612,25 @@ function viewFinal() {
   </div>`;
 }
 
+// Auswahl des nächsten Spiels für den Host, zu volle Spiele sind gesperrt
+function viewGamePicker() {
+  return `<div class="modal-backdrop">
+    <div class="card modal stack" style="width:min(900px,100%);max-height:90vh;overflow:auto">
+      <div class="row spread"><h2 style="margin:0">🎮 Anderes Spiel</h2><button class="btn small ghost" data-action="closeGames">Schließen</button></div>
+      <p class="muted" style="margin:0">Alle bleiben in der Lobby. Du landest in der Lobby des neuen Spiels und kannst die Einstellungen prüfen.</p>
+      <div class="games">${S.gameOptions.map((g) => {
+        const off = !g.fits || g.current;
+        return `<button class="card game-card ${off ? 'disabled' : ''}" ${off ? 'disabled' : `data-action="switchGame" data-game="${esc(g.id)}"`}>
+          <div class="row spread"><div class="icon">${esc(g.icon)}</div>${g.current ? '<span class="badge">Aktuelles Spiel</span>' : g.fits ? '' : '<span class="badge">Zu viele Spieler</span>'}</div>
+          <h3 style="margin-top:8px">${esc(g.name)}</h3>
+          <p class="muted" style="margin:0 0 8px">${esc(g.description)}</p>
+          <div class="small ${g.fits ? 'muted' : ''}">${esc(g.reason || g.players || '')}</div>
+        </button>`;
+      }).join('')}</div>
+    </div>
+  </div>`;
+}
+
 function viewHostbar() {
   if (!S?.me.isHost) return '';
   const R = S.round;
@@ -625,7 +649,8 @@ function viewHostbar() {
     buttons = `<button class="btn primary" data-action="toLobby">Neue Runde (zur Lobby)</button>`;
   }
   const end = S.phase === 'playing' && R?.phase !== 'final' ? '<button class="btn small ghost" data-action="endGame">Beenden</button>' : '';
-  return `<div class="hostbar"><div class="inner"><span class="label">Host</span>${end}${buttons}</div></div>`;
+  const other = S.gameOptions && (S.phase === 'lobby' || R?.phase === 'final') ? '<button class="btn" data-action="openGames">🎮 Anderes Spiel</button>' : '';
+  return `<div class="hostbar"><div class="inner"><span class="label">Host</span>${end}${other}${buttons}</div></div>`;
 }
 
 function view() {
@@ -638,7 +663,7 @@ function view() {
   else if (S.round.phase === 'question') main = viewQuestion();
   else if (S.round.phase === 'reveal') main = viewReveal();
   else main = viewFinal();
-  return main + (ui.editProfile ? viewProfileModal() : '');
+  return main + (ui.editProfile ? viewProfileModal() : '') + (ui.pickGame && S.me.isHost ? viewGamePicker() : '');
 }
 
 // ---------- Zeichnen ----------
@@ -777,6 +802,9 @@ const actions = {
   resume: () => sendHost('resume'),
   next: () => sendHost('next'),
   toLobby: () => sendHost('lobby'),
+  openGames: () => { ui.pickGame = true; render(); },
+  closeGames: () => { ui.pickGame = false; render(); },
+  switchGame: (el) => sendHost('switchGame', { gameId: el.dataset.game }),
   endGame: () => { if (confirm('Spiel beenden und zurück zur Lobby?')) sendHost('lobby'); },
   toggleSolution: () => { ui.showSolution = !ui.showSolution; render(); },
   judge: (el) => sendHost('judge', { teamId: el.dataset.team, part: el.dataset.part, value: el.dataset.value === '1' }),

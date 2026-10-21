@@ -90,6 +90,8 @@ class Wuerfelbecher {
       icon: '🎲',
       description: 'Fünf Würfel, drei Würfe: Wer füllt den Block am besten?',
       players: `${MIN_PLAYERS}–${MAX_PLAYERS} Spieler`,
+      minPlayers: MIN_PLAYERS,
+      maxPlayers: MAX_PLAYERS,
       available: true,
       teams: false,
       sharedDevice: true, // mehrere Spieler können sich ein Gerät teilen

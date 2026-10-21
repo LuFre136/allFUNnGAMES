@@ -11,6 +11,11 @@ const LOBBY_TTL_MS = 12 * 60 * 60 * 1000;
 const lobbies = new Map();
 let io = null;
 
+// Automatischer Lobbyname, z. B. „Lukas’ Pub Quiz“
+function autoLobbyName(hostName, Game) {
+  return `${/[sßxz]$/i.test(hostName) ? `${hostName}’` : `${hostName}s`} ${Game.meta().name}`;
+}
+
 function cleanName(name, fallback) {
   const text = String(name ?? '').replace(/\s+/g, ' ').trim().slice(0, 24);
   return text || fallback;
@@ -38,7 +43,7 @@ class Lobby {
     const host = this.addPlayer({ name: cleanName(hostName, 'Host'), avatar: hostAvatar, isHost: true });
     this.hostId = host.id;
     this.settings = {
-      lobbyName: `${/[sßxz]$/i.test(host.name) ? `${host.name}’` : `${host.name}s`} ${Game.meta().name}`,
+      lobbyName: autoLobbyName(host.name, Game),
       hostPlays: true,
       game: Game.defaultSettings(),
     };
@@ -180,6 +185,67 @@ class Lobby {
     return null;
   }
 
+  // Wie viele Spieler im Spiel mitspielen würden (Gäste am selben Gerät nur bei sharedDevice)
+  playerCountFor(Game) {
+    const shared = Boolean(Game.meta().sharedDevice);
+    return this.activePlayers().filter((p) => shared || !p.guestOf).length;
+  }
+
+  // Alle spielbaren Spiele für die Auswahl „Anderes Spiel“, zu volle Spiele sind gesperrt
+  gameOptions() {
+    return Object.values(games).map((Game) => {
+      const meta = Game.meta();
+      const count = this.playerCountFor(Game);
+      const fits = !meta.maxPlayers || count <= meta.maxPlayers;
+      return {
+        id: meta.id,
+        name: meta.name,
+        icon: meta.icon,
+        description: meta.description,
+        players: meta.players,
+        current: meta.id === this.gameId,
+        fits,
+        reason: fits ? null : `Höchstens ${meta.maxPlayers} Spieler, ihr seid ${count}.`,
+      };
+    });
+  }
+
+  // Wechselt nach Spielende (oder in der Lobby) zu einem anderen Spiel. Alle Spieler bleiben in der Lobby.
+  switchGame(gameId) {
+    const Game = games[gameId];
+    if (!Game) return 'Dieses Spiel gibt es nicht.';
+    if (gameId === this.gameId) return null;
+    const option = this.gameOptions().find((o) => o.id === gameId);
+    if (!option.fits) return option.reason;
+    const host = this.players.get(this.hostId);
+    const autoName = this.settings.lobbyName === autoLobbyName(host.name, this.Game);
+
+    this.backToLobby();
+    this.Game = Game;
+    this.gameId = gameId;
+    this.teamSupport = Game.meta().teams;
+    this.settings.game = Game.defaultSettings();
+    if (autoName) this.settings.lobbyName = autoLobbyName(host.name, Game);
+
+    // Gäste haben kein eigenes Handy und können nur an einem geteilten Gerät mitspielen
+    if (!Game.meta().sharedDevice) {
+      for (const p of [...this.players.values()]) if (p.guestOf) this.players.delete(p.id);
+    }
+
+    if (this.teamSupport !== false) {
+      // Überzählige Teams auflösen (z. B. Alias mit genau zwei Teams), ihre Spieler werden neu verteilt
+      const maxTeams = Game.meta().maxTeams || MAX_TEAMS;
+      const removed = new Set(this.teams.slice(maxTeams).map((t) => t.id));
+      this.teams = this.teams.slice(0, maxTeams);
+      while (this.teams.length < 2 && this.teams.length < maxTeams) this.addTeam();
+      for (const p of this.players.values()) {
+        if (removed.has(p.teamId)) p.teamId = null;
+        if (this.usesTeams && !p.teamId && !p.guestOf && (!p.isHost || this.settings.hostPlays)) p.teamId = this.resolveTeamId('random', p);
+      }
+    }
+    return null;
+  }
+
   backToLobby() {
     this.game?.dispose();
     this.game = null;
@@ -198,6 +264,7 @@ class Lobby {
       usesTeams: this.usesTeams,
       settings: this.settings,
       availableQuestions: this.Game.availableCount(this.settings.game),
+      gameOptions: viewer.isHost ? this.gameOptions() : null,
       teams: this.teams,
       players: [...this.players.values()].map((p) => this.publicPlayer(p)),
       me: { ...this.publicPlayer(viewer) },

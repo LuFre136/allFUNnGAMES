@@ -82,6 +82,8 @@ class Karaoke {
       icon: '🎤',
       description: 'Singt zu Karaoke-Videos auf dem großen Bildschirm. Die Handys sind Warteschlange, Applaus und Jury.',
       players: '1–30 Sänger, alle zusammen',
+      minPlayers: 1,
+      maxPlayers: 30,
       available: true,
       teams: false,
       search: Boolean(process.env.YOUTUBE_API_KEY),
