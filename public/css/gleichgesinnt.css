@@ -1,0 +1,82 @@
+/* Gleichgesinnt */
+
+:root { --gg-c0: #38bdf8; --gg-c1: #f472b6; --gg-c2: #a3e635; }
+.gg-k0 { --cat: var(--gg-c0); }
+.gg-k1 { --cat: var(--gg-c1); }
+.gg-k2 { --cat: var(--gg-c2); }
+
+.gg-turn { text-align: center; font-size: 1.15rem; display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; padding: 10px; border-radius: 14px; background: var(--card); border: 2px solid var(--line); }
+.gg-turn.me { border-color: var(--pink); background: rgba(255, 95, 162, 0.15); font-weight: 800; animation: gg-pulse 1.6s ease-in-out infinite; }
+
+.gg-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.gg-option { font: inherit; font-family: 'Fredoka', sans-serif; font-size: clamp(1.2rem, 3vw, 1.8rem); text-align: center; padding: 22px 14px; border-radius: 18px; background: var(--card); border: 2px solid var(--line); color: var(--text); }
+button.gg-option { cursor: pointer; border-color: var(--accent); }
+button.gg-option:hover { background: var(--bg-2); }
+
+.gg-category { font-family: 'Fredoka', sans-serif; font-size: clamp(1.5rem, 4vw, 2.6rem); line-height: 1.25; text-align: center; padding: 16px 12px; border-radius: 18px; border: 3px solid var(--cat); background: var(--card); }
+
+.gg-cats { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.gg-cat { font-size: 0.85rem; font-weight: 700; padding: 4px 10px; border-radius: 999px; border: 2px solid var(--cat); opacity: 0.75; }
+.gg-cat.on { opacity: 1; background: var(--cat); color: #111; }
+
+/* Raster 3×3 mit Bonuswerten rechts und unten */
+.gg-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) 34px; gap: 6px; max-width: 520px; margin: 0 auto; width: 100%; }
+.gg-cell { position: relative; min-height: 64px; display: grid; place-items: center; padding: 6px; border-radius: 12px; background: var(--bg-2); border: 2px solid var(--cat, var(--line)); color: var(--text); font: inherit; font-weight: 700; text-align: center; overflow-wrap: break-word; hyphens: auto; line-height: 1.15; min-width: 0; }
+.gg-cell span { display: inline-block; max-width: 100%; }
+.gg-cell.free { border-style: dashed; border-color: var(--line); opacity: 0.6; }
+.gg-cell.input { padding: 0; }
+.gg-cell.input input { width: 100%; height: 100%; min-height: 60px; border: 0; border-radius: 10px; background: transparent; color: var(--text); font: inherit; font-weight: 700; text-align: center; padding: 4px; }
+.gg-cell.input input:focus { outline: 2px solid var(--accent); }
+.gg-cell.circle span { padding: 4px 8px; border: 3px solid var(--good); border-radius: 999px; }
+.gg-cell.cross span { text-decoration: line-through; text-decoration-thickness: 3px; text-decoration-color: var(--bad); opacity: 0.7; }
+.gg-cell.empty span { text-decoration: none; }
+.gg-cell.star { background: linear-gradient(rgba(255, 204, 51, 0.18), rgba(255, 204, 51, 0.18)), var(--bg-2); }
+.gg-star { position: absolute; top: -8px; right: -6px; font-style: normal; font-size: 1.1rem; }
+.gg-cell.pickable { cursor: pointer; box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.08); }
+.gg-cell.pickable:hover { background: var(--card); }
+.gg-cell.suggested { box-shadow: 0 0 0 3px var(--accent); }
+.gg-cell.claimed { background: var(--good); color: #052e1c; box-shadow: 0 0 0 3px var(--good); }
+.gg-cell.current { box-shadow: 0 0 0 3px var(--pink); }
+.gg-bonus { display: grid; place-items: center; font-weight: 800; color: var(--accent); font-size: 0.9rem; }
+
+.gg-grid.small { grid-template-columns: repeat(3, minmax(0, 1fr)) 22px; gap: 3px; }
+.gg-grid.small .gg-cell { min-height: 40px; font-size: 0.8rem; padding: 3px; border-radius: 8px; border-width: 2px; }
+.gg-grid.small .gg-cell.circle span { border-width: 2px; padding: 1px 4px; }
+.gg-grid.small .gg-star { font-size: 0.8rem; top: -6px; right: -4px; }
+.gg-grid.small .gg-bonus { font-size: 0.7rem; }
+
+.gg-boards { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
+.gg-board { padding: 10px; border-radius: 16px; background: var(--card); border: 2px solid var(--line); display: grid; gap: 6px; }
+.gg-board.active { border-color: var(--pink); }
+.gg-board.away { opacity: 0.5; }
+.gg-board-head { display: flex; align-items: center; gap: 6px; }
+.gg-board-head b { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gg-pts { font-weight: 800; color: var(--accent); }
+
+.gg-progress { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.gg-who { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px 3px 3px; border-radius: 999px; background: var(--card); border: 2px solid var(--line); opacity: 0.6; }
+.gg-who.done { opacity: 1; border-color: var(--good); }
+
+.gg-answer { text-align: center; padding: 14px; border-radius: 18px; background: var(--card); border: 3px solid var(--cat); display: grid; gap: 6px; }
+.gg-answer .small { display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; }
+.gg-answer-text { font-family: 'Fredoka', sans-serif; font-size: clamp(2rem, 6vw, 3.6rem); line-height: 1.1; }
+
+.gg-outcome { text-align: center; font-family: 'Fredoka', sans-serif; font-size: clamp(1.3rem, 3.5vw, 2rem); padding: 12px; border-radius: 16px; animation: gg-pop 0.4s ease; }
+.gg-outcome.none { background: rgba(248, 113, 113, 0.2); border: 2px solid var(--bad); }
+.gg-outcome.bff { background: rgba(255, 204, 51, 0.2); border: 2px solid var(--accent); }
+.gg-outcome.many { background: rgba(52, 211, 153, 0.2); border: 2px solid var(--good); }
+.gg-matches { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.gg-match { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px 4px 4px; border-radius: 999px; background: var(--card); border: 2px solid var(--line); }
+
+.gg-awards { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+.gg-award { display: flex; gap: 12px; align-items: center; }
+.gg-award .icon { font-size: 2.2rem; }
+
+@media (max-width: 700px) {
+  .gg-cell { min-height: 56px; font-size: 0.9rem; }
+  .gg-boards { grid-template-columns: 1fr; }
+  .gg-boards.live { display: none; }
+}
+
+@keyframes gg-pop { 0% { transform: scale(0.9); } 60% { transform: scale(1.04); } 100% { transform: scale(1); } }
+@keyframes gg-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(255, 95, 162, 0.4); } 50% { box-shadow: 0 0 0 6px rgba(255, 95, 162, 0); } }
