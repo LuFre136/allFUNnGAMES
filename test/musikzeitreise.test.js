@@ -103,3 +103,16 @@ test('Songliste: Jahre plausibel, keine doppelten Einträge', () => {
     seen.add(key);
   }
 });
+
+test('alle Songs sind im Stapel, der Host bekommt eine Vorschau-Adresse', () => {
+  const lobby = fakeLobby(2);
+  lobby.code = 'ABCDE';
+  const h = new Musikzeitreise(lobby);
+  h.start();
+  assert.strictEqual(h.deck.length + 3, Musikzeitreise.songs.length);
+  const host = lobby.players.get('p1');
+  const guest = lobby.players.get('p2');
+  assert.match(h.view(host).previewUrl, /^\/api\/song-preview\/ABCDE\?n=\d+$/);
+  assert.strictEqual(h.view(guest).previewUrl, undefined);
+  assert.strictEqual(h.currentSong(), h.song);
+});

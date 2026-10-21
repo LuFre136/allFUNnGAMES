@@ -709,7 +709,7 @@ function syncMusic() {
   // Spiele mit eigener Ansicht (z. B. Musikzeitreise) sagen selbst, welcher Song läuft
   const custom = S?.me.isHost && S.phase === 'playing' ? customGame()?.music?.(R) : null;
   if (custom) {
-    Music.show(custom.trackId, custom.revealed);
+    Music.show(custom.trackId, custom.revealed, custom.previewUrl);
     return;
   }
   if (!S?.me.isHost || S.phase !== 'playing' || !R?.question || R.phase === 'final' || !R.question.type.startsWith('music')) {

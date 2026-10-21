@@ -11,6 +11,7 @@ const QRCode = require('qrcode');
 const lobbies = require('./lobbies');
 const gameRegistry = require('./games');
 const spotify = require('./spotify');
+const deezer = require('./deezer');
 const { wikiImage, flagImage } = require('./images');
 const exclusions = require('./exclusions');
 exclusions.init();
@@ -110,6 +111,21 @@ app.get('/api/karaoke/video/:id', async (req, res) => {
     res.set('Cache-Control', 'public, max-age=86400').json(await youtube.videoTitle(req.params.id));
   } catch {
     res.status(404).end();
+  }
+});
+
+// 30-Sekunden-Vorschau des Songs, der gerade in einer Lobby läuft (z. B. Musikzeitreise).
+// Leitet auf die Audiodatei weiter, Titel und Interpret stehen nicht in der Adresse.
+app.get('/api/song-preview/:code', async (req, res) => {
+  const song = lobbies.get(req.params.code)?.game?.currentSong?.();
+  if (!song) return res.status(404).end();
+  try {
+    const url = await deezer.previewUrl(song);
+    if (!url) return res.status(404).end();
+    res.set('Cache-Control', 'no-store').redirect(url);
+  } catch (err) {
+    console.warn(`Vorschau nicht geladen: ${err.message}`);
+    res.status(502).end();
   }
 });
 

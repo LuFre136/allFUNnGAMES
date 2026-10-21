@@ -1,6 +1,7 @@
 // Spotify-Wiedergabe beim Host über die Spotify-Embed-API.
 // Der Player liegt unter einer Abdeckung, damit Titel und Cover erst bei der Auflösung sichtbar werden.
 // Ohne Spotify-Login im Browser spielt Spotify eine 30-Sekunden-Vorschau, mit Login den ganzen Song.
+// Songs ohne Spotify-ID laufen als 30-Sekunden-Vorschau über Deezer (previewUrl, siehe server/deezer.js).
 
 const Music = (() => {
   const dock = document.getElementById('music-dock');
@@ -9,6 +10,15 @@ const Music = (() => {
   let controller = null;
   let currentId = null;
   let paused = true;
+  const audio = new Audio();
+  const altButton = document.getElementById('music-alt');
+  let previewSrc = null; // läuft gerade eine Vorschau, sonst null
+  let altUrl = null; // Vorschau, auf die der Host umschalten kann, wenn Spotify nicht spielt
+
+  audio.addEventListener('playing', () => setHint('Läuft … (30-Sekunden-Vorschau)'));
+  audio.addEventListener('pause', () => { if (previewSrc && !audio.ended) setHint('Pausiert'); });
+  audio.addEventListener('ended', () => setHint('Vorschau zu Ende. „Von vorn“ spielt sie noch einmal.'));
+  audio.addEventListener('error', () => { if (previewSrc) setHint('Keine Vorschau gefunden. Tausche den Song aus.'); });
 
   function loadApi() {
     if (!apiPromise) {
@@ -29,9 +39,37 @@ const Music = (() => {
     hint.textContent = text;
   }
 
-  async function show(trackId, revealed) {
+  function showPreview(url) {
+    dock.classList.add('preview');
+    altButton.classList.add('hidden');
+    if (previewSrc === url) return;
+    previewSrc = url;
+    if (controller && !paused) controller.pause();
+    currentId = null;
+    setHint('Lade Vorschau …');
+    audio.src = url;
+    // Blockiert der Browser das automatische Abspielen, tippt der Host selbst auf Abspielen
+    audio.play().catch(() => { if (!audio.error) setHint('Bereit. Tippe auf Abspielen.'); });
+  }
+
+  function stopPreview() {
+    dock.classList.remove('preview');
+    if (!previewSrc) return;
+    previewSrc = null;
+    audio.pause();
+    audio.removeAttribute('src');
+  }
+
+  async function show(trackId, revealed, previewUrl = null) {
     dock.classList.remove('hidden');
     dock.classList.toggle('revealed', !!revealed);
+    if (previewUrl && (!trackId || previewSrc === previewUrl)) {
+      showPreview(previewUrl);
+      return;
+    }
+    stopPreview();
+    altUrl = previewUrl;
+    altButton.classList.toggle('hidden', !previewUrl);
     if (!trackId) {
       setHint('Für diesen Song ist keine Spotify-ID hinterlegt.');
       return;
@@ -75,14 +113,22 @@ const Music = (() => {
     dock.classList.add('hidden');
     if (controller && !paused) controller.pause();
     currentId = null;
+    stopPreview();
+    altButton.classList.add('hidden');
   }
 
-  document.getElementById('music-play').addEventListener('click', () => controller?.resume());
-  document.getElementById('music-pause').addEventListener('click', () => controller?.pause());
+  document.getElementById('music-play').addEventListener('click', () => (previewSrc ? audio.play().catch(() => {}) : controller?.resume()));
+  document.getElementById('music-pause').addEventListener('click', () => (previewSrc ? audio.pause() : controller?.pause()));
   document.getElementById('music-restart').addEventListener('click', () => {
+    if (previewSrc) {
+      audio.currentTime = 0;
+      audio.play().catch(() => {});
+      return;
+    }
     controller?.seek(0);
     controller?.resume();
   });
+  altButton.addEventListener('click', () => { if (altUrl) showPreview(altUrl); });
 
   return { show, reveal, hide, loadApi };
 })();

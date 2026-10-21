@@ -1,5 +1,5 @@
 // Musikzeitreise: Songs hören und auf der eigenen Zeitleiste nach Erscheinungsjahr einordnen.
-// Der Song läuft verdeckt beim Host (Spotify, siehe public/js/music.js). Wer zuerst genug Karten hat, gewinnt.
+// Der Song läuft verdeckt beim Host (Spotify oder Deezer-Vorschau, siehe public/js/music.js). Wer zuerst genug Karten hat, gewinnt.
 
 const path = require('path');
 const fs = require('fs');
@@ -12,8 +12,8 @@ const MAX_CHIPS = 5;
 const BUY_COST = 3;
 const MAX_SOLO = 12; // mehr Spieler nur im Teammodus
 
-// Nur Songs mit Spotify-ID lassen sich abspielen
-function playableSongs() {
+// Songs mit Spotify-ID laufen über Spotify, alle anderen als Deezer-Vorschau
+function spotifySongs() {
   return SONGS.filter((s) => spotify.trackIdFor(s));
 }
 
@@ -81,6 +81,7 @@ class Musikzeitreise {
       available: true,
       teams: 'optional',
       totalSongs: SONGS.length,
+      spotifySongs: spotifySongs().length,
       startChips: START_CHIPS,
       maxChips: MAX_CHIPS,
       buyCost: BUY_COST,
@@ -103,7 +104,7 @@ class Musikzeitreise {
   }
 
   static availableCount() {
-    return playableSongs().length;
+    return SONGS.length;
   }
 
   get settings() {
@@ -139,10 +140,7 @@ class Musikzeitreise {
     const keys = this.presentKeys();
     if (!keys.length) throw new Error(this.teamMode ? 'Mindestens ein Team braucht Spieler.' : 'Musikzeitreise braucht mindestens einen Mitspieler.');
     if (!this.teamMode && keys.length > MAX_SOLO) throw new Error(`Einzeln geht Musikzeitreise mit höchstens ${MAX_SOLO} Spielern. Schalte den Teammodus ein.`);
-    this.deck = shuffle(playableSongs());
-    if (this.deck.length < keys.length * 2) {
-      throw new Error('Es sind zu wenige Songs mit Spotify-ID hinterlegt. Mit Spotify-Zugangsdaten auf dem Server werden alle Songs abspielbar.');
-    }
+    this.deck = shuffle(SONGS);
     for (const key of shuffle(keys)) this.addUnit(key);
     this.nextTurn();
   }
@@ -399,9 +397,18 @@ class Musikzeitreise {
       serverNow: Date.now(),
     };
     // Nur das Gerät des Hosts spielt die Musik
-    if (viewer.isHost && this.song && this.phase !== 'final') view.trackId = spotify.trackIdFor(this.song);
+    if (viewer.isHost && this.song && this.phase !== 'final') {
+      view.trackId = spotify.trackIdFor(this.song);
+      // Die Adresse ändert sich mit jedem Song, damit der Player neu lädt
+      view.previewUrl = `/api/song-preview/${this.lobby.code}?n=${this.deck.length}`;
+    }
     if (this.phase === 'final') view.ranking = this.ranking();
     return view;
+  }
+
+  // Für die Vorschau-Adresse: der Song, der gerade läuft
+  currentSong() {
+    return this.phase === 'final' ? null : this.song;
   }
 
   dispose() {}
