@@ -236,6 +236,17 @@ Für 3 bis 12 Spieler, alle zusammen (nach Fun Facts). Auf dem Fernseher steht e
 
 Die 205 Fragen in 9 Kategorien stehen in `server/games/freundeskala/questions.json`. Die Regeln prüft `npm test`. Der Plan steht in [docs/plan-fun-facts.md](docs/plan-fun-facts.md).
 
+## So läuft Sieben auf einen Streich
+
+Kartenspiel nach Flip 7 für 2 bis 12 Spieler, ohne Teams. Zu Beginn jeder Runde bekommt jeder eine offene Karte, dann zieht reihum jeder eine weitere Karte oder stoppt und sichert seine Punkte. Wer eine Zahl zieht, die er in dieser Runde schon hat, ist raus und bekommt 0 Punkte. Wer sieben verschiedene Zahlen schafft, beendet die Runde sofort und bekommt 15 Bonus. Gespielt wird, bis nach einer Runde jemand die Zielpunktzahl (Standard 200) erreicht hat und allein vorne liegt.
+
+- Stapel mit 94 Karten: jede Zahl so oft, wie sie zählt (zwölf Zwölfen, eine Eins, eine Null), +2 bis +10 und ×2 (verdoppelt die Zahlen, nicht die Plus-Karten), je dreimal ❄️ Einfrieren (das Ziel sichert seine Punkte und ist raus), 🎯 Drei auf einmal (das Ziel zieht drei Karten, Aktionen darin werden danach gespielt) und 🍀 Zweite Chance (rettet einmal vor einer doppelten Zahl; eine zweite muss man weitergeben). Der Stapel wird erst neu gemischt, wenn er leer ist, man kann also mitzählen.
+- Der Fernseher zeigt alle Spieler mit ihren Karten, den Stapel und die letzten Ereignisse. Auf dem Handy gibt es „Ziehen“ und „Stopp“ und die Zielwahl für Aktionskarten. Mit „Risiko anzeigen“ steht beim Spieler am Zug, wie wahrscheinlich die nächste Karte eine doppelte Zahl ist.
+- Der Geber wechselt jede Runde. Reihenfolge und Mitspieler am selben Gerät wie bei Würfelbecher. Optional gibt es ein Zeitlimit pro Zug; läuft es ab, stoppt der Spieler (bei einer Zielwahl wird gelost). Das kann der Host auch per Knopf auslösen. Wer die Verbindung verliert, stoppt automatisch; wer neu dazukommt, spielt ab der nächsten Runde mit.
+- Am Ende gibt es Sonderpreise: Draufgänger (meiste Zahlen in einer Runde), beste Runde, Pechvogel (am häufigsten raus) und alle, die sieben auf einen Streich geschafft haben.
+
+Die Regeln prüft `npm test`.
+
 ## Aufbau
 
 ```
@@ -254,6 +265,7 @@ server/games/sagsanders/     Sag's anders! (nach Tabu)
 server/games/montagsmaler/   Montagsmaler (Zeichnen und Raten)
 server/games/bluffquiz/      Bluff-Quiz (nach Fibbage)
 server/games/freundeskala/   Freundeskala (nach Fun Facts)
+server/games/sieben/         Sieben auf einen Streich (nach Flip 7)
 test/                        Regeltests (npm test)
 server/spotify.js            Optionale Spotify-Suche
 public/                      Startseite, Lobby-/Spielseite, Styles, Profilbilder
