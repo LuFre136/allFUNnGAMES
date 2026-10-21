@@ -2,7 +2,15 @@
 
 const test = require('node:test');
 const assert = require('node:assert');
+const os = require('os');
+const path = require('path');
+const fs = require('fs');
 const Wuerfelbecher = require('../server/games/wuerfelbecher');
+const { createBoard } = require('../server/highscores');
+
+const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'wb-'));
+const boardFile = path.join(tmp, 'highscores.json');
+Wuerfelbecher.useHighscores(createBoard('test', { file: boardFile, github: false }));
 
 function fakeLobby(n, game = {}) {
   const players = new Map();
@@ -112,4 +120,41 @@ test('Host spielt automatisch das beste Feld, abwesende Spieler werden überspru
   game.action(p(2), { type: 'score', category: 'chance' });
   assert.strictEqual(game.activeId, 'p1');
   assert.ok(game.action(p(2), { type: 'force' }).error, 'nur der Host');
+});
+
+function playOut(game, lobby, pick = () => null) {
+  while (game.phase === 'turn') {
+    const id = game.activeId;
+    const owner = lobby.players.get(id).guestOf || id;
+    game.action(lobby.players.get(owner), { type: 'roll' });
+    const free = Wuerfelbecher.CATEGORIES.filter((c) => game.sheets.get(id)[c] === null);
+    game.action(lobby.players.get(owner), { type: 'score', category: pick(id, free) || free[0] });
+  }
+}
+
+test('Bestenliste: höchstens zehn, beste zuerst, bei Gleichstand der frühere', () => {
+  const board = createBoard('t2', { file: path.join(tmp, 't2.json'), github: false, limit: 3 });
+  const e = (id, total, date) => ({ id, total, date });
+  assert.deepStrictEqual(board.add([e('a', 100, '2026-01-02'), e('b', 200, '2026-01-01')]), ['a', 'b']);
+  assert.deepStrictEqual(board.add([e('c', 100, '2026-01-01'), e('d', 50, '2026-01-03')]), ['c']);
+  assert.deepStrictEqual(board.list().map((x) => x.id), ['b', 'c', 'a']);
+  // Neu geladen aus der Datei
+  const again = createBoard('t2', { file: path.join(tmp, 't2.json'), github: false, limit: 3 });
+  assert.deepStrictEqual(again.list().map((x) => x.id), ['b', 'c', 'a']);
+});
+
+test('volle Blöcke landen nach der Partie in der Bestenliste, Host blendet sie ein', () => {
+  const { lobby, game, p } = setup(2);
+  playOut(game, lobby);
+  assert.strictEqual(game.phase, 'final');
+  assert.strictEqual(game.newHighscores.length, 2);
+  assert.deepStrictEqual([...game.highscorePlayers].sort(), ['p1', 'p2']);
+  const saved = JSON.parse(fs.readFileSync(boardFile, 'utf8')).highscores;
+  assert.ok(saved.every((e) => e.sheet && typeof e.total === 'number' && e.name));
+  assert.ok(game.action(p(2), { type: 'highscores' }).error, 'nur der Host');
+  assert.deepStrictEqual(game.action(p(1), { type: 'highscores' }), { ok: true });
+  const view = game.view(p(2));
+  assert.ok(view.showHighscores && view.highscores.length >= 2);
+  game.action(p(1), { type: 'highscores' });
+  assert.strictEqual(game.view(p(2)).highscores, undefined);
 });
