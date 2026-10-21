@@ -9,6 +9,7 @@ const DrKroko = require('./drkroko');
 const Musikzeitreise = require('./musikzeitreise');
 const Wuerfelbecher = require('./wuerfelbecher');
 const Alias = require('./alias');
+const SagsAnders = require('./sagsanders');
 
 const games = {
   pubquiz: PubQuiz,
@@ -20,6 +21,7 @@ const games = {
   musikzeitreise: Musikzeitreise,
   wuerfelbecher: Wuerfelbecher,
   alias: Alias,
+  sagsanders: SagsAnders,
 };
 
 // Platzhalter für die Startseite, bis die Spiele gebaut sind

@@ -188,6 +188,18 @@ Teamspiel nach Codenames für 4 bis 20 Spieler in genau zwei Teams. Auf dem Fern
 
 Die Wörter stehen in `server/games/alias/words.json`. Die Regeln prüft `npm test`.
 
+## So läuft Sag's anders!
+
+Erklärspiel nach Tabu für 4 bis 20 Spieler in mindestens zwei Teams. Die Teams sind abwechselnd dran, in jedem Team erklärt reihum ein anderer Spieler. Er sieht auf seinem Handy einen Begriff und fünf verbotene Wörter und erklärt ihn, ohne diese Wörter, den Begriff selbst oder Teile davon zu sagen. Sein Team rät laut im Raum. Die Spieler der anderen Teams sehen dieselbe Karte und drücken „Buzz!“, wenn etwas Verbotenes fällt. Pro Zug läuft eine Sanduhr (Standard 60 Sekunden).
+
+- Der Erklärer wertet mit „Richtig“ (+1) und „Überspringen“ und kann die letzte Wertung zurücknehmen. Ein Buzz kostet einen Punkt, nur der erste Buzz pro Karte zählt. Der Punktestand eines Teams fällt nie unter 0.
+- Der Host-Bildschirm ist der Fernseher und zeigt die Karte nie, nur Team, Erklärer, Sanduhr und Zwischenstand. Spielt der Host mit, rät er mit seinem Team.
+- Nach jedem Zug zeigt der Fernseher alle Karten mit Ergebnis. Der Host kann jedes Ergebnis ändern, z. B. einen Begriff zählen lassen, der genau beim Gong gerufen wurde.
+- Einstellbar: Zeit pro Zug, Spielende nach Runden (jeder erklärt so oft) oder bei Zielpunktzahl, Überspringen (Anzahl und Strafe), Strafe für Buzz, 3 bis 5 verbotene Wörter, Schwierigkeit, Kategorien und Reihenfolge. Der Host kann pausieren, den Zug beenden und den Erklärer vor dem Zug wechseln. Verliert der Erklärer die Verbindung, hält die Sanduhr an.
+- Töne für Buzz, Treffer und Gong kommen aus dem Browser (Web Audio), es braucht keine Dateien.
+
+Die 300 Karten in 8 Kategorien stehen in `server/games/sagsanders/cards.json`. Die Regeln und den Kartenstapel prüft `npm test`.
+
 ## Aufbau
 
 ```
@@ -202,6 +214,7 @@ server/games/karaoke/        Karaoke (Warteschlange, Bewertung, YouTube- und Spo
 server/games/musikzeitreise/ Musikzeitreise (Songs und Zeitleisten)
 server/games/wuerfelbecher/  Würfelbecher (nach Kniffel)
 server/games/alias/          Alias (nach Codenames)
+server/games/sagsanders/     Sag's anders! (nach Tabu)
 test/                        Regeltests (npm test)
 server/spotify.js            Optionale Spotify-Suche
 public/                      Startseite, Lobby-/Spielseite, Styles, Profilbilder
