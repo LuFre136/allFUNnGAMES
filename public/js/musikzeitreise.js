@@ -48,7 +48,6 @@
     const s = S.settings;
     const g = s.game;
     const meta = S.game;
-    const playable = S.availableQuestions;
     return `<div class="card stack">
       <h3>Einstellungen</h3>
       <div class="grid-2" style="gap:12px">
@@ -82,7 +81,7 @@
           </div>
         </div>
       </div>
-      <div class="small ${playable < 40 ? '' : 'muted'}" ${playable < 40 ? 'style="color:var(--bad);font-weight:800"' : ''}>${playable} von ${meta.totalSongs} Songs sind abspielbar.${playable < meta.totalSongs ? ' Mit Spotify-Zugangsdaten auf dem Server sucht er alle Songs selbst (siehe README).' : ''}</div>
+      <div class="small muted">${meta.totalSongs} Songs. ${meta.spotifySongs} davon laufen über Spotify (mit Spotify-Login im Browser der ganze Song), die übrigen als 30-Sekunden-Vorschau über Deezer.</div>
       <div class="small muted">So geht's: Jeder startet mit einer offenen Karte. Wer dran ist, hört einen Song (er läuft verdeckt auf dem Gerät des Hosts) und legt die Karte an die Stelle seiner Zeitleiste, an die das Erscheinungsjahr passt. Stimmt die Stelle, darf er die Karte behalten. Wer zuerst ${g.targetCards} Karten hat, gewinnt.${g.chips ? ` Mit Chips: Jeder startet mit ${meta.startChips}. Wer Interpret und Titel richtig nennt, bekommt einen dazu (höchstens ${meta.maxChips}). Ein Chip überspringt einen Song oder setzt auf eine andere Stelle, wenn ihr glaubt, dass der Aktive falsch liegt: Liegt ihr richtig, bekommt ihr die Karte. Für ${meta.buyCost} Chips gibt es die Karte geschenkt.` : ''}</div>
     </div>`;
   }
@@ -258,7 +257,7 @@
   // Nur auf dem Gerät des Hosts: Song bis zur Auflösung verdeckt abspielen
   function music(R) {
     if (!R || R.phase === 'final') return null;
-    return { trackId: R.trackId || null, revealed: R.phase === 'reveal' };
+    return { trackId: R.trackId || null, revealed: R.phase === 'reveal', previewUrl: R.previewUrl || null };
   }
 
   gameViews.musikzeitreise = { settings: viewSettings, view, hostbar, music };

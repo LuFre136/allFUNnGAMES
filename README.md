@@ -165,7 +165,7 @@ Musik-Zeitleistenspiel für 1–12 Spieler, jeder für sich oder in Teams (ein T
 
 Mit Chips (an- und abschaltbar) startet jeder mit 2 Chips, höchstens 5. Wer zusätzlich Interpret und Titel richtig eintippt, bekommt einen Chip (Vorschlag automatisch, der Host kann korrigieren). Ein Chip tauscht den eigenen Song oder setzt bei einem anderen Spieler auf eine andere Stelle; liegt der falsch und der Einspruch richtig, bekommt der Einspruch die Karte. Für 3 Chips gibt es die Karte ohne Raten. Der Host kann einen Song tauschen, der nicht abspielt, und einen Zug überspringen.
 
-Die Songs stehen in `server/games/musikzeitreise/songs.json` (Interpret, Titel, Jahr der Veröffentlichung, optional `spotifyId`). Gespielt werden nur Songs mit Spotify-ID. Sind die Spotify-Zugangsdaten gesetzt (siehe „Musik über Spotify“), sucht der Server beim Start alle Songs selbst und alle werden abspielbar. Die Regeln prüft `npm test`.
+Die Songs stehen in `server/games/musikzeitreise/songs.json` (Interpret, Titel, Jahr der Veröffentlichung, optional `spotifyId`). Songs mit Spotify-ID laufen über den Spotify-Player, alle anderen als 30-Sekunden-Vorschau über die öffentliche Deezer-API (`server/deezer.js`, ohne Konto oder Zugangsdaten). Spielt ein Spotify-Song nicht ab, schaltet der Host mit „Spielt nicht? Vorschau nehmen“ auf die Deezer-Vorschau um. Sind die Spotify-Zugangsdaten gesetzt (siehe „Musik über Spotify“), sucht der Server beim Start alle Songs bei Spotify. Die Regeln prüft `npm test`.
 
 ## So läuft Würfelbecher
 
@@ -316,6 +316,7 @@ server/games/gleichgesinnt/  Gleichgesinnt (nach Dito!)
 server/games/einsbiszehn/    Eins bis Zehn (nach Top Ten)
 test/                        Regeltests (npm test)
 server/spotify.js            Optionale Spotify-Suche
+server/deezer.js             30-Sekunden-Vorschauen über Deezer (Musikzeitreise)
 public/                      Startseite, Lobby-/Spielseite, Styles, Profilbilder
 ```
 

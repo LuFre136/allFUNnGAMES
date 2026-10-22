@@ -238,6 +238,9 @@ label.field > span { display: block; font-weight: 700; margin-bottom: 6px; font-
 .music-dock .player-wrap { position: relative; border-radius: 14px; overflow: hidden; min-height: 80px; background: #121212; }
 .music-dock .cover { position: absolute; inset: 0; background: linear-gradient(135deg, #1db954, #0f5f2b); display: grid; place-items: center; color: #fff; font-weight: 800; z-index: 2; text-align: center; padding: 8px; }
 .music-dock.revealed .cover { display: none; }
+/* Deezer-Vorschau: kein sichtbarer Player, die Abdeckung bleibt */
+.music-dock.preview .cover { display: grid; }
+.music-dock.preview #spotify-embed { visibility: hidden; }
 .music-dock .controls { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; align-items: center; }
 
 .toast { position: fixed; top: 16px; left: 50%; transform: translateX(-50%); background: var(--bad); color: #fff; padding: 10px 16px; border-radius: 12px; font-weight: 800; z-index: 60; box-shadow: var(--shadow); max-width: calc(100% - 32px); }
