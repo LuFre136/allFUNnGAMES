@@ -292,6 +292,19 @@ Für 3 bis 11 Spieler, alle zusammen (nach Top Ten). Jede Runde ist ein anderer 
 
 Die 143 Themen in 8 Kategorien stehen in `server/games/einsbiszehn/themes.json`. Die Regeln prüft `npm test`. Der Plan steht in [docs/plan-top-ten.md](docs/plan-top-ten.md).
 
+## So läuft Mäxchen
+
+Bluff-Würfelspiel für 2 bis 10 Spieler, ohne Teams. Wer dran ist, würfelt verdeckt mit zwei Würfeln. Nur sein Handy zeigt das Ergebnis, und er sagt einen Wert an, ehrlich oder geblufft. Jede Ansage muss höher sein als die vorige. Der höhere Würfel zählt als Zehner: 31 ist das Kleinste, dann 32, 41 … 65, darüber die Pasche von 11 bis 66 und ganz oben das Mäxchen (2 und 1).
+
+- Der Nächste glaubt die Ansage und würfelt selbst weiter (und muss sie überbieten) oder deckt auf. Liegt mindestens die Ansage unter dem Becher, verliert der Aufdecker ein Leben, sonst der Bluffer.
+- Ein angesagtes Mäxchen kann man nur aufdecken oder glauben und aufgeben (ein Leben, der Becher bleibt zu). Wird ein Mäxchen aufgedeckt, kostet es den Verlierer zwei Leben (abschaltbar).
+- Wer verliert, beginnt die nächste Runde. Wer keine Leben mehr hat, scheidet aus, der Letzte gewinnt. Einstellbar sind die Leben (Standard 3) und ein Zeitlimit pro Zug; läuft es ab, würfelt das Spiel, sagt ehrlich an (oder knapp höher) bzw. glaubt die Ansage. Das kann der Host auch per Knopf auslösen.
+- Der Fernseher zeigt Ansage, Becher, den Verlauf der Runde und die Leben aller. Spielt der Host am Fernseher mit, bleibt sein Becher zu, bis er „Unter den Becher schauen“ tippt.
+- Wer die Verbindung verliert, wird übersprungen; ist er gerade dran, spielt das Spiel für ihn. Wer neu dazukommt, steigt mit so vielen Leben ein, wie der Schwächste noch hat.
+- Am Ende gibt es Sonderpreise: Bester Bluffer, Detektiv, Zu misstrauisch und Glückspilz.
+
+Die Regeln prüft `npm test`.
+
 ## Aufbau
 
 ```
@@ -314,6 +327,7 @@ server/games/freundeskala/   Freundeskala (nach Fun Facts)
 server/games/sieben/         Sieben auf einen Streich (nach Flip 7)
 server/games/gleichgesinnt/  Gleichgesinnt (nach Dito!)
 server/games/einsbiszehn/    Eins bis Zehn (nach Top Ten)
+server/games/maexchen/       Mäxchen (Bluff-Würfelspiel)
 test/                        Regeltests (npm test)
 server/spotify.js            Optionale Spotify-Suche
 server/deezer.js             30-Sekunden-Vorschauen über Deezer (Musikzeitreise)
