@@ -716,7 +716,7 @@ function syncMusic() {
     Music.hide();
     return;
   }
-  Music.show(R.question.spotifyId, R.phase === 'reveal');
+  Music.show(R.question.spotifyId, R.phase === 'reveal', R.question.previewUrl);
 }
 
 function tick() {
