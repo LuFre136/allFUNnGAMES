@@ -10,7 +10,8 @@
     seenRoll: 0,
     rolling: false,
     selected: null, // angetippte Ansage, bis sie bestätigt wird
-    peek: false, // Host-Gerät: Becher anheben, damit der Fernseher nichts verrät
+    peek: false, // Host-Gerät oder geteiltes Handy: Becher erst anheben, wenn nur der Richtige hinschaut
+    holder: null, // wer das geteilte Gerät gerade in der Hand hat (bestätigt mit „Ich bin …“)
     seenReveal: null,
     lifting: false,
   };
@@ -48,7 +49,28 @@
     return `${'❤️'.repeat(lives)}${'🖤'.repeat(Math.max(0, max - lives))}`;
   }
 
+  // Spielen an diesem Gerät noch Mitspieler ohne eigenes Handy mit?
+  function sharedHere() {
+    return S.players.some((p) => p.guestOf === S.me.id);
+  }
+
   // ---------- Lobby ----------
+
+  // Für alle in der Lobby: weitere Mitspieler an diesem Gerät
+  function lobbyExtra() {
+    if (S.me.isHost && !S.settings.hostPlays) return '';
+    const guests = S.players.filter((p) => p.guestOf === S.me.id);
+    return `<div class="card stack">
+      <h3 style="margin:0">Mitspieler an diesem Gerät</h3>
+      <div class="small muted">Nicht jeder hat ein Handy? Hier weitere Spieler eintragen, das Handy geht dann reihum. Wer dran ist, bekommt es gereicht und schaut allein unter den Becher.</div>
+      ${guests.map((p) => `<div class="member">${avatarHtml(p, 'sm')}<span class="name">${esc(p.name)}</span>
+        <button class="btn small icon ghost" data-action="mxRemoveGuest" data-player="${p.id}" title="Entfernen">✕</button></div>`).join('')}
+      <form id="mx-guest-form" class="row" style="flex-wrap:nowrap">
+        <input id="mx-guest-name" type="text" maxlength="24" placeholder="Name" autocomplete="off" style="flex:1;min-width:0">
+        <button class="btn primary small" type="submit">+ Hinzufügen</button>
+      </form>
+    </div>`;
+  }
 
   function viewSettings() {
     const s = S.settings;
@@ -82,7 +104,7 @@
           <button data-action="mxSetting" data-key="maexDouble" data-value="0" class="${!g.maexDouble ? 'on' : ''}">Ein Leben</button>
         </div>
       </div>
-      <div class="small muted">So geht's: Wer dran ist, würfelt verdeckt mit zwei Würfeln. Nur er sieht das Ergebnis auf seinem Handy und sagt einen Wert an, ehrlich oder geblufft. Jede Ansage muss höher sein als die vorige. Der höhere Würfel zählt als Zehner: 31 ist das Kleinste, dann 32, 41 … 65, darüber die Pasche (11 bis 66) und ganz oben das Mäxchen (2 und 1). Der Nächste glaubt die Ansage und würfelt selbst weiter, oder er deckt auf. Stimmt die Ansage (oder es liegt sogar mehr), verliert der Aufdecker ein Leben, sonst der Bluffer. Ein angesagtes Mäxchen kann man nur aufdecken oder glauben und aufgeben (ein Leben).${g.maexDouble ? ' Wird ein Mäxchen aufgedeckt, kostet es den Verlierer zwei Leben.' : ''} Wer verliert, beginnt die nächste Runde. Wer alle Leben los ist, scheidet aus, der Letzte gewinnt.${g.timeLimit ? ' Läuft die Zeit ab, würfelt das Spiel, sagt ehrlich an (oder knapp höher) bzw. glaubt die Ansage.' : ''}</div>
+      <div class="small muted">So geht's: Wer dran ist, würfelt verdeckt mit zwei Würfeln. Nur er sieht das Ergebnis auf seinem Handy und sagt einen Wert an, ehrlich oder geblufft. Jede Ansage muss höher sein als die vorige. Der höhere Würfel zählt als Zehner: 31 ist das Kleinste, dann 32, 41 … 65, darüber die Pasche (11 bis 66) und ganz oben das Mäxchen (2 und 1). Spielen mehrere an einem Handy, wird es reihum weitergereicht und der Wurf bleibt unter dem Becher, bis man allein nachschaut. Der Nächste glaubt die Ansage und würfelt selbst weiter, oder er deckt auf. Stimmt die Ansage (oder es liegt sogar mehr), verliert der Aufdecker ein Leben, sonst der Bluffer. Ein angesagtes Mäxchen kann man nur aufdecken oder glauben und aufgeben (ein Leben).${g.maexDouble ? ' Wird ein Mäxchen aufgedeckt, kostet es den Verlierer zwei Leben.' : ''} Wer verliert, beginnt die nächste Runde. Wer alle Leben los ist, scheidet aus, der Letzte gewinnt.${g.timeLimit ? ' Läuft die Zeit ab, würfelt das Spiel, sagt ehrlich an (oder knapp höher) bzw. glaubt die Ansage.' : ''}</div>
     </div>`;
   }
 
@@ -135,12 +157,13 @@
     const actual = Math.max(...R.myDice) * 10 + Math.min(...R.myDice);
     const min = R.claim ? rank(R.claim.value) : 0;
     if (mx.selected !== null && rank(mx.selected) <= min) mx.selected = null;
-    const hostScreen = S.me.isHost;
+    // Auf dem Fernseher oder einem geteilten Handy liegt der Wurf erst unter dem Becher
+    const covered = S.me.isHost || sharedHere();
     const dice = R.myDice.map((d) => dieHtml(d, mx.rolling ? 'rolling' : '')).join('');
-    const showDice = !hostScreen || mx.peek;
+    const showDice = !covered || mx.peek;
     const cup = showDice
-      ? `<div class="mx-mine"><div class="mx-dice">${dice}</div><div class="mx-actual">Du hast <b>${label(actual)}</b></div></div>`
-      : '<div class="mx-mine"><div class="mx-cup small"><span>🎲</span></div></div>';
+      ? `<div class="mx-mine"><div class="mx-dice">${dice}</div><div class="mx-actual">${esc(playerName(R.actorId))} hat <b>${label(actual)}</b></div></div>`
+      : `<div class="mx-mine"><div class="mx-cup small"><span>🎲</span></div><div class="small muted center">Nur ${esc(playerName(R.actorId))} schaut hin!</div></div>`;
     const grid = R.values.map((v) => {
       const ok = rank(v) > min;
       const cls = [mx.selected === v ? 'on' : '', v === actual && showDice ? 'actual' : '', v === R.maexchen ? 'maex' : ''].join(' ');
@@ -152,7 +175,7 @@
       : `<div class="small muted center">${R.claim ? `Wähle eine Ansage über ${shortLabel(R.claim.value)}.` : 'Wähle, was du ansagst.'}</div>`;
     return `<div class="stack">
       ${cup}
-      ${hostScreen ? `<button class="btn mx-peek" data-action="mxPeek">${mx.peek ? '🙈 Becher zu' : '👀 Unter den Becher schauen'}</button>` : ''}
+      ${covered ? `<button class="btn mx-peek" data-action="mxPeek">${mx.peek ? '🙈 Becher zu' : '👀 Unter den Becher schauen'}</button>` : ''}
       <div class="mx-grid">${grid}</div>
       ${confirm}
     </div>`;
@@ -193,13 +216,30 @@
     else inner = cupHtml('', mx.rolling ? 'shake' : '');
     let button = '';
     if (R.mine && (R.phase === 'roll' || R.phase === 'reveal')) {
-      button = `<button class="btn primary big mx-roll" data-action="mxRoll">🎲 ${R.phase === 'reveal' ? 'Neue Runde würfeln' : 'Würfeln'}</button>`;
+      const forWho = sharedHere() ? ` (${esc(playerName(R.actorId))})` : '';
+      button = `<button class="btn primary big mx-roll" data-action="mxRoll">🎲 ${R.phase === 'reveal' ? 'Neue Runde würfeln' : 'Würfeln'}${forWho}</button>`;
     }
     return `<div class="mx-table">
       ${R.phase !== 'reveal' ? viewClaim(R) : ''}
       ${inner}
       ${R.phase === 'decide' ? viewDecide(R) : ''}
       ${button}
+    </div>`;
+  }
+
+  // Geteiltes Gerät: erst weiterreichen, dann spielt der Richtige
+  function needsHandoff(R) {
+    // Die Auflösung sehen alle, weitergereicht wird erst danach
+    return R.mine && R.phase !== 'reveal' && sharedHere() && R.actorId !== mx.holder;
+  }
+
+  function viewHandoff(R) {
+    const name = esc(playerName(R.actorId));
+    return `<div class="mx-table mx-handoff">
+      <div>${avatarHtml(playerById(R.actorId))}</div>
+      <div class="mx-handoff-head">📱 Gib das ${S.me.isHost ? 'Gerät' : 'Handy'} an ${name} weiter</div>
+      <div class="small muted center">${R.phase === 'decide' ? `${name} entscheidet, ob ${esc(playerName(R.claim.by))} die Wahrheit sagt.` : 'Der Wurf bleibt unter dem Becher, bis nur noch einer hinschaut.'}</div>
+      <button class="btn primary big" data-action="mxTake" data-player="${R.actorId}">🙋 Ich bin ${name}</button>
     </div>`;
   }
 
@@ -215,7 +255,7 @@
         ${R.deadline ? '<span class="timer" id="timer"></span>' : ''}
       </div>
       ${viewStatus(R)}
-      ${viewTable(R)}
+      ${needsHandoff(R) ? viewHandoff(R) : viewTable(R)}
       ${viewHistory(R)}
       ${viewPlayers(R)}
       ${viewLog(R)}
@@ -263,6 +303,8 @@
 
   function view() {
     const R = S.round;
+    // Ist ein anderes Gerät dran, muss das geteilte Handy danach wieder weitergereicht werden
+    if (!R.mine || R.phase === 'final') mx.holder = null;
     // Würfel nur einmal pro Wurf rollen lassen
     if (R.rollSeq !== mx.seenRoll) {
       mx.seenRoll = R.rollSeq;
@@ -287,7 +329,7 @@
     return `<button class="btn" data-action="mxForce">⏩ Für ${esc(playerName(R.actorId))} weiter</button>`;
   }
 
-  gameViews.maexchen = { settings: viewSettings, view, hostbar };
+  gameViews.maexchen = { settings: viewSettings, lobbyExtra, view, hostbar };
 
   Object.assign(actions, {
     mxSetting: (el) => sendHost('settings', { game: { [el.dataset.key]: el.dataset.value === '1' } }),
@@ -303,6 +345,13 @@
       act('announce', { value });
     },
     mxPeek: () => { mx.peek = !mx.peek; render(); },
+    mxTake: (el) => {
+      mx.holder = el.dataset.player;
+      mx.peek = false;
+      mx.selected = null;
+      render();
+    },
+    mxRemoveGuest: (el) => socket.emit('guest:remove', { playerId: el.dataset.player }, (res) => { if (res?.error) toast(res.error); }),
     mxBelieve: () => act('believe'),
     mxChallenge: () => act('challenge'),
     mxForce: () => {
@@ -310,6 +359,20 @@
       const what = { roll: 'würfeln', announce: 'ansagen (ehrlich oder knapp höher)', decide: 'die Ansage glauben', reveal: 'die nächste Runde würfeln' }[R.phase];
       if (confirm(`Für ${playerName(R.actorId)} ${what}?`)) act('force');
     },
+  });
+
+  app.addEventListener('submit', (e) => {
+    if (e.target.id !== 'mx-guest-form') return;
+    e.preventDefault();
+    const input = document.getElementById('mx-guest-name');
+    const name = input.value.trim();
+    if (!name) return toast('Bitte gib einen Namen ein.');
+    const avatar = avatars.length ? avatars[Math.floor(Math.random() * avatars.length)] : null;
+    socket.emit('guest:add', { name, avatar }, (res) => {
+      if (res?.error) return toast(res.error);
+      const field = document.getElementById('mx-guest-name');
+      if (field) field.value = '';
+    });
   });
 
   app.addEventListener('change', (e) => {

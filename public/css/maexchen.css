@@ -84,3 +84,7 @@
   .mx-die { width: 54px; height: 54px; padding: 8px; }
   .mx-grid { grid-template-columns: repeat(4, 1fr); }
 }
+
+/* Geteiltes Gerät: Handy weiterreichen */
+.mx-handoff { justify-items: center; text-align: center; }
+.mx-handoff-head { font: 700 clamp(1.4rem, 5vw, 2rem) / 1.2 'Fredoka', sans-serif; }

@@ -154,3 +154,23 @@ test('Neue Spieler steigen mit den wenigsten Leben ein', () => {
   assert.strictEqual(g.lives.p9, 2);
   assert.ok(g.order.includes('p9'));
 });
+
+test('Geteiltes Gerät: Gäste spielen am Handy ihres Gastgebers mit', () => {
+  const { lobby, g, p } = setup(2);
+  assert.strictEqual(Maexchen.meta().sharedDevice, true);
+  lobby.players.set('g1', { id: 'g1', name: 'Gast', connected: true, isHost: false, guestOf: 'p2' });
+  g.playersChanged();
+  assert.ok(g.order.includes('g1'));
+  g.order = ['p1', 'p2', 'g1'];
+  rollAs(g, p(1), [4, 2]);
+  g.action(p(1), { type: 'announce', value: 42 });
+  g.action(p(2), { type: 'believe' });
+  rollAs(g, p(2), [5, 3]);
+  g.action(p(2), { type: 'announce', value: 53 });
+  // Der Gast entscheidet über das Handy von Spieler 2, nicht über das von Spieler 1
+  assert.strictEqual(g.deciderId, 'g1');
+  assert.ok(g.action(p(1), { type: 'believe' }).error);
+  assert.strictEqual(g.view(p(2)).mine, true);
+  assert.deepStrictEqual(g.action(p(2), { type: 'challenge' }), { ok: true });
+  assert.strictEqual(g.lives.g1, 2);
+});
