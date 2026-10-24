@@ -64,6 +64,7 @@ class Maexchen {
       maxPlayers: MAX_PLAYERS,
       available: true,
       teams: false,
+      sharedDevice: true, // das Handy geht reihum, der Wurf bleibt unter dem Becher, bis man nachschaut
     };
   }
 
@@ -101,7 +102,7 @@ class Maexchen {
   }
 
   start() {
-    const players = this.lobby.activePlayers().filter((p) => !p.guestOf);
+    const players = this.lobby.activePlayers();
     if (players.length < MIN_PLAYERS) throw new Error(`Mäxchen braucht mindestens ${MIN_PLAYERS} Mitspieler.`);
     if (players.length > MAX_PLAYERS) throw new Error(`Mäxchen geht mit höchstens ${MAX_PLAYERS} Mitspielern.`);
     this.order = shuffle(players.map((p) => p.id));
@@ -149,7 +150,7 @@ class Maexchen {
   }
 
   controls(player, id) {
-    return !!id && id === player.id;
+    return !!id && (id === player.id || this.lobby.players.get(id)?.guestOf === player.id);
   }
 
   // Wer gerade etwas tun muss
@@ -340,7 +341,7 @@ class Maexchen {
     const alive = this.aliveIds();
     const fewest = alive.length ? Math.min(...alive.map((id) => this.lives[id])) : this.settings.lives;
     for (const p of this.lobby.activePlayers()) {
-      if (!p.guestOf && !this.order.includes(p.id)) {
+      if (!this.order.includes(p.id)) {
         this.addPlayer(p.id, fewest);
         this.addLog(`👋 ${p.name} steigt mit ${fewest} Leben ein.`);
       }
