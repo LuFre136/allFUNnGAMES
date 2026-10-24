@@ -21,6 +21,7 @@ const EinsBisZehn = require('./einsbiszehn');
 const Maexchen = require('./maexchen');
 const Muehle = require('./muehle');
 const Hundsgemein = require('./hundsgemein');
+const Backgammon = require('./backgammon');
 
 const games = {
   pubquiz: PubQuiz,
@@ -44,6 +45,7 @@ const games = {
   maexchen: Maexchen,
   muehle: Muehle,
   hundsgemein: Hundsgemein,
+  backgammon: Backgammon,
 };
 
 // Platzhalter für die Startseite, bis die Spiele gebaut sind
