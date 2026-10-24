@@ -61,6 +61,35 @@ test('jede Karte hat für 2 bis 4 Seiten und 3 bis 8 Tiere eine passende Aufstel
   }
 });
 
+test('Oval wie im Original: Seiten wechseln sich ab, passt auf Plateau, Ring und Wasserloch', () => {
+  for (const m of ['plateau', 'ring', 'wasserloch']) {
+    for (let sides = 2; sides <= 4; sides++) {
+      for (let n = 3; n <= 7; n++) assert.ok(World.layout(m, sides, n, 'oval'), `${m} ${sides} Seiten ${n} Tiere`);
+    }
+  }
+  assert.strictEqual(World.layout('bruecke', 2, 6, 'oval'), null);
+  const { g } = setup(2);
+  assert.strictEqual(g.pattern, 'oval');
+  const { g: g2 } = setup(2, { map: 'bruecke' });
+  assert.notStrictEqual(g2.pattern, 'oval');
+  g.dispose();
+  g2.dispose();
+});
+
+test('Mauern: ein Tier prallt ab statt hinunterzufallen, durch die Lücke fällt es', () => {
+  const map = World.MAPS.plateau;
+  // nach oben gegen die Mauer (x = 300 liegt vor einem Mauerstück)
+  let r = simulate(map, [{ id: 'a', x: 300, y: 300, alive: true }], { id: 'a', angle: -Math.PI / 2, power: 1 });
+  assert.strictEqual(r.final[0].alive, true);
+  // nach oben durch die Lücke in der Mitte
+  r = simulate(map, [{ id: 'a', x: 500, y: 300, alive: true }], { id: 'a', angle: -Math.PI / 2, power: 1 });
+  assert.strictEqual(r.final[0].alive, false);
+  // Zielhilfe endet an der Mauer
+  const line = World.aimLine([], { id: 'a', x: 300, y: 300 }, -Math.PI / 2, 1000, map.walls);
+  assert.ok(line.wall);
+  assert.ok(Math.abs(300 - line.length - (71 + World.WALL + World.RADIUS)) < 5);
+});
+
 test('Karten: Rand, Loch und Steg', () => {
   const { plateau, wasserloch, bruecke, ring } = World.MAPS;
   assert.ok(World.onGround(plateau, 500, 320));
