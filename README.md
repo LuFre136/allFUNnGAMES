@@ -305,6 +305,19 @@ Bluff-Würfelspiel für 2 bis 10 Spieler, ohne Teams. Wer dran ist, würfelt ver
 
 Die Regeln prüft `npm test`.
 
+## So läuft Mühle
+
+Das klassische Brettspiel für genau 2 Spieler, ohne Teams. Gespielt wird eine Serie (Standard: Best of 3, außerdem eine Partie, Best of 5 oder ohne Ende); die Farben wechseln jede Partie, wer in der ersten Weiß ist, wird gelost.
+
+- Jeder hat 9 Steine. Erst setzt ihr abwechselnd, dann zieht ihr entlang der Linien zum freien Nachbarpunkt. Mit nur noch drei Steinen darf man springen (abschaltbar).
+- Wer drei eigene Steine in eine Reihe bringt, nimmt einen gegnerischen Stein, aber keinen aus einer Mühle, solange es andere gibt. Eine Doppelmühle nimmt einen Stein (Einstellung: zwei).
+- Verloren hat, wer nur noch zwei Steine hat, nicht mehr ziehen kann oder aufgibt. Dreimal dieselbe Stellung oder 50 Züge ohne Schlagen beim Springen sind Remis, der Host kann auch selbst Remis werten. Sieg 1 Punkt, Remis ½; endet die Serie gleich, gibt es eine Entscheidungspartie.
+- Auf dem Handy tippt man den Stein und dann das Ziel an, mögliche Ziele leuchten (abschaltbar). Der Fernseher zeigt das Brett groß, den letzten Zug, Mühlen und die Steine beider Spieler.
+- Zeit pro Zug ist einstellbar; läuft sie ab, macht das Spiel einen Zufallszug, beim dritten Mal hintereinander ist die Partie verloren. Wer die Verbindung verliert, hat eine Minute zum Zurückkommen.
+- Beide können an einem Gerät spielen: Am Handy oder Host-Gerät den Gegner als Mitspieler eintragen und das Gerät weitergeben.
+
+Die Regeln prüft `npm test`. Der Plan steht in [docs/plan-muehle.md](docs/plan-muehle.md).
+
 ## So läuft Backgammon
 
 Der Klassiker für zwei, auf dem Fernseher als großes Brett. Jede Seite zieht ihre 15 Steine mit zwei Würfeln einmal ums Brett ins Heimfeld und würfelt sie dort hinaus. Der Server würfelt und lässt nur regelgerechte Züge zu (Bar zuerst, Zugzwang mit möglichst vielen Augen und notfalls der höheren Zahl, Hinauswürfeln erst, wenn alle Steine zu Hause sind).
@@ -341,6 +354,7 @@ server/games/sieben/         Sieben auf einen Streich (nach Flip 7)
 server/games/gleichgesinnt/  Gleichgesinnt (nach Dito!)
 server/games/einsbiszehn/    Eins bis Zehn (nach Top Ten)
 server/games/maexchen/       Mäxchen (Bluff-Würfelspiel)
+server/games/muehle/         Mühle (Brettspiel für zwei)
 server/games/backgammon/     Backgammon (Regelkern in rules.js)
 test/                        Regeltests (npm test)
 server/spotify.js            Optionale Spotify-Suche

@@ -19,6 +19,7 @@ const Gleichgesinnt = require('./gleichgesinnt');
 const Memekoenig = require('./memekoenig');
 const EinsBisZehn = require('./einsbiszehn');
 const Maexchen = require('./maexchen');
+const Muehle = require('./muehle');
 const Backgammon = require('./backgammon');
 
 const games = {
@@ -41,6 +42,7 @@ const games = {
   memekoenig: Memekoenig,
   einsbiszehn: EinsBisZehn,
   maexchen: Maexchen,
+  muehle: Muehle,
   backgammon: Backgammon,
 };
 
