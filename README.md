@@ -305,6 +305,19 @@ Bluff-Würfelspiel für 2 bis 10 Spieler, ohne Teams. Wer dran ist, würfelt ver
 
 Die Regeln prüft `npm test`.
 
+## So läuft Backgammon
+
+Der Klassiker für zwei, auf dem Fernseher als großes Brett. Jede Seite zieht ihre 15 Steine mit zwei Würfeln einmal ums Brett ins Heimfeld und würfelt sie dort hinaus. Der Server würfelt und lässt nur regelgerechte Züge zu (Bar zuerst, Zugzwang mit möglichst vielen Augen und notfalls der höheren Zahl, Hinauswürfeln erst, wenn alle Steine zu Hause sind).
+
+- **Duell:** zwei Spieler (vom Host gewählt oder die ersten beiden), alle anderen schauen zu und tippen vor jedem Spiel auf den Sieger. Fehlt ein Spieler, kann der Host jemand anderen einsetzen.
+- **Team gegen Team:** Pro Spiel zieht ein anderes Teammitglied, die anderen können Züge vorschlagen (sie erscheinen als Markierung auf dem Brett).
+- Gezogen wird per Antippen: Stein antippen, Ziel antippen, dann „Zug fertig“. Bis dahin lässt sich jeder Einzelzug zurücknehmen.
+- Gespielt wird eine Partie bis 3 Punkte (einstellbar 1, 3, 5, 7, 11). Gammon zählt 2, Backgammon 3 Punkte (abschaltbar). Der Verdopplungswürfel ist standardmäßig aus; an gilt die Crawford-Regel.
+- Zwei können sich ein Gerät teilen (Mitspieler an diesem Gerät eintragen), das Brett dreht sich dann zu dem, der dran ist.
+- Optional: Zeit pro Zug (dann würfelt bzw. zieht das Spiel zufällig), Augenzahl anzeigen, leuchtende ziehbare Steine.
+
+Die Regeln prüft `npm test`. Der Plan steht in [docs/plan-backgammon.md](docs/plan-backgammon.md).
+
 ## Aufbau
 
 ```
@@ -328,6 +341,7 @@ server/games/sieben/         Sieben auf einen Streich (nach Flip 7)
 server/games/gleichgesinnt/  Gleichgesinnt (nach Dito!)
 server/games/einsbiszehn/    Eins bis Zehn (nach Top Ten)
 server/games/maexchen/       Mäxchen (Bluff-Würfelspiel)
+server/games/backgammon/     Backgammon (Regelkern in rules.js)
 test/                        Regeltests (npm test)
 server/spotify.js            Optionale Spotify-Suche
 server/deezer.js             30-Sekunden-Vorschauen über Deezer (Musikzeitreise)

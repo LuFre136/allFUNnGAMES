@@ -1,0 +1,80 @@
+/* Backgammon */
+
+.bg-chip { display: inline-block; width: 16px; height: 16px; border-radius: 50%; border: 2px solid #78716c; flex: none; vertical-align: -3px; }
+.bg-chip.w { background: #f5efe0; }
+.bg-chip.b { background: #1c1917; border-color: #a8a29e; }
+
+.bg-sides { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.bg-side { display: grid; gap: 2px; padding: 10px 12px; border-radius: 16px; background: var(--bg-2); border: 2px solid var(--line); min-width: 0; }
+.bg-side.active { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+.bg-side-name { font-weight: 900; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.bg-score { font: 700 1.6rem/1.1 'Fredoka', sans-serif; }
+.bg-mini-cube { display: inline-grid; place-items: center; min-width: 24px; height: 24px; padding: 0 4px; border-radius: 6px; background: #fff; color: #111; font: 700 0.85rem 'Fredoka', sans-serif; flex: none; }
+
+.bg-status { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 14px; border-radius: 999px; background: var(--bg-2); border: 1px solid var(--line); text-align: center; flex-wrap: wrap; }
+.bg-status.mine { background: var(--accent); color: var(--accent-ink); border-color: transparent; font-weight: 900; }
+.bg-status.mine .muted { color: inherit; opacity: 0.75; }
+
+/* Brett */
+.bg-board { display: flex; justify-content: center; }
+.bg-svg { width: 100%; max-width: 1200px; max-height: max(320px, calc(100vh - 320px)); display: block; user-select: none; -webkit-user-select: none; touch-action: manipulation; }
+.bg-frame { fill: #6b3f1d; }
+.bg-felt { fill: #1f5f43; }
+.bg-bar { fill: #5a3317; }
+.bg-tray { fill: #4a2a12; }
+.bg-tray.target { fill: #6b5a12; }
+.bg-tray-line { stroke: #6b3f1d; stroke-width: 4; }
+.bg-point.even { fill: #e8d3a9; }
+.bg-point.odd { fill: #a63d2a; }
+.bg-point.marked { filter: brightness(1.25); }
+.bg-point.selected { filter: brightness(1.4); }
+.bg-num { fill: #e8d3a9; font: 700 13px 'Nunito', sans-serif; text-anchor: middle; opacity: 0.8; }
+
+.bg-checker circle { stroke-width: 3; }
+.bg-checker.w circle { fill: #f5efe0; stroke: #a8a29e; }
+.bg-checker.b circle { fill: #1c1917; stroke: #57534e; }
+.bg-checker .ring { fill: none !important; stroke-width: 2; opacity: 0.5; }
+.bg-checker text { font: 700 26px 'Fredoka', sans-serif; text-anchor: middle; }
+.bg-checker.w text { fill: #1c1917; }
+.bg-checker.b text { fill: #f5efe0; }
+.bg-checker.movable circle:first-child { stroke: #fde047; stroke-width: 5; }
+.bg-checker.selected circle:first-child { stroke: #ffcc33; stroke-width: 8; }
+
+.bg-slab.w { fill: #f5efe0; stroke: #a8a29e; stroke-width: 2; }
+.bg-slab.b { fill: #1c1917; stroke: #57534e; stroke-width: 2; }
+.bg-offcount { fill: #fde68a; font: 700 30px 'Fredoka', sans-serif; text-anchor: middle; }
+
+.bg-die rect { fill: #fafaf9; stroke: #78716c; stroke-width: 2; }
+.bg-die circle { fill: #b91c1c; }
+.bg-die.used { opacity: 0.3; }
+.bg-die.rolling { animation: bg-roll 0.6s ease-out; transform-box: fill-box; transform-origin: center; }
+@keyframes bg-roll {
+  0% { transform: rotate(-200deg) scale(0.4); }
+  70% { transform: rotate(15deg) scale(1.1); }
+  100% { transform: rotate(0) scale(1); }
+}
+
+.bg-cube rect { fill: #fafaf9; stroke: #111; stroke-width: 2; }
+.bg-cube text { fill: #111; font: 700 24px 'Fredoka', sans-serif; text-anchor: middle; }
+.bg-cube.off { opacity: 0.4; }
+
+.bg-target circle { fill: rgba(255, 204, 51, 0.35); stroke: #ffcc33; stroke-width: 4; stroke-dasharray: 8 6; }
+.bg-target text { fill: #fff; font: 700 24px 'Fredoka', sans-serif; text-anchor: middle; }
+.bg-suggest circle { fill: #ff5fa2; stroke: #fff; stroke-width: 3; }
+.bg-suggest text { fill: #fff; font: 700 20px 'Fredoka', sans-serif; text-anchor: middle; }
+.bg-hit { fill: transparent; cursor: pointer; }
+
+.bg-rotate { display: none; }
+@media (orientation: portrait) and (max-width: 700px) {
+  .bg-rotate { display: block; }
+}
+
+.bg-controls { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.bg-controls .btn { flex: 1 1 200px; max-width: 360px; }
+
+.bg-result { text-align: center; }
+.bg-result-head { font: 700 1.5rem 'Fredoka', sans-serif; display: flex; gap: 8px; align-items: center; justify-content: center; flex-wrap: wrap; }
+.bg-bigscore { font: 700 1.4rem 'Fredoka', sans-serif; display: flex; gap: 8px; align-items: center; justify-content: center; flex-wrap: wrap; }
+.bg-bigscore b { font-size: 2rem; }
+
+.bg-log { display: grid; gap: 2px; font-size: 0.85rem; color: var(--muted); text-align: center; }

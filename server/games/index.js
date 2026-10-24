@@ -19,6 +19,7 @@ const Gleichgesinnt = require('./gleichgesinnt');
 const Memekoenig = require('./memekoenig');
 const EinsBisZehn = require('./einsbiszehn');
 const Maexchen = require('./maexchen');
+const Backgammon = require('./backgammon');
 
 const games = {
   pubquiz: PubQuiz,
@@ -40,6 +41,7 @@ const games = {
   memekoenig: Memekoenig,
   einsbiszehn: EinsBisZehn,
   maexchen: Maexchen,
+  backgammon: Backgammon,
 };
 
 // Platzhalter für die Startseite, bis die Spiele gebaut sind

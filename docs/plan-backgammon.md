@@ -1,6 +1,6 @@
 # Plan: Backgammon
 
-Stand: Plan, noch nicht gebaut. Lukas hat die offenen Fragen beantwortet (24.10.2026), die Entscheidungen stehen am Ende.
+Stand: umgesetzt (24.10.2026, id `backgammon`, CSS-Präfix `bg-`). Lukas hat die offenen Fragen beantwortet, die Entscheidungen und die Abweichungen beim Bauen stehen am Ende.
 
 ## Name
 
@@ -174,3 +174,11 @@ jedem Spiel zwei Knöpfe zum Tippen auf den Sieger.
 - Partie standardmäßig bis 3 Punkte, einstellbar 1, 3, 5, 7, 11.
 - Keine Bestenliste.
 - Symbol ⚫ (Vorschlag, Lukas hat die Wahl offengelassen).
+
+## Beim Bauen anders gelöst
+
+- Gezogen wird nur per Antippen (Stein, dann Ziel). Ziehen mit dem Finger und Doppeltippen gibt es nicht, weil das Brett bei jedem Zug neu gezeichnet wird.
+- Steine gleiten nicht über das Brett. Stattdessen sind die Zungen des letzten bzw. laufenden Zugs aufgehellt, die Würfel rollen.
+- Im Teammodus entscheidet der Ziehende auch über Verdoppeln und Annehmen allein. Die Teammitglieder können nur Züge vorschlagen.
+- Statt einer eigenen Einstellung „Farben“ wählt der Host in der Lobby, wer Weiß und wer Schwarz spielt (oder „Automatisch“, dann zufällig unter den ersten beiden).
+- Fehlt ein Spieler, pausiert das Spiel nicht automatisch für ihn: Der Host kann über „Für … weiter“ würfeln bzw. einen zufälligen erlaubten Zug ziehen oder einen Zuschauer einsetzen.
