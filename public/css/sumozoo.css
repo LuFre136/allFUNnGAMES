@@ -1,0 +1,32 @@
+/* Sumo Zoo */
+
+.sz-layout { display: grid; gap: 12px; }
+.sz-layout.big { grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 1000px) {
+  .sz-layout.big { grid-template-columns: minmax(0, 1fr) 300px; align-items: start; }
+}
+.sz-board { display: flex; justify-content: center; min-width: 0; }
+.sz-canvas { display: block; border-radius: 18px; user-select: none; -webkit-user-select: none; touch-action: manipulation; }
+.sz-board.aiming .sz-canvas { touch-action: none; cursor: grab; }
+
+.sz-status { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 14px; border-radius: 999px; background: var(--bg-2); border: 1px solid var(--line); text-align: center; flex-wrap: wrap; }
+.sz-status.mine { background: var(--accent); color: var(--accent-ink); border-color: transparent; font-weight: 900; }
+
+.sz-sides { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+.sz-layout.big .sz-sides { grid-template-columns: 1fr; }
+.sz-side { display: grid; gap: 4px; padding: 8px 10px; border-radius: 14px; background: var(--bg-2); border: 2px solid var(--line); border-left: 6px solid var(--side); min-width: 0; }
+.sz-side b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.sz-side.active { border-color: var(--accent); border-left-color: var(--side); box-shadow: 0 0 0 2px var(--accent); }
+.sz-side.out { opacity: 0.5; }
+.sz-icons { display: flex; flex-wrap: wrap; gap: 1px; font-size: 1.15rem; line-height: 1.2; }
+.sz-icons .gone { filter: grayscale(1); opacity: 0.25; }
+.sz-wins { margin-left: auto; font-size: 0.85rem; flex: none; }
+
+.sz-log { display: grid; gap: 2px; font-size: 0.85rem; color: var(--muted); text-align: center; }
+.sz-score { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; font: 700 1.1rem 'Fredoka', sans-serif; }
+.sz-score b { font-size: 1.5rem; }
+
+.sz-maps { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.sz-map { display: grid; gap: 2px; text-align: left; padding: 10px; border-radius: 14px; background: var(--bg-2); border: 2px solid var(--line); color: inherit; font: inherit; cursor: pointer; }
+.sz-map.on { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+.sz-map-icon { font-size: 1.4rem; }
