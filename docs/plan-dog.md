@@ -1,13 +1,12 @@
 # Plan: Hundsgemein (nach „Brändi Dog“)
 
-Stand: Plan, noch nicht gebaut (24.10.2026). Offene Fragen an Lukas stehen am Ende.
+Stand: Plan, noch nicht gebaut (24.10.2026). Lukas' Entscheidungen stehen am Ende.
 
 ## Name
 
 „Brändi Dog“ ist ein Markenname der Stiftung Brändi. Das Spiel selbst geht auf ältere Volksspiele zurück
-(„Dog“ in der Schweiz, „Tock“ in Kanada), die Regeln sind frei. Vorschlag: **„Hundsgemein“**, Symbol 🐕. Der Name
-behält den Hund und beschreibt, worum es geht: andere Murmeln rauswerfen und mit dem Buben fies tauschen.
-Alternativen: „Tock“, „Zwinger“, „Treue Pfoten“, „Hund & Herrchen“.
+(„Dog“ in der Schweiz, „Tock“ in Kanada), die Regeln sind frei. Name: **„Hundsgemein“** (von Lukas gewählt), Symbol 🐕.
+Der Name behält den Hund und beschreibt, worum es geht: andere Murmeln rauswerfen und mit dem Buben fies tauschen.
 
 Technische Kennung `hundsgemein`, CSS-Präfix `hg-` (noch frei).
 
@@ -19,6 +18,7 @@ Hand hat. Zwei Partner sitzen sich gegenüber, tauschen vor jeder Runde eine Kar
 Gewonnen hat das Team, das zuerst alle Murmeln im Ziel hat.
 
 Das passt gut zur Plattform: Das Brett liegt offen auf dem Fernseher, die Handkarten sind geheim auf den Handys.
+Es soll aber auch ganz ohne Fernseher gehen, dann zeigt jedes Handy selbst das Brett (siehe unten).
 
 ## Spieler und Teams
 
@@ -27,6 +27,7 @@ Das passt gut zur Plattform: Das Brett liegt offen auf dem Fernseher, die Handka
   selben Team). Der Host wählt die Aufteilung.
 - Andere Spielerzahlen gehen nicht, weil das Brett genau so viele Abschnitte wie Spieler hat und die Teams
   gleich groß sein müssen. Die Lobby sperrt den Start, bis 4 oder 6 Spieler in passenden Teams sind.
+- Eine Variante ohne Teams für 2 oder 3 Spieler gibt es nicht (Entscheidung von Lukas).
 - Die Teams werden in der Lobby wie bei Alias zugeteilt. Die Sitzordnung am Brett wird daraus automatisch so
   gebaut, dass sich die Teams abwechseln.
 
@@ -85,6 +86,7 @@ dadurch unmöglich.
 
 | Einstellung | Standard | Auswahl |
 | --- | --- | --- |
+| Fernseher | mit | mit Fernseher oder nur Handys (siehe „Ohne Fernseher“) |
 | Aufteilung bei 6 Spielern | 3 Teams zu zweit | 3 × 2 oder 2 × 3 |
 | Zeit pro Zug | aus | aus, 30 s, 60 s, 90 s (bei Ablauf spielt der Server einen zufälligen erlaubten Zug) |
 | Kartentausch | an | an/aus |
@@ -93,7 +95,7 @@ dadurch unmöglich.
 
 ## Ablauf auf den Bildschirmen
 
-**Fernseher (Host-Bildschirm):**
+**Fernseher (Host-Bildschirm, nur im Modus „mit Fernseher“):**
 
 - Das Brett groß in der Mitte, alle Murmeln, Zwinger und Ziele. Neben jedem Abschnitt Profilbild, Name, Anzahl
   Handkarten (als verdeckter Fächer) und ein Schild „setzt aus“, wenn jemand abwerfen musste.
@@ -122,13 +124,31 @@ dadurch unmöglich.
 - Die Karten des Partners sind nicht sichtbar, wie im Original. Absprechen am Tisch ist erlaubt, Karten verraten
   nicht.
 
+## Ohne Fernseher
+
+Lukas möchte Hundsgemein auch ohne Fernseher spielen können, z. B. unterwegs oder am Esstisch. Das ist eine
+Einstellung des Hosts („Fernseher: mit / nur Handys“).
+
+- **Mit Fernseher:** Das Host-Gerät ist der Fernseher und zeigt nur das Brett. Weil die Handkarten geheim sind,
+  kann man auf dem Fernseher nicht mitspielen; `hostPlays` ist in diesem Modus immer aus. Wer den Fernseher
+  gestartet hat und mitspielen will, tritt zusätzlich mit seinem Handy bei.
+- **Nur Handys:** Das Host-Gerät ist ein normales Handy und spielt mit (`hostPlays` immer an). Es hat zusätzlich
+  die Host-Knöpfe (Einstellungen, Start, Spieler ersetzen, „Zug erzwingen“) in einem kleinen Menü.
+- **Brett auf dem Handy:** Ohne Fernseher wird das Brett auf jedem Handy zur Hauptansicht. Es ist so gedreht, dass
+  der eigene Abschnitt unten liegt, und lässt sich mit zwei Fingern zoomen. Rund um das Brett stehen Namen,
+  Kartenanzahl und „setzt aus“, in der Mitte die zuletzt gespielte Karte, oben eine Zeile „Anna ist dran“ und die
+  Rundennummer. Die Handkarten liegen darunter als Fächer, wie oben beschrieben.
+- **Was sonst der Fernseher zeigt**, kommt kurz als Einblendung auf alle Handys: „Ben schlägt Carla“, „Kartentausch
+  läuft (3/4)“, „Neue Runde: 5 Karten“. Die Murmel-Animationen laufen auf jedem Handy.
+- **Spielende:** Gewinnerteam und Sonderpreise auf allen Handys.
+- Technisch ist es dieselbe Handy-Ansicht wie mit Fernseher, nur mit großem statt verkleinertem Brett und den
+  Einblendungen. Der Server muss dafür nichts anders machen außer `hostPlays` passend zu setzen.
+
 ## Geteiltes Gerät
 
-Schwierig, weil die Handkarten geheim sind und Partner sich gegenübersitzen. Möglich wäre es wie bei Mäxchen:
-Das Handy zeigt „Gib das Handy an Anna weiter“ und die Karten erst nach „Karten ansehen“. Der Kartentausch braucht
-dann aber für jeden Spieler auf dem Gerät eine eigene Übergabe, und wer gerade nicht dran ist, kann seine Karten
-nicht ansehen. Vorschlag: im ersten Schritt **ohne** geteiltes Gerät (`sharedDevice: false`), weil man zu viert
-oder sechst in der Regel genug Handys hat. Siehe offene Fragen.
+Gibt es nicht (`sharedDevice: false`, Entscheidung von Lukas). Die Handkarten sind geheim, Partner sitzen sich
+gegenüber, und der Kartentausch bräuchte für jeden Spieler auf einem Gerät eine eigene Übergabe. Zu viert oder
+sechst hat man in der Regel genug Handys.
 
 ## Technik
 
@@ -160,7 +180,10 @@ oder sechst in der Regel genug Handys hat. Siehe offene Fragen.
 - **Spielwechsel:** Funktioniert über `minPlayers`/`maxPlayers`, dazu die Teamprüfung oben.
 - **Oberfläche:** `public/js/hundsgemein.js` und `public/css/hundsgemein.css` (Präfix `hg-`), eingehängt über das
   `gameViews`-Register in `lobby.js`. Das Brett wird einmal als SVG erzeugt und nur die Murmeln werden bewegt,
-  damit die Animationen flüssig bleiben.
+  damit die Animationen flüssig bleiben. Dieselbe Brett-Komponente dient für Fernseher, Mini-Brett und das große
+  Handy-Brett ohne Fernseher (gedreht auf den eigenen Abschnitt).
+- **Fernseher-Modus:** Einstellung `settings.game.tv` (`true`/`false`). `sanitizeSettings()` setzt `hostPlays`
+  passend dazu, und die Lobby blendet den Schalter „Spielt mit / Nur Gamemaster“ für dieses Spiel aus.
 - **Startseite:** Kachel „Hundsgemein“, Symbol 🐕, „4 oder 6 Spieler in Teams“, Beschreibung „Karten statt Würfel:
   Bring mit deinem Partner alle Murmeln ins Ziel und schick die anderen zurück in den Zwinger.“
 
@@ -172,17 +195,21 @@ oder sechst in der Regel genug Handys hat. Siehe offene Fragen.
 2. Spielablauf: Austeilen 6-5-4-3-2, Kartentausch, Abwerfen, Teams und Sitzordnung, Lobby-Prüfung.
 3. Host-Bildschirm mit Brett und Animationen.
 4. Handy mit Kartenfächer, Mini-Brett, Zugauswahl, Vorschau, 7-Aufteilung und Kartentausch.
-5. Einstellungen, Zeitgeber, Endwertung mit Sonderpreisen.
-6. Test mit mehreren Browsern über Playwright (4 und 6 Spieler, Schlagen, 7 über mehrere Murmeln und den Partner,
+5. Modus ohne Fernseher: großes, gedrehtes Brett auf dem Handy, Einblendungen, Host-Menü.
+6. Einstellungen, Zeitgeber, Endwertung mit Sonderpreisen.
+7. Test mit mehreren Browsern über Playwright (mit und ohne Fernseher, 4 und 6 Spieler, Schlagen, 7 über mehrere Murmeln und den Partner,
    Bube, geschütztes Startfeld, Abwerfen, Spieler verlässt, Wiederverbinden).
 
-## Offene Fragen an Lukas
+## Entscheidungen
 
-1. **Name:** „Hundsgemein“ oder lieber „Tock“, „Zwinger“, „Treue Pfoten“, „Hund & Herrchen“ oder einfach „Dog“?
-2. **Geteiltes Gerät:** erst mal weglassen (Vorschlag) oder gleich mit Übergabe-Bildschirm wie bei Mäxchen?
-3. **6 Spieler:** Sollen beide Aufteilungen (3 × 2 und 2 × 3) wählbar sein, oder reicht 3 × 2?
-4. **Andere Spielerzahlen:** Soll es auch eine Variante ohne Teams für 2 oder 3 Spieler geben (jeder für sich,
-   ohne Kartentausch)? Oder 8 Spieler auf einem größeren Brett? Beides würde ich erst später machen.
-5. **Mögliche Züge zeigen:** standardmäßig an (Vorschlag, hilft Neulingen) oder aus?
-6. **Hausregeln:** Gibt es bei euch Regeln, die anders gespielt werden, z. B. beim Schlagen des Partners, beim
-   Buben oder bei der 7?
+- Name „Hundsgemein“.
+- Kein geteiltes Gerät.
+- Bei 6 Spielern sind beide Aufteilungen wählbar (3 × 2 und 2 × 3).
+- Keine Variante ohne Teams.
+- Zusätzlich spielbar ohne Fernseher, nur mit Handys.
+
+## Noch offen
+
+- **Hausregeln:** Bis Lukas etwas anderes sagt, gelten die Standardregeln oben. Die einzige Hausregel als
+  Einstellung ist „Schlagen beim Überholen mit der 7“.
+- **Mögliche Züge zeigen:** standardmäßig an.
