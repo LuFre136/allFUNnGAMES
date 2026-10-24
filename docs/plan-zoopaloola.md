@@ -1,7 +1,6 @@
 # Plan: Sumo Zoo (Zoopaloola)
 
-Stand: nur Plan, noch nicht gebaut (24.10.2026). Lukas hat die offenen Fragen beantwortet, die Entscheidungen
-stehen am Ende.
+Stand: umgesetzt (25.10.2026). Lukas hat die offenen Fragen beantwortet, die Entscheidungen stehen am Ende.
 
 ## Das Original
 
