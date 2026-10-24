@@ -318,6 +318,20 @@ Das klassische Brettspiel für genau 2 Spieler, ohne Teams. Gespielt wird eine S
 
 Die Regeln prüft `npm test`. Der Plan steht in [docs/plan-muehle.md](docs/plan-muehle.md).
 
+## So läuft Hundsgemein
+
+Teamspiel nach Brändi Dog für 4 Spieler (zwei Teams zu zweit) oder 6 Spieler (drei Teams zu zweit oder zwei Teams zu dritt). Jeder hat vier Murmeln im Zwinger und bringt sie mit Karten statt Würfeln über die Rundbahn ins Ziel. Die Teams sitzen abwechselnd am Brett, Partner gegenüber.
+
+- Karten: Zahlen gehen so viele Felder vor, die 4 vor oder zurück, Dame 12, König 13 oder raus, Ass 1, 11 oder raus, der Bube tauscht eine eigene mit einer fremden Murmel, die 7 lässt sich auf mehrere Murmeln aufteilen und schlägt jede überholte Murmel, der Joker ist jede Karte.
+- Wer auf einer Murmel landet, schickt sie in ihren Zwinger. Eine Murmel, die frisch aus dem Zwinger kommt, sperrt ihr Startfeld für alle. Ins Ziel geht es nur vorwärts über das eigene Startfeld, ohne Überspringen.
+- Ausgeteilt werden 6, 5, 4, 3 und 2 Karten, dann wieder 6. Vor jeder Runde gibt jeder seinem Partner verdeckt eine Karte (abschaltbar). Wer nicht spielen kann, wirft ab und setzt bis zur nächsten Runde aus. Wer fertig ist, spielt für seinen Partner.
+- **Mit Fernseher:** Das Host-Gerät zeigt nur das Brett und spielt nicht mit. Wer die Lobby erstellt hat und mitspielen will, tritt zusätzlich mit dem Handy bei. **Nur Handys:** Das Host-Gerät spielt mit, jedes Handy zeigt das ganze Brett, gedreht auf den eigenen Platz.
+- Auf dem Handy wählt man eine Karte und dann einen der angebotenen Züge (oder tippt die Murmel an), eine Vorschau zeigt das Ergebnis. Die 7 wird Schritt für Schritt verteilt. Mit „Mögliche Züge zeigen“ (Standard an) sind spielbare Karten und Murmeln hervorgehoben.
+- Wer die Verbindung verliert, wird nicht übersprungen; der Host kann für ihn einen zufälligen Zug spielen lassen. Wer neu einem Team beitritt, übernimmt den Platz eines nicht verbundenen Mitspielers. Mit Zeitlimit spielt das Spiel nach Ablauf selbst.
+- Am Ende gibt es Sonderpreise: Hundsgemein (am meisten geschlagen), Pechvogel und Gassigeher.
+
+Die Zugregeln stehen in `public/js/hundsgemein-rules.js` und laufen auf Server und Handy. Die Regeln prüft `npm test`. Der Plan steht in [docs/plan-dog.md](docs/plan-dog.md).
+
 ## So läuft Backgammon
 
 Der Klassiker für zwei, auf dem Fernseher als großes Brett. Jede Seite zieht ihre 15 Steine mit zwei Würfeln einmal ums Brett ins Heimfeld und würfelt sie dort hinaus. Der Server würfelt und lässt nur regelgerechte Züge zu (Bar zuerst, Zugzwang mit möglichst vielen Augen und notfalls der höheren Zahl, Hinauswürfeln erst, wenn alle Steine zu Hause sind).
@@ -355,6 +369,7 @@ server/games/gleichgesinnt/  Gleichgesinnt (nach Dito!)
 server/games/einsbiszehn/    Eins bis Zehn (nach Top Ten)
 server/games/maexchen/       Mäxchen (Bluff-Würfelspiel)
 server/games/muehle/         Mühle (Brettspiel für zwei)
+server/games/hundsgemein/    Hundsgemein (nach Brändi Dog), Zugregeln in public/js/hundsgemein-rules.js
 server/games/backgammon/     Backgammon (Regelkern in rules.js)
 test/                        Regeltests (npm test)
 server/spotify.js            Optionale Spotify-Suche
