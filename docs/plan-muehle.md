@@ -1,6 +1,6 @@
 # Plan: Mühle
 
-Stand: Plan, noch nicht gebaut. Lukas hat entschieden: nur 2 Spieler, keine Teams. Die übrigen offenen Fragen
+Stand: umgesetzt (24.10.2026). Lukas hat entschieden: nur 2 Spieler, keine Teams, die übrigen Entscheidungen
 stehen am Ende.
 
 ## Name
@@ -54,8 +54,8 @@ Serie endet, sobald einer die nötigen Siege nicht mehr verlieren kann (bei „B
 bei „Ohne Ende“, wenn der Host das Spiel beendet. Endet eine Serie unentschieden, wird eine Entscheidungspartie
 gespielt.
 
-Weitere Leute in der Lobby gibt es nicht: `maxPlayers: 2`, ein dritter Spieler kann nicht beitreten. Der Host kann
-selbst mitspielen oder nur den Fernseher stellen (`hostPlays` wie in den anderen Spielen).
+Gestartet wird nur mit genau zwei Spielern (`minPlayers` und `maxPlayers` sind 2). Wer später noch beitritt, schaut
+nur zu. Der Host kann selbst mitspielen oder nur den Fernseher stellen (`hostPlays` wie in den anderen Spielen).
 
 ## Einstellungen des Hosts
 
@@ -89,7 +89,7 @@ Stein). Wer dreimal hintereinander die Zeit verstreichen lässt, hat die Partie 
 
 **Handy des Spielers am Zug:**
 
-- Das Brett so groß wie möglich, die eigene Farbe immer unten. Darüber eine Zeile: „Lukas setzt einen Stein“,
+- Das Brett so groß wie möglich, die eigene Spielerleiste unter dem Brett, die des Gegners darüber. Darüber eine Zeile: „Lukas setzt einen Stein“,
   „Lukas zieht“, „Lukas hat eine Mühle! Nimm einen schwarzen Stein“.
 - Setzen: freien Punkt antippen. Ziehen: eigenen Stein antippen (hebt sich an, mögliche Ziele pulsieren), dann
   Ziel antippen. Erneutes Antippen hebt die Auswahl auf. Wegnehmen: die erlaubten gegnerischen Steine pulsieren
@@ -157,14 +157,11 @@ es zwischen den Zügen hin- und herschieben, wie ein echtes Brett. `meta().share
 6. Test mit mehreren Browsern über Playwright (ganze Partie bis zum Einsperren, Springphase, Mühle in der
    Setzphase, Zeitablauf, geteiltes Handy, Spieler verlässt, Wiederverbinden, beide Spieler an einem Gerät).
 
-## Offene Fragen an Lukas
+## Entscheidungen
 
-1. **Serie:** Passt „Best of 3“ als Standard?
-2. **Computergegner:** Soll man auch allein gegen den Computer spielen können (z. B. drei Stärken)? Das wäre ein
-   eigener Schritt und würde `minPlayers` auf 1 senken.
-3. **Varianten:** Reichen „Springen an/aus“ und „Doppelmühle 1 oder 2 Steine“, oder soll es auch die Variante mit
-   12 Steinen und Diagonalen (Zwölfermühle) geben?
-4. **Remis-Regel:** Passt dreifache Wiederholung plus 50 Züge ohne Schlagen in der Springphase, oder lieber
-   einfacher (z. B. nur der Host erklärt Remis)?
-5. **Bestenliste:** Eine dauerhafte Rangliste (Siege je Spieler über alle Abende, wie die Würfelbecher-Bestenliste) oder
-   nicht?
+- Nur 2 Spieler, keine Teams, keine Warteschlange.
+- Serie standardmäßig Best of 3.
+- Kein Computergegner.
+- Keine Zwölfermühle.
+- Remis bei dreifacher Wiederholung oder 50 Zügen ohne Schlagen beim Springen, dazu Remis durch den Host.
+- Keine Bestenliste.

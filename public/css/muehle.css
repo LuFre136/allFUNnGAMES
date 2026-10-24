@@ -1,0 +1,71 @@
+/* Mühle */
+
+.mu-note { padding: 10px 14px; border-radius: 14px; background: rgba(255, 204, 51, 0.12); border: 1px solid rgba(255, 204, 51, 0.4); font-weight: 700; }
+
+.mu-status { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 14px; border-radius: 999px; background: var(--bg-2); border: 1px solid var(--line); text-align: center; flex-wrap: wrap; }
+.mu-status.mine { background: var(--accent); color: var(--accent-ink); border-color: transparent; font-weight: 900; }
+.mu-status.mill { background: var(--pink); color: #fff; border-color: transparent; font-weight: 900; }
+
+/* Brett links, Spieler daneben; auf Handys untereinander */
+.mu-layout { display: grid; gap: 12px; }
+@media (min-width: 900px) {
+  .mu-layout { grid-template-columns: minmax(210px, 1fr) minmax(0, min(72vh, 560px)) minmax(210px, 1fr); align-items: center; }
+}
+
+.mu-board { width: min(100%, 78vh); margin-inline: auto; aspect-ratio: 1; border-radius: 22px; padding: 2%; background: radial-gradient(circle at 35% 25%, #d9a066, #a86b32 70%, #8a5426); box-shadow: inset 0 0 0 6px #6b3f18, var(--shadow); }
+.mu-board.mine.turn-w { box-shadow: inset 0 0 0 6px #6b3f18, 0 0 0 4px #f8fafc, var(--shadow); }
+.mu-board.mine.turn-b { box-shadow: inset 0 0 0 6px #6b3f18, 0 0 0 4px #111827, var(--shadow); }
+.mu-board svg { width: 100%; height: 100%; display: block; overflow: visible; touch-action: manipulation; }
+.mu-lines rect, .mu-lines line { fill: none; stroke: #3b2410; stroke-width: 7; stroke-linecap: round; }
+
+.mu-dot { fill: #3b2410; }
+.mu-hit { fill: transparent; }
+.mu-ring { fill: none; stroke: transparent; stroke-width: 6; pointer-events: none; }
+.mu-pt.tap { cursor: pointer; }
+.mu-pt.target .mu-dot { fill: #fde047; animation: mu-pulse 1.1s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+.mu-pt.sel .mu-ring { stroke: #fde047; }
+.mu-pt.last .mu-ring { stroke: rgba(253, 224, 71, 0.55); stroke-dasharray: 10 8; }
+.mu-pt.sel.last .mu-ring { stroke: #fde047; stroke-dasharray: none; }
+.mu-pt.removable .mu-ring { stroke: #ef4444; stroke-dasharray: none; animation: mu-blink 0.9s ease-in-out infinite; }
+.mu-from { fill: none; stroke: rgba(253, 224, 71, 0.6); stroke-width: 4; stroke-dasharray: 6 6; }
+
+.mu-stone { stroke-width: 3; filter: drop-shadow(0 5px 3px rgba(0, 0, 0, 0.45)); transform-box: fill-box; transform-origin: center; }
+.mu-stone.w { fill: #f8fafc; stroke: #cbd5e1; }
+.mu-stone.b { fill: #1f2937; stroke: #000; }
+.mu-pt.tap .mu-stone { cursor: pointer; }
+.mu-pt.sel .mu-stone { transform: scale(1.12); }
+.mu-stone.slide { animation: mu-slide 0.45s cubic-bezier(.3, .9, .4, 1); }
+.mu-stone.drop { animation: mu-drop 0.35s ease-out; }
+.mu-ghost { pointer-events: none; animation: mu-vanish 0.8s ease-in forwards; }
+.mu-millline { stroke: #fde047; stroke-width: 14; stroke-linecap: round; opacity: 0.55; pointer-events: none; }
+.mu-millline.fresh { animation: mu-mill 0.8s ease-out; }
+
+@keyframes mu-slide { from { transform: translate(var(--dx), var(--dy)); } to { transform: translate(0, 0); } }
+@keyframes mu-drop { from { transform: scale(1.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes mu-vanish { 0% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(0.3) rotate(40deg); } }
+@keyframes mu-mill { from { opacity: 0; stroke-width: 40; } to { opacity: 0.55; stroke-width: 14; } }
+@keyframes mu-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.7); } }
+@keyframes mu-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+
+/* Spielerleisten */
+.mu-side { display: grid; gap: 8px; padding: 12px 14px; border-radius: 18px; background: var(--bg-2); border: 2px solid var(--line); }
+.mu-side.active { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+.mu-side.offline { filter: grayscale(1); opacity: 0.7; }
+.mu-who { display: flex; align-items: center; gap: 10px; }
+.mu-who > div:nth-child(2) { flex: 1; min-width: 0; }
+.mu-name { font-weight: 900; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mu-score { font: 700 2rem/1 'Fredoka', sans-serif; }
+.mu-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.mu-minis { display: flex; flex-wrap: wrap; gap: 3px; justify-content: flex-end; }
+.mu-mini { width: 14px; height: 14px; border-radius: 50%; display: inline-block; box-shadow: 0 2px 0 rgba(0, 0, 0, 0.4); }
+.mu-mini.w { background: #f8fafc; }
+.mu-mini.b { background: #1f2937; border: 1px solid #64748b; }
+
+.mu-result { text-align: center; }
+.mu-result-head { font: 700 1.6rem 'Fredoka', sans-serif; }
+.mu-series { font-size: 1.1rem; }
+.mu-series.big { font-size: 1.5rem; margin-top: 6px; }
+
+.mu-stats { width: 100%; border-collapse: collapse; }
+.mu-stats th, .mu-stats td { padding: 6px 8px; text-align: center; border-bottom: 1px solid var(--line); }
+.mu-stats td:first-child { text-align: left; }
