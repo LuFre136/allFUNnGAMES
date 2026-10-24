@@ -71,6 +71,12 @@
       "type": "flag",
       "question": "Zu welchem Land gehört diese Flagge?",
       "excludedAt": "2026-10-24T08:20:55.498Z"
+    },
+    {
+      "id": "im01",
+      "type": "image",
+      "question": "Wer ist auf dem Bild zu sehen?",
+      "excludedAt": "2026-10-24T08:21:57.054Z"
     }
   ]
 }
