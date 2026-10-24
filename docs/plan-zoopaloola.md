@@ -1,6 +1,7 @@
-# Plan: Affenfelsen (Zoopaloola)
+# Plan: Sumo Zoo (Zoopaloola)
 
-Stand: nur Plan, noch nicht gebaut (24.10.2026). Offene Fragen stehen am Ende.
+Stand: nur Plan, noch nicht gebaut (24.10.2026). Lukas hat die offenen Fragen beantwortet, die Entscheidungen
+stehen am Ende.
 
 ## Das Original
 
@@ -25,16 +26,16 @@ Quellen: [Pocket Gamer, Test der Java-Version](https://www.pocketgamer.com/zoopa
 [Video „Zoopaloola Online - ICQ Games“](https://www.youtube.com/watch?v=pTyRH9i6BP0).
 
 Unsicher bleibt, ob man im ICQ-Original nach einem Treffer **noch einmal** durfte (die Java-Version wechselt
-immer) und ob der Berg rund oder eckig war. Das soll Lukas aus der Erinnerung bestätigen, siehe offene Fragen.
+immer) und ob der Berg rund oder eckig war. Lukas hat entschieden: Extrazug als Einstellung (Standard an) und
+mehrere Karten, Standard eckig.
 
 ## Name
 
 „Zoopaloola“ ist der Titel eines fremden Spiels. Ein eingetragenes Markenrecht habe ich nicht gefunden, aber wir
-übernehmen sicherheitshalber weder Namen noch Grafiken. Vorschlag: **„Affenfelsen“**, Symbol 🐒. Das Bild passt
-genau: Tiere auf einem Felsen im Zoo, und wer runterfällt, hat verloren. Alternativen: „Zooschubser“,
-„Tierisch abgeschubst“, „König vom Berg“.
+übernehmen sicherheitshalber weder Namen noch Grafiken. Lukas hat den Namen **„Sumo Zoo“** gewählt, Symbol 🐘.
+Das passt genau: Wie beim Sumo verliert, wer aus dem Ring geschoben wird.
 
-Technische Kennung `affenfelsen`, CSS-Präfix `af-` (noch frei).
+Technische Kennung `sumozoo`, CSS-Präfix `sz-` (noch frei).
 
 ## Spielidee bei uns
 
@@ -56,8 +57,9 @@ Teams, in denen sich die Mitglieder beim Schubsen abwechseln.
   angestoßen, alles andere passiert durch Zusammenstöße.
 - **Runterfallen:** Ein Tier, dessen Mitte über die Kante rutscht, fällt hinunter und ist raus, egal wem es
   gehört. Auch das geschubste Tier selbst kann hinunterfallen.
-- **Wer ist als Nächstes dran:** Standard wie im Original: immer die nächste Seite. Als Einstellung „Treffer gibt
-  Extrazug“: Wer mindestens ein fremdes Tier hinunterschubst und keines der eigenen verliert, darf noch einmal.
+- **Extrazug (Standard an):** Wer mindestens ein fremdes Tier hinunterschubst und keines der eigenen verliert,
+  darf noch einmal. Sonst ist die nächste Seite dran. Ist die Einstellung aus, ist immer die nächste Seite dran,
+  wie in der Java-Version.
 - **Reihenfolge der Seiten:** im Kreis, der Startspieler wird gelost. Seiten ohne Tiere werden übersprungen.
 - **Teams:** Innerhalb einer Seite wechseln sich die Mitglieder ab (Anna, dann Ben, dann wieder Anna).
 - **Ausscheiden:** Eine Seite ohne Tiere ist raus. Bei 3 bis 4 Seiten gewinnt die letzte Seite mit Tieren.
@@ -72,19 +74,37 @@ Teams, in denen sich die Mitglieder beim Schubsen abwechseln.
 - Draufsicht, Tiere sind **Kreise** gleicher Größe und Masse (die Grafik darf unterschiedlich aussehen, die
   Physik nicht, damit keine Tierart besser ist).
 - Elastische Stöße zwischen Kreisen, Reibung bremst die Tiere gleichmäßig ab, kein Drall, keine Bande.
-- Der Felsen ist eine Fläche mit Kante (Vorschlag: abgerundetes Rechteck, siehe offene Fragen).
+- Der Felsen ist eine Fläche mit Kante, ihre Form kommt aus der gewählten Karte (siehe unten).
 - Feste Schrittweite (z. B. 1/120 s), gerechnet nur auf dem Server. Der Stoß endet, wenn sich nichts mehr bewegt
   oder nach höchstens 10 Sekunden.
 - Der Server schickt pro Stoß die Bahn aller bewegten Tiere (Position etwa alle 1/30 s, dazu Zeitpunkt des
   Runterfallens). Die Geräte spielen die Bahn ab. So sehen alle exakt dasselbe, und niemand kann schummeln.
 - Eine kleine eigene Physik reicht (ein paar Dutzend Zeilen), wir brauchen keine Bibliothek.
 
+## Karten
+
+Der Host wählt, auf welchem Felsen gespielt wird. Jede Karte ist eine Liste von Flächen (Rechtecke, Kreise,
+Vielecke) plus optional Löcher darin; ein Tier fällt, wenn seine Mitte auf keiner Fläche mehr liegt oder in einem
+Loch. Zu jeder Karte gehören passende Aufstellungen für 2, 3 und 4 Seiten.
+
+| Karte | Form | Besonderheit |
+| --- | --- | --- |
+| **Felsplateau** (Standard) | abgerundetes Rechteck im Querformat | wie die Java-Version, gut für Duelle |
+| **Sumo-Ring** | Kreis | gleich fair für 3 bis 4 Seiten |
+| **Wasserloch** | Rechteck mit rundem Loch in der Mitte | wer durch die Mitte schießt, riskiert ein Eigentor |
+| **Brücke** | zwei Plateaus, verbunden durch einen schmalen Steg | jede Seite startet auf ihrer Insel |
+| **Zufall** | eine der Karten oben, gelost bei jeder Partie bzw. jedem Satz | |
+
+Weitere Karten lassen sich später als Datei `maps.json` ergänzen, ohne die Logik anzufassen. Bei 3 oder 4 Seiten
+auf eckigen Karten werden die Seiten so verteilt, dass alle gleich weit von der Kante entfernt starten.
+
 ## Einstellungen des Hosts
 
 | Einstellung | Standard | Auswahl |
 | --- | --- | --- |
 | Tiere pro Seite | 6 (bei 3–4 Seiten 5) | 3 bis 8 |
-| Treffer gibt Extrazug | aus | an/aus |
+| Karte | Felsplateau | Felsplateau, Sumo-Ring, Wasserloch, Brücke, Zufall |
+| Treffer gibt Extrazug | an | an/aus |
 | Gewinnsätze | 1 | 1, 2, 3 |
 | Zeit pro Zug | aus | aus, 20 s, 40 s (bei Ablauf: kein Stoß, nächste Seite) |
 | Zielhilfe | an | an/aus (zeigt eine gestrichelte Linie in Schussrichtung bis zum ersten Tier) |
@@ -112,8 +132,7 @@ eine eigene Seite, dann sind höchstens 4 Spieler möglich.
 - Der ganze Felsen klein im Hochformat (gedreht, damit die eigene Seite unten steht).
 - Eigenes Tier antippen, dann vom Tier weg ziehen: Pfeil zeigt in die Gegenrichtung, Länge = Stärke, mit einer
   Stärke-Leiste. Loslassen schubst. Zum Abbrechen zurück aufs Tier ziehen.
-- Feinjustierung für ruhige Hände: Nach dem Loslassen optional „Zielen bestätigen“ (siehe offene Fragen), sonst
-  geht der Stoß sofort los.
+- Der Stoß geht beim Loslassen sofort los, ohne Bestätigen-Knopf (Lukas' Entscheidung).
 
 **Handy, wer wartet:**
 
@@ -138,7 +157,7 @@ kann über die Teams trotzdem mit mehr spielen, wenn wir `maxPlayers` später an
 
 ## Technik
 
-- **Neues Spiel** `server/games/affenfelsen/index.js` (Logik) und `server/games/affenfelsen/physics.js` (reine
+- **Neues Spiel** `server/games/sumozoo/index.js` (Logik) und `server/games/sumozoo/physics.js` (reine
   Physik ohne Abhängigkeiten, testbar), eingetragen in `server/games/index.js`, mit der üblichen Schnittstelle:
   `meta()`, `defaultSettings()`, `sanitizeSettings()`, `start()`, `view(viewer)`, `playersChanged()`, `dispose()`.
 - **meta():** `teams: 'optional'`, `maxTeams: 4`, `sharedDevice: true`, `minPlayers: 2`, `maxPlayers: 8`.
@@ -148,7 +167,7 @@ kann über die Teams trotzdem mit mehr spielen, wenn wir `maxPlayers` später an
   oben ist, und begrenzt die Stärke.
 - **Zustand:** Seiten mit Tieren `{ id, x, y, alive }`, Seite und Spieler am Zug, letzter Stoß als Bahn mit
   fortlaufender Nummer (Geräte, die neu laden, springen direkt zum Endstand), Sätze, Statistik für die
-  Sonderpreise.
+  Sonderpreise, gewählte Karte.
 - **Phasen:** `aim` → `rolling` (Server schätzt die Abspieldauer und schaltet danach weiter) → `aim` …,
   `setEnd`, am Ende `final`.
 - **Zeitgeber:** `deadline` wie im Pub Quiz.
@@ -156,30 +175,28 @@ kann über die Teams trotzdem mit mehr spielen, wenn wir `maxPlayers` später an
   übersprungen, ihre Tiere bleiben als Hindernis stehen; kommt der Spieler wieder, spielt er weiter. Im Duell
   kann der Host die Partie beenden.
 - **Spielwechsel:** Funktioniert über `minPlayers`/`maxPlayers`.
-- **Oberfläche:** `public/js/affenfelsen.js` und `public/css/affenfelsen.css` (Präfix `af-`), eingehängt über
+- **Oberfläche:** `public/js/sumozoo.js` und `public/css/sumozoo.css` (Präfix `sz-`), eingehängt über
   das `gameViews`-Register in `lobby.js`. Gezeichnet auf einem `<canvas>`, das über `afterRender` erhalten bleibt
   wie bei Montagsmaler. Tiere als Emoji-Köpfe (🐒 🐘 🦛 🦓) auf farbigen Kreisen, keine fremden Grafiken.
-- **Startseite:** Kachel „Affenfelsen“, Symbol 🐒, „2–8 Spieler“, Beschreibung „Schubs die Tiere der anderen vom
+- **Startseite:** Kachel „Sumo Zoo“, Symbol 🐘, „2–8 Spieler“, Beschreibung „Schubs die Tiere der anderen vom
   Felsen … und pass auf deine eigenen auf.“
 
 ## Schritte zur Umsetzung
 
 1. Physik mit Testskript: viele zufällige Stöße, prüfen, dass jeder Stoß endet, nichts ineinander steckt und
    die Bahn auf jedem Rechner gleich herauskommt.
-2. Spiellogik: Seiten, Aufstellungen, Züge, Runterfallen, Ausscheiden, Sätze, Einstellungen.
+2. Spiellogik: Karten mit Aufstellungen, Seiten, Züge, Extrazug, Runterfallen, Ausscheiden, Sätze, Einstellungen.
 3. Host-Bildschirm mit Felsen, Abspielen der Bahn, Live-Zielpfeil, Sprüchen und Endwertung.
 4. Handy-Zielen mit Ziehen und Loslassen, Ansicht beim Warten.
 5. Geteiltes Gerät und Modus ohne Fernseher.
 6. Test mit mehreren Browsern über Playwright (Duell, 4 Seiten, Teams, Eigentor, gleichzeitig leer,
    Extrazug, Spieler verlässt, Neuladen während eines Stoßes, ohne Fernseher auf einem Handy).
 
-## Offene Fragen an Lukas
+## Entscheidungen
 
-1. **Name:** „Affenfelsen“ oder einer der anderen Vorschläge?
-2. **Extrazug:** Erinnerst du dich, ob man im ICQ-Spiel nach einem Treffer noch einmal durfte? Danach richte ich
-   den Standard der Einstellung.
-3. **Form des Felsens:** rund (gleich fair für 3 bis 4 Seiten) oder eckig wie ein Billardtisch (näher an der
-   Java-Version)? Vorschlag: rund.
-4. **Mehr als zwei Seiten:** Sollen 3 bis 4 Tierarten gleichzeitig möglich sein, oder reicht Duell plus Teams?
-5. **Zielen:** sofort beim Loslassen schubsen, oder erst nach einem Bestätigen-Knopf (genauer, aber langsamer)?
-6. **Spielerzahl:** reichen 2 bis 8?
+- Name „Sumo Zoo“.
+- Extrazug nach einem Treffer als Einstellung, standardmäßig an.
+- Mehrere Karten, Standard ist das eckige Felsplateau.
+- 3 bis 4 Seiten gleichzeitig sind möglich, dazu Teams.
+- Der Stoß geht beim Loslassen los, ohne Bestätigen.
+- 2 bis 8 Spieler reichen.
