@@ -83,6 +83,12 @@
       "type": "image",
       "question": "Wie heißt diese Comicfigur?",
       "excludedAt": "2026-10-24T08:21:59.775Z"
+    },
+    {
+      "id": "fl22",
+      "type": "flag",
+      "question": "Zu welchem Land gehört diese Flagge?",
+      "excludedAt": "2026-10-24T08:31:06.757Z"
     }
   ]
 }
