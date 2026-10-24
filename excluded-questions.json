@@ -77,6 +77,12 @@
       "type": "image",
       "question": "Wer ist auf dem Bild zu sehen?",
       "excludedAt": "2026-10-24T08:21:57.054Z"
+    },
+    {
+      "id": "im05",
+      "type": "image",
+      "question": "Wie heißt diese Comicfigur?",
+      "excludedAt": "2026-10-24T08:21:59.775Z"
     }
   ]
 }
