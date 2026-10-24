@@ -1,11 +1,11 @@
 # Plan: Backgammon
 
-Stand: Plan, noch nicht gebaut. Offene Fragen an Lukas stehen am Ende.
+Stand: Plan, noch nicht gebaut. Lukas hat die offenen Fragen beantwortet (24.10.2026), die Entscheidungen stehen am Ende.
 
 ## Name
 
-„Backgammon“ ist ein alter, freier Spielname, er kann bleiben. Symbol ⚪⚫ oder 🎲 (🎲 ist schon bei Mäxchen
-vergeben, darum Vorschlag ⚫). Technische Kennung `backgammon`, CSS-Präfix `bg-` (noch frei).
+„Backgammon“ ist ein alter, freier Spielname, er kann bleiben. Symbol ⚫ (ein Spielstein; 🎲 ist schon bei
+Mäxchen vergeben). Technische Kennung `backgammon`, CSS-Präfix `bg-` (noch frei).
 
 ## Spielidee
 
@@ -40,10 +40,10 @@ Weil Backgammon ein Zweierspiel ist, die Lobbys aber oft größer sind, schlägt
   - **Gammon** (Verlierer hat noch keinen Stein draußen): 2 Punkte,
   - **Backgammon** (Verlierer hat dazu noch einen Stein auf der Bar oder im Heimfeld des Siegers): 3 Punkte,
   - alles mal dem Stand des Verdopplungswürfels.
-- **Verdopplungswürfel** (Einstellung, Standard an): Vor seinem Wurf darf der Spieler, der den Würfel besitzt
+- **Verdopplungswürfel** (Einstellung, Standard aus): Vor seinem Wurf darf der Spieler, der den Würfel besitzt
   (am Anfang beide), verdoppeln. Der Gegner nimmt an (Einsatz verdoppelt, er besitzt nun den Würfel) oder gibt auf
   (verliert zum bisherigen Einsatz). Höchststand 64.
-- **Partie auf Punkte:** Gespielt wird bis zu einer Zielpunktzahl (Standard 5). Mit Verdopplungswürfel gilt die
+- **Partie auf Punkte:** Gespielt wird bis zu einer Zielpunktzahl (Standard 3). Mit Verdopplungswürfel gilt die
   **Crawford-Regel**: Im ersten Spiel, nachdem ein Spieler nur noch einen Punkt vom Ziel entfernt ist, darf nicht
   verdoppelt werden.
 - Nicht eingebaut (vorerst): Beaver, Raccoon, Jacoby-Regel, automatische Verdopplung bei Pasch zum Start. Die
@@ -57,8 +57,7 @@ Weil Backgammon ein Zweierspiel ist, die Lobbys aber oft größer sind, schlägt
 | **Team gegen Team** | zwei Teams (`maxTeams: 2`) | ein Teammitglied ist am Zug und zieht, die Rolle wechselt jedes Spiel; die anderen sehen den Zug live und können Vorschläge antippen |
 
 - **Duell:** Der Host wählt die beiden Spieler in der Lobby aus (Standard: die ersten beiden), alle anderen sind
-  Zuschauer. Optional als **Turnier** (offene Frage): Bei 3 bis 8 Spielern spielt jeder gegen jeden ein kurzes
-  Spiel bis 1 oder 3, der Fernseher zeigt die Tabelle.
+  Zuschauer. Ein Turnier gibt es nicht.
 - **Team gegen Team** baut auf `meta().teams === 'optional'` und `maxTeams: 2` auf (wie Stadt, Land, Fluss und
   Alias). Der Ziehende entscheidet allein, Verdoppeln und Annehmen ist eine Teamabstimmung (Mehrheit, bei
   Gleichstand entscheidet der Ziehende).
@@ -114,8 +113,8 @@ jedem Spiel zwei Knöpfe zum Tippen auf den Sieger.
 | --- | --- | --- |
 | Modus | Duell | Duell, Team gegen Team |
 | Spieler (bei Duell) | die ersten beiden | zwei Spieler aus der Lobby |
-| Partie bis | 5 Punkte | 1, 3, 5, 7, 11 |
-| Verdopplungswürfel | an | an/aus (aus: auch keine Crawford-Regel) |
+| Partie bis | 3 Punkte | 1, 3, 5, 7, 11 |
+| Verdopplungswürfel | aus | an/aus (aus: auch keine Crawford-Regel) |
 | Gammon und Backgammon zählen | an | an/aus (aus: jeder Sieg 1 Punkt, gut für Anfänger) |
 | Pip-Zahl anzeigen | an | an/aus |
 | Zugvorschläge | aus | an/aus (leuchtet erlaubte Ziele schon beim Würfeln auf, eher für Anfänger) |
@@ -151,13 +150,13 @@ jedem Spiel zwei Knöpfe zum Tippen auf den Sieger.
 - **Spielwechsel:** Funktioniert über `minPlayers`/`maxPlayers`.
 - **Oberfläche:** `public/js/backgammon.js` und `public/css/backgammon.css` (Präfix `bg-`), eingehängt über das
   `gameViews`-Register in `lobby.js`. Brett als SVG, damit es auf Handy und Fernseher scharf skaliert.
-- **Startseite:** Kachel „Backgammon“, „2 Spieler (+ Zuschauer)“, Beschreibung „Würfeln, ziehen, schlagen,
+- **Startseite:** Kachel „Backgammon“, Symbol ⚫, „2 Spieler (+ Zuschauer)“, Beschreibung „Würfeln, ziehen, schlagen,
   verdoppeln. Der Klassiker fürs Duell auf dem Fernseher.“
 
 ## Schritte zur Umsetzung
 
 1. Regelkern mit Testskript: Startaufstellung, alle erlaubten Zugfolgen, Zugzwang (höhere Zahl), Bar, Hinauswürfeln,
-   Gammon/Backgammon. Zufallspartien Computer gegen Computer, die prüfen, dass immer 15 Steine pro Farbe da sind
+   Gammon/Backgammon. Zufallspartien mit zufälligen erlaubten Zügen, die prüfen, dass immer 15 Steine pro Farbe da sind
    und jede Partie endet.
 2. Spielablauf auf dem Server: Anfangswurf, Züge mit Rückgängig, Verdopplungswürfel, Crawford, Partie auf Punkte.
 3. Brett als SVG auf dem Fernseher mit Animationen.
@@ -167,14 +166,11 @@ jedem Spiel zwei Knöpfe zum Tippen auf den Sieger.
    spielbar, Hinauswürfeln mit zu hoher Zahl, Verdoppeln annehmen und aufgeben, Crawford-Spiel, Gammon,
    Wiederverbinden mitten im Zug, geteiltes Gerät).
 
-## Offene Fragen an Lukas
+## Entscheidungen
 
-1. **Mehr als zwei in der Lobby:** Reicht „Duell mit Zuschauer-Tipps“ plus „Team gegen Team“, oder soll es auch ein
-   **Turnier** jeder gegen jeden geben?
-2. **Computergegner:** Soll man allein gegen den Computer spielen können? Ein einfacher Gegner (wählt den Zug mit
-   der besten einfachen Bewertung) ist machbar, ein starker nicht ohne viel Aufwand. Vorschlag: erst einmal ohne.
-3. **Verdopplungswürfel standardmäßig an?** Für Gelegenheitsspieler ist er manchmal verwirrend. Vorschlag: an,
-   mit einem kurzen Erklärtext beim ersten Verdoppeln.
-4. **Partie bis 5 Punkte** als Standard, oder lieber kürzer (bis 3)?
-5. **Bestenliste** (z. B. meiste gewonnene Partien pro Name) über `createBoard` wie bei Würfelbecher, oder keine?
-6. **Symbol** auf der Startseite: ⚫, ⚪, 🎲 oder etwas anderes?
+- Kein Turnier, nur Duell (mit Zuschauer-Tipps) und Team gegen Team.
+- Kein Computergegner, erst einmal.
+- Verdopplungswürfel standardmäßig aus, als Einstellung an. Beim ersten Verdoppeln erscheint ein kurzer Erklärtext.
+- Partie standardmäßig bis 3 Punkte, einstellbar 1, 3, 5, 7, 11.
+- Keine Bestenliste.
+- Symbol ⚫ (Vorschlag, Lukas hat die Wahl offengelassen).
