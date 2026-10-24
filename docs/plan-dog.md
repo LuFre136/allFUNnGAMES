@@ -1,6 +1,6 @@
 # Plan: Hundsgemein (nach „Brändi Dog“)
 
-Stand: Plan, noch nicht gebaut (24.10.2026). Lukas' Entscheidungen stehen am Ende.
+Stand: umgesetzt (24.10.2026). Lukas' Entscheidungen und Abweichungen beim Bau stehen am Ende.
 
 ## Name
 
@@ -213,3 +213,16 @@ sechst hat man in der Regel genug Handys.
 - **Hausregeln:** Bis Lukas etwas anderes sagt, gelten die Standardregeln oben. Die einzige Hausregel als
   Einstellung ist „Schlagen beim Überholen mit der 7“.
 - **Mögliche Züge zeigen:** standardmäßig an.
+
+## Abweichungen beim Bau
+
+- **Aufteilung bei 6 Spielern:** keine eigene Einstellung. Sie ergibt sich aus den Teams in der Lobby: zwei Teams
+  zu dritt oder (mit „+ Team“) drei Teams zu zweit.
+- **Hausregel „Schlagen beim Überholen mit der 7“:** weggelassen, es gelten die Standardregeln (die 7 schlägt
+  jede überholte Murmel).
+- **Spieler nicht verbunden:** Er wird nicht übersprungen und muss nicht abwerfen (ein gesperrtes Handy würde sonst
+  die ganze Runde kosten). Der Host kann für ihn einen zufälligen Zug spielen, mit Zeitlimit passiert das von selbst.
+- **Zugauswahl am Handy:** Nach der Karte erscheinen alle erlaubten Züge als Knöpfe („Murmel 2: 5 vor · schlägt
+  Ben“), Murmeln lassen sich auch auf dem Brett antippen. Die Murmeln tragen Nummern 1 bis 4. Die 7 wird
+  Schritt für Schritt verteilt, es werden nur Schritte angeboten, nach denen die 7 noch ganz aufgeht.
+- **Kennung:** `hundsgemein`, Regeln in `public/js/hundsgemein-rules.js` (Server und Handy).
