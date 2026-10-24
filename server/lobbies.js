@@ -47,6 +47,7 @@ class Lobby {
       hostPlays: true,
       game: Game.defaultSettings(),
     };
+    Game.syncSettings?.(this.settings);
   }
 
   // Ob gerade in Teams gespielt wird (bei optionalen Teams über die Einstellung teamMode)
@@ -165,6 +166,8 @@ class Lobby {
       this.game?.playersChanged();
     }
     if (patch.game) this.settings.game = this.Game.sanitizeSettings(this.settings.game, patch.game);
+    // Manche Spiele legen Lobby-Einstellungen selbst fest (z. B. Hundsgemein: mit Fernseher spielt der Host nicht mit)
+    this.Game.syncSettings?.(this.settings);
   }
 
   start() {
@@ -225,6 +228,7 @@ class Lobby {
     this.gameId = gameId;
     this.teamSupport = Game.meta().teams;
     this.settings.game = Game.defaultSettings();
+    Game.syncSettings?.(this.settings);
     if (autoName) this.settings.lobbyName = autoLobbyName(host.name, Game);
 
     // Gäste haben kein eigenes Handy und können nur an einem geteilten Gerät mitspielen
