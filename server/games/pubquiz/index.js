@@ -440,8 +440,18 @@ class PubQuiz {
     if (q.type === 'choice') out.options = q.options;
     if (q.type === 'estimate') out.unit = q.unit;
     if (q.type === 'image' || q.type === 'flag') out.image = q.image || `/api/quiz-image/${encodeURIComponent(q.id)}`;
-    if (q.type.startsWith('music') && withSpotify) out.spotifyId = spotify.trackIdFor(q);
+    if (q.type.startsWith('music') && withSpotify) {
+      out.spotifyId = spotify.trackIdFor(q);
+      // Ersatz ohne Spotify-ID: Deezer-Vorschau, die Adresse ändert sich mit jeder Frage
+      out.previewUrl = `/api/song-preview/${this.lobby.code}?n=${this.index}`;
+    }
     return out;
+  }
+
+  // Für die Vorschau-Adresse: der Song der aktuellen Frage
+  currentSong() {
+    const q = this.question;
+    return this.phase !== 'final' && q?.type.startsWith('music') ? q : null;
   }
 
   solution(q) {
