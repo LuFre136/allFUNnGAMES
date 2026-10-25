@@ -128,7 +128,11 @@
         <div>${label('Extrazug nach Treffer')}${seg('extraTurn', g.extraTurn, [[true, 'An'], [false, 'Aus']])}</div>
         <div>${label('Zielhilfe')}${seg('aimHelp', g.aimHelp, [[true, 'An'], [false, 'Aus']])}</div>
       </div>
-      <div class="small muted">So geht's: Wer dran ist, tippt eines seiner Tiere an, zieht nach hinten wie bei einer Steinschleuder und lässt los. Je weiter gezogen, desto fester der Schubs. Wer über die Kante rutscht, ist raus, auch eigene Tiere. Wer als Letzter noch Tiere oben hat, gewinnt den Satz.${g.extraTurn ? ' Wer ein fremdes Tier runterschubst und keins der eigenen verliert, darf gleich noch einmal.' : ''}${g.timeLimit ? ' Läuft die Zeit ab, verfällt der Zug.' : ''}</div>
+      <div>${label('Startaufstellung')}
+        <div class="segmented" style="grid-template-columns:1fr 1fr">${[['oval', '⭕ Oval wie im Original'], ['groups', '🐾 Gruppen']].map(([v, t]) => `<button data-action="szLayout" data-value="${v}" class="${g.layout === v ? 'on' : ''}">${t}</button>`).join('')}</div>
+        <div class="small muted" style="margin-top:6px">${g.layout === 'oval' ? 'Alle Tiere stehen abwechselnd auf einem großen Oval. Auf der Brücke passt das nicht, dort stehen die Seiten in Gruppen.' : 'Jede Seite steht als Gruppe zusammen (Block, Reihe, Dreieck oder Kreis, ausgelost).'}</div>
+      </div>
+      <div class="small muted">So geht's: Wer dran ist, tippt eines seiner Tiere an, zieht nach hinten wie bei einer Steinschleuder und lässt los. Je weiter gezogen, desto fester der Schubs. An den Mauern prallen die Tiere ab, runter geht es nur durch die Lücken. Wer über die Kante rutscht, ist raus, auch eigene Tiere. Wer als Letzter noch Tiere oben hat, gewinnt den Satz.${g.extraTurn ? ' Wer ein fremdes Tier runterschubst und keins der eigenen verliert, darf gleich noch einmal.' : ''}${g.timeLimit ? ' Läuft die Zeit ab, verfällt der Zug.' : ''}</div>
     </div>`;
   }
 
@@ -243,6 +247,33 @@
       ctx.arc(x, y, 4 + (i % 5) * 2, 0, Math.PI * 2);
       ctx.fill();
     }
+    // Mauern aus Steinen
+    for (const w of map.walls) {
+      const len = Math.hypot(w.x2 - w.x1, w.y2 - w.y1);
+      ctx.beginPath();
+      ctx.moveTo(w.x1, w.y1);
+      ctx.lineTo(w.x2, w.y2);
+      ctx.lineCap = 'round';
+      ctx.lineWidth = W.WALL * 2 + 6;
+      ctx.strokeStyle = '#57534e';
+      ctx.stroke();
+      ctx.lineWidth = W.WALL * 2;
+      ctx.strokeStyle = '#a8a29e';
+      ctx.stroke();
+      ctx.lineCap = 'butt';
+      const n = Math.max(2, Math.round(len / 20));
+      for (let i = 0; i <= n; i++) {
+        const x = w.x1 + ((w.x2 - w.x1) * i) / n;
+        const y = w.y1 + ((w.y2 - w.y1) * i) / n;
+        ctx.beginPath();
+        ctx.arc(x, y, W.WALL - 1 + (i % 3), 0, Math.PI * 2);
+        ctx.fillStyle = i % 2 ? '#d6d3d1' : '#c4c0bc';
+        ctx.fill();
+        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = '#78716c';
+        ctx.stroke();
+      }
+    }
     for (const h of map.holes) {
       shapePath(h);
       ctx.fillStyle = '#0e7490';
@@ -258,6 +289,24 @@
     }
   }
 
+  // Spielsteine (Tier im Schwimmreifen) als Bild, einmal pro Tierart und Farbe
+  const pieces = new Map();
+  function pieceUrl(species, color) {
+    return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(SzArt.svg(species, color, 128))}`;
+  }
+
+  function pieceImage(side) {
+    const key = `${side.species}|${side.color}`;
+    let img = pieces.get(key);
+    if (!img) {
+      img = new Image();
+      img.onload = requestDraw;
+      img.src = pieceUrl(side.species, side.color);
+      pieces.set(key, img);
+    }
+    return img.complete && img.naturalWidth ? img : null;
+  }
+
   function drawAnimal(a, side, scale = 1, glow = false, alpha = 1) {
     if (scale <= 0.02) return;
     const r = R0 * scale;
@@ -266,8 +315,18 @@
     if (glow) {
       ctx.beginPath();
       ctx.arc(a.x, a.y, r + 9, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(253, 224, 71, 0.45)';
+      ctx.fillStyle = 'rgba(253, 224, 71, 0.55)';
       ctx.fill();
+    }
+    const img = side && pieceImage(side);
+    if (img) {
+      // Im Bild hat der Reifen den Radius 89 von 200, er soll genau so groß sein wie das Tier
+      const size = (r * 200) / 89;
+      ctx.translate(a.x, a.y);
+      ctx.rotate((-sz.view.rot * Math.PI) / 180);
+      ctx.drawImage(img, -size / 2, -size / 2, size, size);
+      ctx.restore();
+      return;
     }
     ctx.beginPath();
     ctx.arc(a.x, a.y + 4 * scale, r, 0, Math.PI * 2);
@@ -321,7 +380,7 @@
       ctx.stroke();
     }
     if (R.aimHelp) {
-      const line = W.aimLine(R.animals, animal, angle, 1100);
+      const line = W.aimLine(R.animals, animal, angle, 1100, W.MAPS[R.mapId].walls);
       ctx.beginPath();
       ctx.moveTo(animal.x + dx * R0, animal.y + dy * R0);
       ctx.lineTo(animal.x + dx * line.length, animal.y + dy * line.length);
@@ -447,7 +506,8 @@
     const active = R.turn?.side === s.id;
     const total = R.animals.filter((a) => a.side === s.id).length;
     const alive = aliveShown(R, s);
-    const icons = Array.from({ length: total }, (_, i) => `<span class="${i < alive ? '' : 'gone'}">${s.emoji}</span>`).join('');
+    const src = pieceUrl(s.species, s.color);
+    const icons = Array.from({ length: total }, (_, i) => `<img class="${i < alive ? '' : 'gone'}" src="${src}" alt="${s.emoji}">`).join('');
     const who = s.teamId
       ? `<span class="team-dot" style="--team:${s.color}"></span><b>${esc(s.name)}</b>`
       : `${avatarHtml(playerById(s.members[0]), 'sm')}<b>${esc(s.name)}</b>`;
@@ -676,6 +736,7 @@
   Object.assign(actions, {
     szSetting: (el) => sendHost('settings', { game: { [el.dataset.key]: el.dataset.value === '1' } }),
     szMap: (el) => sendHost('settings', { game: { map: el.dataset.map } }),
+    szLayout: (el) => sendHost('settings', { game: { layout: el.dataset.value } }),
     szForce: () => {
       const R = S.round;
       if (R.turn && confirm(`${playerName(R.turn.shooterId)} überspringen?`)) act('force');

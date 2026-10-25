@@ -350,6 +350,7 @@ Die Regeln prüft `npm test`. Der Plan steht in [docs/plan-backgammon.md](docs/p
 Schubs-Spiel nach dem alten ICQ-Spiel Zoopaloola für 2 bis 8 Spieler. Jede Seite (ein Spieler oder ein Team, bis zu vier Seiten) hat ein paar Zootiere auf einem Felsen. Reihum schubst man eines seiner eigenen Tiere los und versucht, die Tiere der anderen über die Kante zu stoßen.
 
 - Zielen auf dem Handy: eigenes Tier antippen, nach hinten ziehen wie bei einer Steinschleuder, loslassen. Je weiter gezogen, desto fester. Der Fernseher zeigt den Zielpfeil live, die gestrichelte Zielhilfe zeigt, welches Tier man zuerst trifft (abschaltbar).
+- Jedes Tier sitzt in einem Schwimmreifen in der Farbe seiner Seite. Am Rand stehen Steinmauern, an denen die Tiere abprallen; runter geht es nur durch die Lücken. Zu Beginn stehen alle Tiere abwechselnd auf einem großen Oval wie im Original (einstellbar: Gruppen).
 - Wer über die Kante rutscht, ist raus, auch eigene Tiere. Wer ein fremdes Tier runterschubst und keins der eigenen verliert, darf noch einmal (Extrazug, Standard an). Wer als Letzter noch Tiere oben hat, gewinnt den Satz; fallen die letzten Tiere aller Seiten beim selben Stoß, gewinnt, wessen Tier zuletzt fiel.
 - Karten: Felsplateau (eckig, Standard), Sumo-Ring, Wasserloch (Loch in der Mitte), Brücke (zwei Inseln mit Steg) oder Zufall. Einstellbar sind außerdem Tiere pro Seite (Standard 6, bei 3–4 Seiten 5), Gewinnsätze (1 bis 3) und Zeit pro Zug.
 - Ohne Teams 2 bis 4 Spieler mit je einer Tierart, mit Teams bis zu vier Teams, im Team wird reihum geschubst.
@@ -384,7 +385,7 @@ server/games/maexchen/       Mäxchen (Bluff-Würfelspiel)
 server/games/muehle/         Mühle (Brettspiel für zwei)
 server/games/hundsgemein/    Hundsgemein (nach Brändi Dog), Zugregeln in public/js/hundsgemein-rules.js
 server/games/backgammon/     Backgammon (Regelkern in rules.js)
-server/games/sumozoo/        Sumo Zoo (nach Zoopaloola), Karten in public/js/sumozoo-world.js
+server/games/sumozoo/        Sumo Zoo (nach Zoopaloola), Karten in public/js/sumozoo-world.js, Spielsteine in public/js/sumozoo-art.js
 test/                        Regeltests (npm test)
 server/spotify.js            Optionale Spotify-Suche
 server/deezer.js             30-Sekunden-Vorschauen über Deezer (Musikzeitreise)

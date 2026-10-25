@@ -10,6 +10,29 @@
   const RADIUS = 24; // alle Tiere gleich groß und gleich schwer
   const GAP = 2 * RADIUS + 8; // Abstand in der Aufstellung
   const CENTER = { x: W / 2, y: H / 2 };
+  const WALL = 9; // halbe Dicke einer Mauer
+
+  // Mauer als Strecke
+  const seg = (x1, y1, x2, y2) => ({ x1, y1, x2, y2 });
+
+  // Mauerstücke auf einem Kreisbogen (Grad), als kurze Strecken
+  function arcWalls(cx, cy, r, from, to, parts = 3) {
+    const out = [];
+    for (let i = 0; i < parts; i++) {
+      const a = ((from + ((to - from) * i) / parts) * Math.PI) / 180;
+      const b = ((from + ((to - from) * (i + 1)) / parts) * Math.PI) / 180;
+      out.push(seg(cx + r * Math.cos(a), cy + r * Math.sin(a), cx + r * Math.cos(b), cy + r * Math.sin(b)));
+    }
+    return out;
+  }
+
+  // Felsplateau: Mauern an allen Seiten, offen sind die Ecken und je eine Lücke in der Mitte jeder Seite
+  const PLATEAU_WALLS = [
+    seg(150, 71, 430, 71), seg(570, 71, 850, 71),
+    seg(150, 569, 430, 569), seg(570, 569, 850, 569),
+    seg(71, 150, 71, 270), seg(71, 370, 71, 490),
+    seg(929, 150, 929, 270), seg(929, 370, 929, 490),
+  ];
 
   // Ankerpunkt pro Seite (im Uhrzeigersinn), von dort schaut die Gruppe zur Mitte
   function ringAnchors(angles, r = 175) {
@@ -30,6 +53,8 @@
       description: 'Eckig wie ein Billardtisch, ohne Bande.',
       shapes: [{ t: 'rect', x: 60, y: 60, w: 880, h: 520, r: 70 }],
       holes: [],
+      walls: PLATEAU_WALLS,
+      oval: [{ rx: 300, ry: 175 }, { rx: 185, ry: 92 }],
       anchors: PLATEAU_ANCHORS,
     },
     ring: {
@@ -39,6 +64,9 @@
       description: 'Rund und gleich fair für alle Seiten.',
       shapes: [{ t: 'circle', x: CENTER.x, y: CENTER.y, r: 295 }],
       holes: [],
+      // Acht Mauerbögen, dazwischen acht Lücken
+      walls: Array.from({ length: 8 }, (_, k) => arcWalls(CENTER.x, CENTER.y, 284, k * 45 + 8, k * 45 + 37)).flat(),
+      oval: [{ rx: 195, ry: 195 }, { rx: 105, ry: 105 }],
       anchors: { 2: ringAnchors([180, 0]), 3: ringAnchors([180, 300, 60]), 4: ringAnchors([225, 315, 45, 135]) },
     },
     wasserloch: {
@@ -48,6 +76,8 @@
       description: 'Ein Loch in der Mitte. Wer durch die Mitte schießt, riskiert ein Eigentor.',
       shapes: [{ t: 'rect', x: 60, y: 60, w: 880, h: 520, r: 70 }],
       holes: [{ t: 'circle', x: CENTER.x, y: CENTER.y, r: 85 }],
+      walls: PLATEAU_WALLS,
+      oval: [{ rx: 330, ry: 192 }, { rx: 205, ry: 126 }], // der innere Ring bleibt außerhalb des Lochs
       anchors: PLATEAU_ANCHORS,
     },
     bruecke: {
@@ -61,6 +91,12 @@
         { t: 'rect', x: 380, y: 280, w: 240, h: 80, r: 0 },
       ],
       holes: [],
+      // Außen Mauern mit Lücken, zum Wasser in der Mitte hin offen
+      walls: [
+        seg(71, 150, 71, 280), seg(71, 360, 71, 490), seg(110, 101, 350, 101), seg(110, 539, 350, 539),
+        seg(929, 150, 929, 280), seg(929, 360, 929, 490), seg(650, 101, 890, 101), seg(650, 539, 890, 539),
+      ],
+      oval: null,
       anchors: {
         2: [{ x: 230, y: 320 }, { x: 770, y: 320 }],
         3: [{ x: 230, y: 320 }, { x: 770, y: 205 }, { x: 770, y: 435 }],
@@ -92,6 +128,18 @@
       if (!onGround(map, x + Math.cos(a) * margin, y + Math.sin(a) * margin)) return false;
     }
     return true;
+  }
+
+  // Abstand eines Punkts zu einer Mauer
+  function wallDist(w, x, y) {
+    const dx = w.x2 - w.x1;
+    const dy = w.y2 - w.y1;
+    const t = Math.max(0, Math.min(1, ((x - w.x1) * dx + (y - w.y1) * dy) / (dx * dx + dy * dy || 1)));
+    return Math.hypot(x - (w.x1 + t * dx), y - (w.y1 + t * dy));
+  }
+
+  function clearOfWalls(map, x, y, margin) {
+    return map.walls.every((w) => wallDist(w, x, y) >= margin);
   }
 
   // Aufstellungen einer Gruppe in eigenen Koordinaten: u zeigt zur Mitte, v quer dazu
@@ -134,9 +182,42 @@
   };
   const PATTERN_IDS = Object.keys(PATTERNS);
 
+  // Passt eine Aufstellung? Alle auf dem Felsen, weg von Kanten und Mauern, keine Überlappung
+  function valid(map, groups) {
+    const all = groups.flat();
+    for (const p of all) if (!safe(map, p.x, p.y, RADIUS + 12) || !clearOfWalls(map, p.x, p.y, RADIUS + WALL + 4)) return false;
+    for (let i = 0; i < all.length; i++) {
+      for (let j = i + 1; j < all.length; j++) {
+        if (Math.hypot(all[i].x - all[j].x, all[i].y - all[j].y) < 2 * RADIUS + 4) return false;
+      }
+    }
+    return true;
+  }
+
+  // Wie im Original: Alle Tiere stehen abwechselnd auf einem großen Oval (bei vielen Tieren auf zwei)
+  function ovalLayout(map, sides, count) {
+    if (!map.oval) return null;
+    const total = sides * count;
+    const rings = total > 16 ? [Math.ceil(total * 0.58), Math.floor(total * 0.42)] : [total];
+    const groups = Array.from({ length: sides }, () => []);
+    let k = 0;
+    rings.forEach((n, ri) => {
+      const { rx, ry } = map.oval[ri];
+      for (let i = 0; i < n; i++) {
+        const a = ((i + 0.5 + ri * 0.5) / n) * Math.PI * 2 + Math.PI;
+        groups[k % sides].push({ x: Math.round(CENTER.x + rx * Math.cos(a)), y: Math.round(CENTER.y + ry * Math.sin(a)) });
+        k++;
+      }
+    });
+    // Jede Seite braucht genau count Tiere (bei ungerader Verteilung auf zwei Ringen)
+    if (groups.some((g) => g.length !== count)) return null;
+    return valid(map, groups) ? groups : null;
+  }
+
   // Positionen aller Tiere: eine Liste pro Seite, oder null, wenn die Aufstellung nicht passt
   function layout(mapId, sides, count, pattern) {
     const map = MAPS[mapId];
+    if (pattern === 'oval') return map ? ovalLayout(map, sides, count) : null;
     const anchors = map?.anchors[sides];
     if (!anchors || !PATTERNS[pattern]) return null;
     const groups = anchors.map((a) => {
@@ -148,14 +229,7 @@
         y: Math.round(a.y + u * fy + v * fx),
       }));
     });
-    const all = groups.flat();
-    for (const p of all) if (!safe(map, p.x, p.y, RADIUS + 12)) return null;
-    for (let i = 0; i < all.length; i++) {
-      for (let j = i + 1; j < all.length; j++) {
-        if (Math.hypot(all[i].x - all[j].x, all[i].y - all[j].y) < 2 * RADIUS + 4) return null;
-      }
-    }
-    return groups;
+    return valid(map, groups) ? groups : null;
   }
 
   // Alle Aufstellungen, die auf diese Karte passen (der Block passt immer)
@@ -164,7 +238,7 @@
   }
 
   // Zielhilfe: Wie weit kommt ein Tier in Richtung angle, bis es ein anderes trifft? (höchstens maxLen)
-  function aimLine(animals, from, angle, maxLen) {
+  function aimLine(animals, from, angle, maxLen, walls = null) {
     const dx = Math.cos(angle);
     const dy = Math.sin(angle);
     let best = maxLen;
@@ -184,8 +258,14 @@
         hit = a.id;
       }
     }
+    // Mauern: in kleinen Schritten prüfen, wo das Tier anstößt
+    for (let t = RADIUS; t < best; t += 4) {
+      const x = from.x + dx * t;
+      const y = from.y + dy * t;
+      if (walls && !clearOfWalls({ walls }, x, y, RADIUS + WALL)) return { length: t, hit: null, wall: true };
+    }
     return { length: best, hit };
   }
 
-  return { W, H, RADIUS, CENTER, MAPS, MAP_IDS, PATTERN_IDS, onGround, layout, patternsFor, aimLine };
+  return { W, H, RADIUS, WALL, CENTER, MAPS, MAP_IDS, PATTERN_IDS, onGround, wallDist, layout, patternsFor, aimLine };
 }));
