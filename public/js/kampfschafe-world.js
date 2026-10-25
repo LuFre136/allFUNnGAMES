@@ -16,6 +16,7 @@
     bazooka: { key: 'bazooka', name: 'Bazooka', badge: '🚀', hp: 20, r: 15, speed: 105, weapon: 'rocket', range: 520, info: 'Präzise Rakete, explodiert am Ziel' },
     mg: { key: 'mg', name: 'MG-Schaf', badge: '🔫', hp: 40, r: 16, speed: 95, weapon: 'mg', range: 270, info: 'Feuerstoß aus 21 Schuss, kurze Reichweite' },
     panzer: { key: 'panzer', name: 'Panzer', badge: '🛡️', hp: 50, r: 20, speed: 60, weapon: 'shell', range: 430, info: 'Langsam, aber die Granate sitzt' },
+    jeep: { key: 'jeep', name: 'Jeep', badge: '🚙', hp: 25, r: 16, speed: 190, weapon: 'mg', bullets: 12, range: 320, info: 'Sehr schnell, mit Bord-MG (12 Schuss)' },
     heli: { key: 'heli', name: 'Hubschrauber', badge: '🚁', hp: 35, r: 18, speed: 165, weapon: 'salvo', range: 380, flies: true, info: 'Fliegt über alles, feuert eine Raketensalve' },
   };
 
@@ -29,12 +30,12 @@
 
   const ARMIES = {
     normal: {
-      10: ['funker', 'bazooka', 'bazooka', 'bazooka', 'bazooka', 'mg', 'mg', 'mg', 'panzer', 'panzer'],
-      6: ['funker', 'bazooka', 'bazooka', 'mg', 'mg', 'panzer'],
+      10: ['funker', 'bazooka', 'bazooka', 'bazooka', 'mg', 'mg', 'jeep', 'heli', 'panzer', 'panzer'],
+      6: ['funker', 'bazooka', 'mg', 'jeep', 'heli', 'panzer'],
     },
     heli: {
-      10: ['funker', 'heli', 'heli', 'heli', 'mg', 'mg', 'mg', 'panzer', 'panzer', 'panzer'],
-      6: ['funker', 'heli', 'heli', 'mg', 'mg', 'panzer'],
+      10: ['funker', 'heli', 'heli', 'heli', 'mg', 'mg', 'jeep', 'panzer', 'panzer', 'panzer'],
+      6: ['funker', 'heli', 'heli', 'mg', 'jeep', 'panzer'],
     },
   };
 
@@ -199,9 +200,9 @@
     return t0;
   }
 
-  // Wo bleibt ein Schuss hängen? Feste Hindernisse und gegnerische Einheiten halten ihn auf,
-  // über die eigenen Schafe (friendly) schießt man hinweg.
-  function cast(map, units, x0, y0, x1, y1, { ignore = null, friendly = null, walls = true } = {}) {
+  // Wo bleibt ein Schuss hängen? Feste Hindernisse und alle Einheiten halten ihn auf, auch eigene (Friendly Fire).
+  // Wasser nicht: darüber fliegen Schüsse hinweg.
+  function cast(map, units, x0, y0, x1, y1, { ignore = null, walls = true } = {}) {
     let best = { t: 1, unit: null, wall: false };
     if (walls) {
       for (const o of map.obstacles) {
@@ -211,7 +212,7 @@
       }
     }
     for (const u of units) {
-      if (u.id === ignore || u.hp <= 0 || (friendly && u.side === friendly)) continue;
+      if (u.id === ignore || u.hp <= 0) continue;
       const t = segCircle(x0, y0, x1, y1, u.x, u.y, u.r);
       if (t !== null && t < best.t) best = { t, unit: u.id, wall: false };
     }

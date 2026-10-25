@@ -147,7 +147,7 @@
         <div>${label('Medipacks')}${seg('medkits', g.medkits, [[true, 'An'], [false, 'Aus']])}</div>
         <div>${label('Einheit am Zug')}${seg('freeChoice', g.freeChoice, [[false, '🎲 Gelost'], [true, '👆 Frei wählen']])}</div>
       </div>
-      <div class="small muted">So geht's: Reihum ist eine Einheit dran. Mit dem Stick fahren, aufs Schlachtfeld tippen, um zu zielen, dann „Feuer!“. In den letzten Sekunden kann man nur noch zielen und schießen. Funker rufen einen Luftangriff (Vorsicht, eigene Schafe!), Bazookas feuern Raketen, MG-Schafe einen Feuerstoß auf kurze Distanz, Panzer Granaten${g.map === 'seen' ? ', Hubschrauber fliegen über alles' : ''}. ${g.medkits ? 'Ein Medipack macht die ganze Armee wieder gesund. ' : ''}Wer zuletzt noch Schafe hat, gewinnt.</div>
+      <div class="small muted">So geht's: Reihum ist eine Einheit dran. Mit dem Stick fahren, aufs Schlachtfeld tippen, um zu zielen, dann „Feuer!“. In den letzten Sekunden kann man nur noch zielen und schießen. Funker rufen einen Luftangriff (Vorsicht, eigene Schafe!), Bazookas feuern Raketen, MG-Schafe einen Feuerstoß auf kurze Distanz, Panzer Granaten, Jeeps flitzen mit Bord-MG, Hubschrauber fliegen über alles. Friendly Fire: eigene Schafe im Weg werden getroffen. Bäume, Felsen und Häuser halten Fahrt und Schüsse auf, über Wasserlöcher kommt man nicht, aber Schüsse fliegen drüber. ${g.medkits ? 'Ein Medipack macht die ganze Armee wieder gesund. ' : ''}Wer zuletzt noch Schafe hat, gewinnt.</div>
     </div>`;
   }
 
@@ -420,6 +420,23 @@
       ctx.fillStyle = '#f8fafc';
       ctx.fill();
       ctx.stroke();
+    } else if (type.key === 'jeep') {
+      ctx.fillStyle = '#1f2937';
+      for (const [wx, wy] of [[-r * 0.7, -r * 0.75], [r * 0.45, -r * 0.75], [-r * 0.7, r * 0.75], [r * 0.45, r * 0.75]]) ctx.fillRect(wx, wy - 3, r * 0.45, 6);
+      ctx.fillStyle = side.color;
+      ctx.strokeStyle = '#1f2937';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(-r * 1.05, -r * 0.7, r * 2.1, r * 1.4, 6);
+      else ctx.rect(-r * 1.05, -r * 0.7, r * 2.1, r * 1.4);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = '#1f2937';
+      ctx.fillRect(0, -2, r + 8, 4);
+      ctx.beginPath();
+      ctx.arc(-r * 0.15, 0, r * 0.6, 0, Math.PI * 2);
+      ctx.fillStyle = '#f8fafc';
+      ctx.fill();
     } else if (type.key === 'heli') {
       ctx.strokeStyle = '#1f2937';
       ctx.lineWidth = 4;
@@ -449,7 +466,7 @@
     }
     ctx.restore();
 
-    emoji(ctx, '🐑', pos.x, pos.y, r * (type.key === 'panzer' ? 0.95 : 1.25));
+    emoji(ctx, '🐑', type.key === 'jeep' ? pos.x - Math.cos(f) * r * 0.15 : pos.x, type.key === 'jeep' ? pos.y - Math.sin(f) * r * 0.15 : pos.y, r * (type.key === 'panzer' || type.key === 'jeep' ? 0.95 : 1.25));
     if (type.key === 'heli') {
       // Rotor dreht sich
       const a = now() / 60;
@@ -466,7 +483,7 @@
     ctx.save();
     ctx.translate(pos.x, pos.y);
     ctx.rotate((-ks.view.rot * Math.PI) / 180);
-    if (type.key !== 'panzer' && type.key !== 'heli') {
+    if (type.key !== 'panzer' && type.key !== 'heli' && type.key !== 'jeep') {
       ctx.beginPath();
       ctx.arc(r * 0.78, r * 0.7, r * 0.5, 0, Math.PI * 2);
       ctx.fillStyle = '#ffffff';

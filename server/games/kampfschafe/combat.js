@@ -62,19 +62,20 @@ function fire(map, units, shooterId, target, rand = Math.random) {
     const reach = Math.max(shooter.r + 4, Math.min(type.range, dist));
     const ex = shooter.x + ux * reach;
     const ey = shooter.y + uy * reach;
-    const hit = World.cast(map, live, sx, sy, ex, ey, { ignore: shooter.id, friendly: shooter.side });
+    const hit = World.cast(map, live, sx, sy, ex, ey, { ignore: shooter.id });
     const t = Math.hypot(hit.x - sx, hit.y - sy) / w.speed;
     out.projectiles.push({ k: type.weapon, x0: Math.round(sx), y0: Math.round(sy), x1: Math.round(hit.x), y1: Math.round(hit.y), t0: 0, t1: t });
     explode(hit.x, hit.y, t, w.blast, w.damage);
   } else if (type.weapon === 'mg') {
     const w = WEAPONS.mg;
-    for (let i = 0; i < w.bullets; i++) {
-      const spread = w.spread + (w.spreadGrow * i) / w.bullets;
+    const bullets = type.bullets || w.bullets;
+    for (let i = 0; i < bullets; i++) {
+      const spread = w.spread + (w.spreadGrow * i) / bullets;
       const a = angle + (rand() * 2 - 1) * spread;
       const t0 = i * w.interval;
       const ex = shooter.x + Math.cos(a) * type.range;
       const ey = shooter.y + Math.sin(a) * type.range;
-      const hit = World.cast(map, live, sx, sy, ex, ey, { ignore: shooter.id, friendly: shooter.side });
+      const hit = World.cast(map, live, sx, sy, ex, ey, { ignore: shooter.id });
       const t1 = t0 + Math.hypot(hit.x - sx, hit.y - sy) / w.speed;
       out.projectiles.push({ k: 'bullet', x0: Math.round(sx), y0: Math.round(sy), x1: Math.round(hit.x), y1: Math.round(hit.y), t0, t1 });
       if (hit.unit) damage(byId.get(hit.unit), w.damage, t1);

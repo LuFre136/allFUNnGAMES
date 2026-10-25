@@ -77,7 +77,8 @@ test('jede Karte hat für 2 bis 4 Armeen genug freie Startplätze, Medipacks lie
 });
 
 test('Armeen: 10 Schafe wie im Original, auf der Seenplatte mit Hubschraubern', () => {
-  assert.deepStrictEqual(World.ARMIES.normal[10].filter((k) => k === 'bazooka').length, 4);
+  assert.deepStrictEqual(World.ARMIES.normal[10].filter((k) => k === 'bazooka').length, 3);
+  for (const army of Object.values(World.ARMIES)) for (const list of Object.values(army)) assert.ok(list.includes('jeep') && list.includes('heli'));
   assert.ok(World.ARMIES.heli[10].includes('heli') && !World.ARMIES.heli[10].includes('bazooka'));
   const { g } = setup(2, { map: 'seen' });
   assert.strictEqual(g.units.length, 20);
@@ -331,7 +332,7 @@ test('Einstellungen werden geprüft, ohne Fernseher spielt der Host mit', () => 
   assert.strictEqual(settings.hostPlays, true);
 });
 
-test('Über eigene Schafe wird hinweggeschossen, Gegner halten den Schuss auf', () => {
+test('Friendly Fire: das eigene Schaf im Weg fängt den Schuss ab', () => {
   const map = { obstacles: [], army: 'normal' };
   const units = [
     { id: 's0-0', side: 's0', type: 'bazooka', x: 100, y: 100, hp: 20, r: 15 },
@@ -340,7 +341,40 @@ test('Über eigene Schafe wird hinweggeschossen, Gegner halten den Schuss auf', 
     { id: 's1-1', side: 's1', type: 'mg', x: 500, y: 100, hp: 40, r: 16 },
   ];
   const res = fire(map, units, 's0-0', { x: 500, y: 100 });
-  assert.strictEqual(res.hp['s0-1'], 40);
-  assert.ok(res.hp['s1-0'] < 40);
+  assert.ok(res.hp['s0-1'] < 40);
+  assert.strictEqual(res.hp['s1-0'], 40);
   assert.strictEqual(res.hp['s1-1'], 40);
+});
+
+test('Jeep: schnell, Bord-MG mit 12 Schuss', () => {
+  const map = { obstacles: [], army: 'normal' };
+  const units = [
+    { id: 's0-0', side: 's0', type: 'jeep', x: 100, y: 100, hp: 25, r: 16 },
+    { id: 's1-0', side: 's1', type: 'panzer', x: 300, y: 100, hp: 50, r: 20 },
+  ];
+  const res = fire(map, units, 's0-0', { x: 300, y: 100 }, () => 0.5);
+  assert.strictEqual(res.projectiles.length, 12);
+  assert.strictEqual(res.hp['s1-0'], 38);
+  assert.ok(World.TYPES.jeep.speed > World.TYPES.heli.speed);
+});
+
+test('Hindernisse: Bodentruppen kommen weder durch Bäume noch durchs Wasserloch, der Hubschrauber schon', () => {
+  const { g } = setup(2, { map: 'wiesen' });
+  // Teich in der Mitte bei (500,320)
+  place(g, [['s0-0', 'jeep', 420, 320], ['s0-1', 'heli', 420, 400], ['s1-0', 'mg', 900, 300]]);
+  for (const id of ['s0-0', 's0-1']) {
+    g.clearTimers();
+    g.phase = 'ready';
+    startTurn(g, id);
+    g.draw(shooter(g), { op: 'input', x: 1, y: 0 });
+    for (let i = 0; i < 20; i++) {
+      g.lastTick = Date.now() - 100;
+      g.tick();
+    }
+  }
+  const jeep = g.units.find((u) => u.id === 's0-0');
+  const heli = g.units.find((u) => u.id === 's0-1');
+  assert.ok(jeep.x < 500 - 55 - jeep.r + 1, `Jeep bei ${jeep.x}`);
+  assert.ok(heli.x > 560, `Hubschrauber bei ${heli.x}`);
+  g.dispose();
 });

@@ -29,9 +29,13 @@ und im AOL Game Center mitgeliefert wurde. Quelle: [Cyclowiki „Warsheep Online
   „Los geht's, Anna!“, damit niemand beim Weitergeben Zeit verliert.
 - 2 bis 4 Armeen, jede ein Spieler oder ein Team (im Team wird reihum gesteuert), 2–8 Spieler, wie bei Sumo Zoo.
   Ohne Fernseher geht es auch nur mit Handys, zu zweit reicht ein Handy.
-- Karten frei nachgebaut: Grüne Wiesen, Wüstensturm, Weiße Hölle, Seenplatte (mit Hubschraubern), Zufall.
+- Zusätzlich zum Original (Lukas, 25.10.2026): **Jeep** und **Hubschrauber** in jeder Armee. Armee mit 10: Funker,
+  3 Bazookas, 2 MGs, Jeep, Hubschrauber, 2 Panzer (mit 6: je einer, nur Funker bis Panzer). Seenplatte: Funker,
+  3 Hubschrauber, 2 MGs, Jeep, 3 Panzer.
+- Karten frei nachgebaut: Grüne Wiesen, Wüstensturm, Weiße Hölle, Seenplatte (mehr Hubschrauber), Zufall. Jede Karte hat
+  Wasserlöcher: nicht befahrbar (nur Hubschrauber fliegen drüber), Schüsse fliegen darüber hinweg.
   Bäume, Felsen, Häuser, Iglus und Kakteen blocken Fahrt und Schüsse, Wasser nur die Fahrt.
-- Über eigene Schafe wird hinweggeschossen (sonst trifft man am Anfang nur die eigene Aufstellung), Explosionen
+- **Friendly Fire** (Lukas, 25.10.2026): Eigene Schafe im Weg werden genauso getroffen wie gegnerische, Explosionen
   treffen aber alle in der Nähe.
 
 ## Einstellungen
@@ -56,7 +60,8 @@ Gerundet nach dem Original, Feinschliff nach den ersten Runden:
 | Bazooka | 20 | 105 | Rakete, Reichweite 520, bis 25 Schaden |
 | MG-Schaf | 40 | 95 | 21 Schuss je 1 Schaden, Reichweite 270, Streuung wächst |
 | Panzer | 50 (Seenplatte 45) | 60 (75) | Granate, Reichweite 430, bis 50 (40) Schaden |
-| Hubschrauber | 35 | 165 | 8 Raketen je bis 7 Schaden, Reichweite 380, sammelt keine Medipacks |
+| Hubschrauber | 35 | 165 | 8 Raketen je bis 7 Schaden, Reichweite 380, fliegt über Hindernisse, sammelt keine Medipacks |
+| Jeep | 25 | 190 | Bord-MG, 12 Schuss je 1 Schaden, Reichweite 320 |
 
 ## Technik
 
