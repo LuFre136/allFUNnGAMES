@@ -20,6 +20,7 @@
 .sz-side.out { opacity: 0.5; }
 .sz-icons { display: flex; flex-wrap: wrap; gap: 2px; }
 .sz-icons img { width: 24px; height: 24px; display: block; }
+.sz-icons span { font-size: 1.1rem; line-height: 24px; }
 .sz-icons .gone { filter: grayscale(1); opacity: 0.25; }
 .sz-wins { margin-left: auto; font-size: 0.85rem; flex: none; }
 

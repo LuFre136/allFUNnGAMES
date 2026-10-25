@@ -61,17 +61,21 @@ test('jede Karte hat für 2 bis 4 Seiten und 3 bis 8 Tiere eine passende Aufstel
   }
 });
 
-test('Oval wie im Original: Seiten wechseln sich ab, passt auf Plateau, Ring und Wasserloch', () => {
+test('Kreis wie im Original: passt auf Plateau, Ring und Wasserloch, je zwei Steine außen', () => {
   for (const m of ['plateau', 'ring', 'wasserloch']) {
     for (let sides = 2; sides <= 4; sides++) {
-      for (let n = 3; n <= 7; n++) assert.ok(World.layout(m, sides, n, 'oval'), `${m} ${sides} Seiten ${n} Tiere`);
+      for (let n = 3; n <= 6; n++) assert.ok(World.layout(m, sides, n, 'kreis'), `${m} ${sides} Seiten ${n} Tiere`);
     }
   }
-  assert.strictEqual(World.layout('bruecke', 2, 6, 'oval'), null);
+  assert.strictEqual(World.layout('bruecke', 2, 6, 'kreis'), null);
   const { g } = setup(2);
-  assert.strictEqual(g.pattern, 'oval');
+  assert.strictEqual(g.pattern, 'kreis');
+  // zwei Seiten: die letzten beiden Steine jeder Seite stehen links bzw. rechts außen
+  const [left, right] = World.layout('plateau', 2, 6, 'kreis');
+  assert.ok(left.slice(4).every((p) => p.x < 300));
+  assert.ok(right.slice(4).every((p) => p.x > 700));
   const { g: g2 } = setup(2, { map: 'bruecke' });
-  assert.notStrictEqual(g2.pattern, 'oval');
+  assert.notStrictEqual(g2.pattern, 'kreis');
   g.dispose();
   g2.dispose();
 });

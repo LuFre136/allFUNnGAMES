@@ -14,7 +14,7 @@ const ANIMAL_COUNTS = [0, 3, 4, 5, 6, 7, 8]; // 0 = automatisch
 const SETS = [1, 2, 3];
 const TIME_LIMITS = [0, 20, 40];
 const MAP_CHOICES = [...World.MAP_IDS, 'random'];
-const LAYOUTS = ['oval', 'groups'];
+const LAYOUTS = ['kreis', 'groups'];
 const LOG_SIZE = 8;
 const ROLL_PAUSE_MS = 700; // kurze Pause nach dem Stoß, bevor der Nächste dran ist
 const MAX_AIM_PER_SEC = 25;
@@ -77,7 +77,7 @@ class SumoZoo {
       tv: true,
       map: 'plateau',
       animals: 0,
-      layout: 'oval',
+      layout: 'kreis',
       extraTurn: true,
       sets: 1,
       timeLimit: 0,
@@ -170,11 +170,11 @@ class SumoZoo {
     this.setNo++;
     this.mapId = this.settings.map === 'random' ? pick(World.MAP_IDS) : this.settings.map;
     const count = this.animalCount();
-    // Oval wie im Original, wenn es auf die Karte passt, sonst Gruppen in zufälliger Form
-    const oval = this.settings.layout === 'oval' ? World.layout(this.mapId, this.sides.length, count, 'oval') : null;
-    const pattern = oval ? 'oval' : pick(World.patternsFor(this.mapId, this.sides.length, count));
+    // Kreis wie im Original, wenn er auf die Karte passt, sonst Gruppen in zufälliger Form
+    const circle = this.settings.layout === 'kreis' ? World.layout(this.mapId, this.sides.length, count, 'kreis') : null;
+    const pattern = circle ? 'kreis' : pick(World.patternsFor(this.mapId, this.sides.length, count));
     this.pattern = pattern;
-    const groups = oval || World.layout(this.mapId, this.sides.length, count, pattern);
+    const groups = circle || World.layout(this.mapId, this.sides.length, count, pattern);
     this.animals = [];
     this.sides.forEach((s, i) => {
       groups[i].forEach((p, k) => this.animals.push({ id: `${s.id}-${k}`, side: s.id, x: p.x, y: p.y, alive: true }));
