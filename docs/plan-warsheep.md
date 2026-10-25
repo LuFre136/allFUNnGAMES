@@ -1,6 +1,6 @@
 # Kampfschafe (Warsheep)
 
-Stand: umgesetzt (25.10.2026). Der Name ist ein Vorschlag, Lukas entscheidet noch (Kampfschafe, Warsheep oder Schafkrieg).
+Stand: umgesetzt (25.10.2026). Lukas hat den Namen „Kampfschafe“ gewählt (id `kampfschafe`, Präfix `ks-`, 🐑).
 
 ## Das Original
 
