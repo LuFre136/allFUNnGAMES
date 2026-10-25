@@ -370,6 +370,20 @@ Nach dem alten ICQ-Spiel Warsheep für 2 bis 8 Spieler. Zwei bis vier Schafarmee
 
 Regeln und Schüsse prüft `npm test`. Der Plan steht in [docs/plan-warsheep.md](docs/plan-warsheep.md).
 
+## So läuft RPS
+
+Schach mit Schere, Stein, Papier nach dem alten ICQ-Spiel RPS, für genau 2 Spieler, jeder mit eigenem Handy (die Figuren sind geheim). Gespielt wird eine Serie (Standard: Best of 3); die Farben wechseln jede Partie, Rot fängt an.
+
+- Brett 7 × 6. Jeder hat 14 Figuren auf seinen zwei Grundreihen: Fahne 🚩, Falle 🕳️ und je 4 Steine ✊, Papiere ✋ und Scheren ✌️. Was wo steht, sieht nur der Besitzer.
+- Aufstellen: Die Figuren liegen zufällig, zwei antippen tauscht sie, „Neu mischen“ verteilt die Waffen neu (Fahne und Falle bleiben liegen). Sind beide bereit, geht es los.
+- Abwechselnd zieht man eine Figur ein Feld gerade (vor, zurück, zur Seite). Fahne und Falle bewegen sich nicht. Wer auf eine gegnerische Figur zieht, kämpft: Stein schlägt Schere, Schere schlägt Papier, Papier schlägt Stein. Der Sieger bleibt für den Gegner aufgedeckt (abschaltbar), der Verlierer ist weg.
+- Gleichstand: Beide wählen heimlich eine neue Waffe für ihre Figur, bis der Kampf entschieden ist. Wer in die Falle läuft, ist weg, die Falle bleibt offen liegen.
+- Gewonnen hat, wer die Fahne erobert oder wessen Gegner keine Figur mehr ziehen kann. 100 Züge ohne Kampf sind Remis, der Host kann auch selbst Remis werten.
+- Der Fernseher zeigt das Brett mit verdeckten Figuren, jeden Kampf groß und wie viele Steine, Papiere und Scheren jede Seite noch hat. Nach der Partie liegen alle Figuren offen.
+- Zeit pro Zug ist einstellbar; läuft sie ab, macht das Spiel einen Zufallszug, beim dritten Mal hintereinander ist die Partie verloren. Spielt der Host am Fernseher mit, bleiben seine Figuren dort verdeckt, bis er „Meine Figuren zeigen“ tippt.
+
+Die Regeln prüft `npm test`. Der Plan steht in [docs/plan-rps.md](docs/plan-rps.md).
+
 ## Aufbau
 
 ```
@@ -398,6 +412,7 @@ server/games/hundsgemein/    Hundsgemein (nach Brändi Dog), Zugregeln in public
 server/games/backgammon/     Backgammon (Regelkern in rules.js)
 server/games/sumozoo/        Sumo Zoo (nach Zoopaloola), Karten in public/js/sumozoo-world.js, Spielsteine in public/js/sumozoo-art.js
 server/games/kampfschafe/    Kampfschafe (nach Warsheep), Karten in public/js/kampfschafe-world.js
+server/games/rps/            RPS (Schach mit Schere, Stein, Papier nach ICQ), Regelkern in rules.js
 test/                        Regeltests (npm test)
 server/spotify.js            Optionale Spotify-Suche
 server/deezer.js             30-Sekunden-Vorschauen über Deezer (Musikzeitreise)
