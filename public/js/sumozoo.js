@@ -6,7 +6,7 @@
   const MAX_PULL = 200; // so weit zieht man für volle Stärke (Weltpunkte)
   const MIN_POWER = 0.06;
   const FALL_TAIL = 0.5;
-  const ANIMALS = [[0, 'Automatisch'], [3, '3'], [4, '4'], [5, '5'], [6, '6'], [7, '7'], [8, '8']];
+  const ANIMALS = [[0, 'Automatisch'], [3, '3'], [4, '4'], [5, '5'], [6, '6'], [7, '7'], [8, '8'], [10, '10'], [12, '12']];
   const SETS = [1, 2, 3];
   const TIMES = [0, 20, 40];
   const FALL_LINES = ['Platsch!', 'Tschüss!', 'Und weg!', 'Abgang!', 'Bye!'];
@@ -61,15 +61,18 @@
 
   // ---------- Lobby ----------
 
+  let guestAvatar = null; // Tier für den nächsten Mitspieler an diesem Gerät
+
   function lobbyExtra() {
     if (S.me.isHost && !S.settings.hostPlays) return '';
     if (S.settings.game.teamMode) return '';
     const guests = S.players.filter((p) => p.guestOf === S.me.id);
     return `<div class="card stack">
       <h3 style="margin:0">Mitspieler an diesem Gerät</h3>
-      <div class="small muted">Nur ein Handy für zwei? Trag hier die zweite Person ein und gebt das Gerät reihum weiter. Es steht immer da, wer gerade schubst.</div>
+      <div class="small muted">Nur ein Handy für zwei? Such für die zweite Person ein Tier aus, trag den Namen ein und gebt das Gerät reihum weiter. Es steht immer da, wer gerade schubst.</div>
       ${guests.map((p) => `<div class="member">${avatarHtml(p, 'sm')}<span class="name">${esc(p.name)}</span>
         <button class="btn small icon ghost" data-action="szRemoveGuest" data-player="${p.id}" title="Entfernen">✕</button></div>`).join('')}
+      <div class="sz-guest-pick">${avatarPicker(guestAvatar, 'szGuestAvatar')}</div>
       <form id="sz-guest-form" class="row" style="flex-wrap:nowrap">
         <input id="sz-guest-name" type="text" maxlength="24" placeholder="Name" autocomplete="off" style="flex:1;min-width:0">
         <button class="btn primary small" type="submit">+ Hinzufügen</button>
@@ -92,7 +95,7 @@
         <label class="field"><span>Lobbyname</span><input id="set-lobbyName" type="text" maxlength="40" value="${esc(s.lobbyName)}"></label>
         <label class="field"><span>Dein Spielername</span><input id="set-myName" type="text" maxlength="24" value="${esc(S.me.name)}"></label>
       </div>
-      <div>${label('Dein Profilbild')}${avatarPicker(S.me.avatar, 'hostAvatar')}</div>
+      <div>${label('Dein Tier')}${avatarPicker(S.me.avatar, 'hostAvatar')}</div>
       <div>${label('Fernseher')}${seg('tv', g.tv, [[true, '📺 Mit Fernseher'], [false, '📱 Nur Handys']])}
         <div class="small muted" style="margin-top:6px">${g.tv
           ? 'Dieses Gerät zeigt den Felsen groß. Spielst du mit, zielst du direkt auf dem Fernseher, sonst bist du nur Gamemaster.'
@@ -115,7 +118,7 @@
       </div>
       <div class="grid-2" style="gap:12px">
         <label class="field"><span>Tiere pro Seite</span>
-          <select id="sz-animals">${ANIMALS.map(([n, t]) => `<option value="${n}" ${n === g.animals ? 'selected' : ''}>${n ? t : `${t} (6, bei 3–4 Seiten 5)`}</option>`).join('')}</select>
+          <select id="sz-animals">${ANIMALS.map(([n, t]) => `<option value="${n}" ${n === g.animals ? 'selected' : ''}>${n ? t : `${t} (12, bei 3 Seiten 8, bei 4 Seiten 6)`}</option>`).join('')}</select>
         </label>
         <label class="field"><span>Gewinnsätze</span>
           <select id="sz-sets">${SETS.map((n) => `<option value="${n}" ${n === g.sets ? 'selected' : ''}>${n === 1 ? 'Ein Satz' : `${n} Gewinnsätze`}</option>`).join('')}</select>
@@ -129,8 +132,8 @@
         <div>${label('Zielhilfe')}${seg('aimHelp', g.aimHelp, [[true, 'An'], [false, 'Aus']])}</div>
       </div>
       <div>${label('Startaufstellung')}
-        <div class="segmented" style="grid-template-columns:1fr 1fr">${[['oval', '⭕ Oval wie im Original'], ['groups', '🐾 Gruppen']].map(([v, t]) => `<button data-action="szLayout" data-value="${v}" class="${g.layout === v ? 'on' : ''}">${t}</button>`).join('')}</div>
-        <div class="small muted" style="margin-top:6px">${g.layout === 'oval' ? 'Alle Tiere stehen abwechselnd auf einem großen Oval. Auf der Brücke passt das nicht, dort stehen die Seiten in Gruppen.' : 'Jede Seite steht als Gruppe zusammen (Block, Reihe, Dreieck oder Kreis, ausgelost).'}</div>
+        <div class="segmented" style="grid-template-columns:1fr 1fr">${[['kreis', '⭕ Kreis wie im Original'], ['groups', '🐾 Gruppen']].map(([v, t]) => `<button data-action="szLayout" data-value="${v}" class="${g.layout === v ? 'on' : ''}">${t}</button>`).join('')}</div>
+        <div class="small muted" style="margin-top:6px">${g.layout === 'kreis' ? 'Die Tiere stehen abwechselnd im Kreis in der Mitte, je zwei stehen draußen auf der eigenen Seite. Auf der Brücke passt das nicht, dort stehen die Seiten in Gruppen.' : 'Jede Seite steht als Gruppe zusammen (Block, Reihe, Dreieck oder Kreis, ausgelost).'} Haben nicht alle Tiere Platz, stehen so viele da, wie auf die Karte passen.</div>
       </div>
       <div class="small muted">So geht's: Wer dran ist, tippt eines seiner Tiere an, zieht nach hinten wie bei einer Steinschleuder und lässt los. Je weiter gezogen, desto fester der Schubs. An den Mauern prallen die Tiere ab, runter geht es nur durch die Lücken. Wer über die Kante rutscht, ist raus, auch eigene Tiere. Wer als Letzter noch Tiere oben hat, gewinnt den Satz.${g.extraTurn ? ' Wer ein fremdes Tier runterschubst und keins der eigenen verliert, darf gleich noch einmal.' : ''}${g.timeLimit ? ' Läuft die Zeit ab, verfällt der Zug.' : ''}</div>
     </div>`;
@@ -741,6 +744,7 @@
       const R = S.round;
       if (R.turn && confirm(`${playerName(R.turn.shooterId)} überspringen?`)) act('force');
     },
+    szGuestAvatar: (el) => { guestAvatar = el.dataset.src; render(); },
     szRemoveGuest: (el) => socket.emit('guest:remove', { playerId: el.dataset.player }, (res) => { if (res?.error) toast(res.error); }),
   });
 
@@ -750,9 +754,10 @@
     const input = document.getElementById('sz-guest-name');
     const name = input.value.trim();
     if (!name) return toast('Bitte gib einen Namen ein.');
-    const avatar = avatars.length ? avatars[Math.floor(Math.random() * avatars.length)] : null;
+    const avatar = guestAvatar && !takenAvatars(null).includes(guestAvatar) ? guestAvatar : freeAvatar();
     socket.emit('guest:add', { name, avatar }, (res) => {
       if (res?.error) return toast(res.error);
+      guestAvatar = null;
       const field = document.getElementById('sz-guest-name');
       if (field) field.value = '';
     });

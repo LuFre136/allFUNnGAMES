@@ -199,4 +199,4 @@ kann über die Teams trotzdem mit mehr spielen, wenn wir `maxPlayers` später an
 - 3 bis 4 Seiten gleichzeitig sind möglich, dazu Teams.
 - Der Stoß geht beim Loslassen los, ohne Bestätigen.
 - 2 bis 8 Spieler reichen.
-- Nachträglich (25.10.2026): Tiere sitzen im Schwimmreifen wie im Original, Steinmauern mit Lücken am Rand, die Tiere gleiten weiter, Startaufstellung als Oval wie im Original.
+- Nachträglich (25.10.2026): Tiere sitzen im Schwimmreifen wie im Original, Steinmauern mit Lücken am Rand, die Tiere gleiten weiter, Startaufstellung im Kreis mit 2 Steinen links/rechts wie im Original. Jeder wählt statt eines Profilbilds eines der 8 Tiere und spielt mit diesem, Standard 12 Tiere pro Seite (3 Seiten 8, 4 Seiten 6).

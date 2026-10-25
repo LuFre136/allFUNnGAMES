@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><defs>
+      <radialGradient id="shpinguin7" cx="50%" cy="40%" r="60%"><stop offset="60%" stop-color="#000" stop-opacity="0"/><stop offset="100%" stop-color="#000" stop-opacity="0.25"/></radialGradient>
+      <radialGradient id="wapinguin7" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#0284c7"/></radialGradient>
+    </defs>
+    <ellipse cx="100" cy="110" rx="90" ry="86" fill="#000" opacity="0.22"/>
+    <circle cx="100" cy="100" r="70" fill="none" stroke="#fff7ed" stroke-width="38"/>
+    <circle cx="100" cy="100" r="70" fill="none" stroke="#0ea5e9" stroke-width="38" stroke-dasharray="54.98 54.98" transform="rotate(-22 100 100)"/>
+    <circle cx="100" cy="100" r="89" fill="none" stroke="#096b97" stroke-width="2"/>
+    <circle cx="100" cy="100" r="51" fill="none" stroke="#096b97" stroke-width="2"/>
+    <circle cx="100" cy="100" r="70" fill="none" stroke="url(#shpinguin7)" stroke-width="38"/>
+    <path d="M 42 70 A 64 64 0 0 1 86 38" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" opacity="0.8"/>
+    <circle cx="100" cy="100" r="50" fill="url(#wapinguin7)"/><ellipse cx="100" cy="124" rx="30" ry="22" fill="#1e293b"/>
+      <path d="M 74 116 Q 50 124 38 144 Q 52 146 72 128 Z" fill="#1e293b"/>
+      <path d="M 126 116 Q 150 124 162 144 Q 148 146 128 128 Z" fill="#1e293b"/>
+      <circle cx="100" cy="88" r="36" fill="#1e293b"/>
+      <path d="M 100 64 C 86 54 66 66 70 88 C 72 106 86 118 100 120 C 114 118 128 106 130 88 C 134 66 114 54 100 64 Z" fill="#f8fafc"/>
+      <path d="M 90 98 L 110 98 L 100 110 Z" fill="#f97316"/>
+      <ellipse cx="88" cy="84" rx="5.5" ry="6.875" fill="#fff"/>
+      <circle cx="89" cy="85" r="3.3" fill="#1c1917"/><circle cx="90" cy="83.5" r="1.1" fill="#fff"/><ellipse cx="112" cy="84" rx="5.5" ry="6.875" fill="#fff"/>
+      <circle cx="113" cy="85" r="3.3" fill="#1c1917"/><circle cx="114" cy="83.5" r="1.1" fill="#fff"/><circle cx="80" cy="102" r="4" fill="#fb7185" opacity="0.45"/><circle cx="120" cy="102" r="4" fill="#fb7185" opacity="0.45"/></svg>

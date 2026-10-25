@@ -61,17 +61,21 @@ test('jede Karte hat für 2 bis 4 Seiten und 3 bis 8 Tiere eine passende Aufstel
   }
 });
 
-test('Oval wie im Original: Seiten wechseln sich ab, passt auf Plateau, Ring und Wasserloch', () => {
+test('Kreis wie im Original: passt auf Plateau, Ring und Wasserloch, je zwei Steine außen', () => {
   for (const m of ['plateau', 'ring', 'wasserloch']) {
     for (let sides = 2; sides <= 4; sides++) {
-      for (let n = 3; n <= 7; n++) assert.ok(World.layout(m, sides, n, 'oval'), `${m} ${sides} Seiten ${n} Tiere`);
+      for (let n = 3; n <= 6; n++) assert.ok(World.layout(m, sides, n, 'kreis'), `${m} ${sides} Seiten ${n} Tiere`);
     }
   }
-  assert.strictEqual(World.layout('bruecke', 2, 6, 'oval'), null);
+  assert.strictEqual(World.layout('bruecke', 2, 6, 'kreis'), null);
   const { g } = setup(2);
-  assert.strictEqual(g.pattern, 'oval');
+  assert.strictEqual(g.pattern, 'kreis');
+  // zwei Seiten: die letzten beiden Steine jeder Seite stehen links bzw. rechts außen
+  const [left, right] = World.layout('plateau', 2, 6, 'kreis');
+  assert.ok(left.slice(4).every((p) => p.x < 300));
+  assert.ok(right.slice(4).every((p) => p.x > 700));
   const { g: g2 } = setup(2, { map: 'bruecke' });
-  assert.notStrictEqual(g2.pattern, 'oval');
+  assert.notStrictEqual(g2.pattern, 'kreis');
   g.dispose();
   g2.dispose();
 });
@@ -137,11 +141,12 @@ test('Physik: frontaler Stoß überträgt den Schwung, das gestoßene Tier fäll
 test('Start: Seiten, Tiere und Startspieler', () => {
   const { g } = setup(3);
   assert.strictEqual(g.sides.length, 3);
-  assert.strictEqual(g.animals.length, 15); // 3 Seiten à 5 Tiere
+  assert.strictEqual(g.animals.length, 24); // 3 Seiten à 8 Tiere
   assert.strictEqual(g.phase, 'aim');
   assert.ok(shooter(g));
   const { g: g2 } = setup(2);
-  assert.strictEqual(g2.animals.length, 12);
+  assert.strictEqual(g2.animals.length, 24); // zu zweit 12 Tiere pro Seite wie im Original
+  assert.strictEqual(g2.pattern, 'kreis');
   assert.throws(() => setup(5), /höchstens 4/);
   assert.throws(() => setup(1), /mindestens zwei/);
 });
@@ -215,7 +220,7 @@ test('Gewinnsätze: nach dem ersten Satz geht es weiter, die Startseite wechselt
   assert.strictEqual(g.setNo, 2);
   assert.strictEqual(g.phase, 'aim');
   assert.strictEqual(g.turnSide, them);
-  assert.strictEqual(g.animals.filter((a) => a.alive).length, 12);
+  assert.strictEqual(g.animals.filter((a) => a.alive).length, 24);
   g.dispose();
 });
 
@@ -288,4 +293,49 @@ test('Zeit abgelaufen: Der Zug verfällt', () => {
   assert.ok(g.action(g.lobby.players.get('p1'), { type: 'force' }).ok);
   assert.notStrictEqual(g.turnSide, me);
   g.dispose();
+});
+
+test('jeder spielt mit dem Tier, das er gewählt hat, doppelte Wünsche bekommen ein freies Tier', () => {
+  const lobby = fakeLobby(3);
+  const avatars = SumoZoo.meta().avatars;
+  assert.strictEqual(avatars.length, 8);
+  lobby.players.get('p1').avatar = avatars[0]; // Affe
+  lobby.players.get('p2').avatar = avatars[0]; // auch Affe
+  lobby.players.get('p3').avatar = avatars[6]; // Pinguin
+  const g = new SumoZoo(lobby);
+  g.start();
+  const speciesOf = (id) => g.view(lobby.players.get('p1')).sides.find((s) => s.members.includes(id)).species;
+  assert.strictEqual(speciesOf('p3'), 'pinguin');
+  const monkeys = ['p1', 'p2'].filter((id) => speciesOf(id) === 'affe');
+  assert.strictEqual(monkeys.length, 1);
+  assert.notStrictEqual(speciesOf('p1'), speciesOf('p2'));
+  g.dispose();
+});
+
+test('Teams spielen mit dem Tier, das die meisten im Team gewählt haben', () => {
+  const lobby = fakeLobby(3, { teamMode: true });
+  const avatars = SumoZoo.meta().avatars;
+  const set = (id, teamId, a) => Object.assign(lobby.players.get(id), { teamId, avatar: avatars[a] });
+  set('p1', 't1', 3);
+  set('p2', 't1', 3);
+  set('p3', 't2', 3);
+  const g = new SumoZoo(lobby);
+  g.start();
+  const sides = g.view(lobby.players.get('p1')).sides;
+  assert.strictEqual(sides.find((s) => s.teamId === 't1').species, 'zebra');
+  assert.notStrictEqual(sides.find((s) => s.teamId === 't2').species, 'zebra');
+  g.dispose();
+});
+
+test('zu viele Tiere für die Karte: es stehen so viele da, wie Platz haben', () => {
+  const { g } = setup(4, { animals: 12, map: 'ring' });
+  const per = g.animals.length / 4;
+  assert.ok(per >= 3 && per < 12, `${per} Tiere pro Seite`);
+  g.dispose();
+});
+
+test('die Bilder der Tiere gibt es als Datei', () => {
+  const fs = require('fs');
+  const path = require('path');
+  for (const a of SumoZoo.meta().avatars) assert.ok(fs.existsSync(path.join(__dirname, '..', 'public', a)), a);
 });

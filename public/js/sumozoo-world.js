@@ -54,7 +54,7 @@
       shapes: [{ t: 'rect', x: 60, y: 60, w: 880, h: 520, r: 70 }],
       holes: [],
       walls: PLATEAU_WALLS,
-      oval: [{ rx: 300, ry: 175 }, { rx: 185, ry: 92 }],
+      circle: { r: 175 },
       anchors: PLATEAU_ANCHORS,
     },
     ring: {
@@ -66,7 +66,7 @@
       holes: [],
       // Acht Mauerbögen, dazwischen acht Lücken
       walls: Array.from({ length: 8 }, (_, k) => arcWalls(CENTER.x, CENTER.y, 284, k * 45 + 8, k * 45 + 37)).flat(),
-      oval: [{ rx: 195, ry: 195 }, { rx: 105, ry: 105 }],
+      circle: { r: 170, pair: 70 },
       anchors: { 2: ringAnchors([180, 0]), 3: ringAnchors([180, 300, 60]), 4: ringAnchors([225, 315, 45, 135]) },
     },
     wasserloch: {
@@ -77,7 +77,7 @@
       shapes: [{ t: 'rect', x: 60, y: 60, w: 880, h: 520, r: 70 }],
       holes: [{ t: 'circle', x: CENTER.x, y: CENTER.y, r: 85 }],
       walls: PLATEAU_WALLS,
-      oval: [{ rx: 330, ry: 192 }, { rx: 205, ry: 126 }], // der innere Ring bleibt außerhalb des Lochs
+      circle: { r: 180 },
       anchors: PLATEAU_ANCHORS,
     },
     bruecke: {
@@ -96,7 +96,7 @@
         seg(71, 150, 71, 280), seg(71, 360, 71, 490), seg(110, 101, 350, 101), seg(110, 539, 350, 539),
         seg(929, 150, 929, 280), seg(929, 360, 929, 490), seg(650, 101, 890, 101), seg(650, 539, 890, 539),
       ],
-      oval: null,
+      circle: null,
       anchors: {
         2: [{ x: 230, y: 320 }, { x: 770, y: 320 }],
         3: [{ x: 230, y: 320 }, { x: 770, y: 205 }, { x: 770, y: 435 }],
@@ -194,30 +194,35 @@
     return true;
   }
 
-  // Wie im Original: Alle Tiere stehen abwechselnd auf einem großen Oval (bei vielen Tieren auf zwei)
-  function ovalLayout(map, sides, count) {
-    if (!map.oval) return null;
-    const total = sides * count;
-    const rings = total > 16 ? [Math.ceil(total * 0.58), Math.floor(total * 0.42)] : [total];
+  // Wie im Original: Die Tiere stehen abwechselnd im Kreis in der Mitte, je zwei stehen draußen auf der eigenen Seite
+  function circleLayout(map, sides, count) {
+    if (!map.circle) return null;
+    const anchors = map.anchors[sides];
+    const extra = count >= 4 ? 2 : 0;
+    const total = sides * (count - extra);
+    const r = map.circle.r; // groß wie im Original
     const groups = Array.from({ length: sides }, () => []);
-    let k = 0;
-    rings.forEach((n, ri) => {
-      const { rx, ry } = map.oval[ri];
-      for (let i = 0; i < n; i++) {
-        const a = ((i + 0.5 + ri * 0.5) / n) * Math.PI * 2 + Math.PI;
-        groups[k % sides].push({ x: Math.round(CENTER.x + rx * Math.cos(a)), y: Math.round(CENTER.y + ry * Math.sin(a)) });
-        k++;
+    for (let i = 0; i < total; i++) {
+      const a = Math.PI + ((i + 0.5) / total) * Math.PI * 2;
+      groups[i % sides].push({ x: Math.round(CENTER.x + r * Math.cos(a)), y: Math.round(CENTER.y + r * Math.sin(a)) });
+    }
+    anchors.forEach((anchor, s) => {
+      const len = Math.hypot(anchor.x - CENTER.x, anchor.y - CENTER.y) || 1;
+      const fx = (anchor.x - CENTER.x) / len;
+      const fy = (anchor.y - CENTER.y) / len;
+      const d = r + (map.circle.pair || 85);
+      for (let k = 0; k < extra; k++) {
+        const off = (k === 0 ? -1 : 1) * GAP * 0.85;
+        groups[s].push({ x: Math.round(CENTER.x + fx * d - fy * off), y: Math.round(CENTER.y + fy * d + fx * off) });
       }
     });
-    // Jede Seite braucht genau count Tiere (bei ungerader Verteilung auf zwei Ringen)
-    if (groups.some((g) => g.length !== count)) return null;
     return valid(map, groups) ? groups : null;
   }
 
   // Positionen aller Tiere: eine Liste pro Seite, oder null, wenn die Aufstellung nicht passt
   function layout(mapId, sides, count, pattern) {
     const map = MAPS[mapId];
-    if (pattern === 'oval') return map ? ovalLayout(map, sides, count) : null;
+    if (pattern === 'kreis') return map ? circleLayout(map, sides, count) : null;
     const anchors = map?.anchors[sides];
     if (!anchors || !PATTERNS[pattern]) return null;
     const groups = anchors.map((a) => {

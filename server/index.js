@@ -197,6 +197,9 @@ io.on('connection', (socket) => {
         code: lobby.code,
         name: lobby.settings.lobbyName,
         game: lobby.Game.meta().name,
+        avatars: lobby.Game.meta().avatars || null,
+        avatarLabel: lobby.Game.meta().avatarLabel || null,
+        takenAvatars: lobby.usesTeams ? [] : [...lobby.players.values()].map((p) => p.avatar),
         teams: (lobby.usesTeams ? lobby.teams : []).map((t) => ({ ...t, members: lobby.playersInTeam(t.id).map((p) => lobby.publicPlayer(p)) })),
       },
     });
