@@ -66,7 +66,7 @@
       holes: [],
       // Acht Mauerbögen, dazwischen acht Lücken
       walls: Array.from({ length: 8 }, (_, k) => arcWalls(CENTER.x, CENTER.y, 284, k * 45 + 8, k * 45 + 37)).flat(),
-      circle: { r: 165, pair: 70 },
+      circle: { r: 170, pair: 70 },
       anchors: { 2: ringAnchors([180, 0]), 3: ringAnchors([180, 300, 60]), 4: ringAnchors([225, 315, 45, 135]) },
     },
     wasserloch: {

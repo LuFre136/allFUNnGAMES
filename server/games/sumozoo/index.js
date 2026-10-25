@@ -10,7 +10,7 @@ const { shuffle, pick } = require('../../util');
 const MIN_PLAYERS = 2;
 const MAX_PLAYERS = 8;
 const MAX_SIDES = 4;
-const ANIMAL_COUNTS = [0, 3, 4, 5, 6, 7, 8]; // 0 = automatisch
+const ANIMAL_COUNTS = [0, 3, 4, 5, 6, 7, 8, 10, 12]; // 0 = automatisch
 const SETS = [1, 2, 3];
 const TIME_LIMITS = [0, 20, 40];
 const MAP_CHOICES = [...World.MAP_IDS, 'random'];
@@ -30,6 +30,14 @@ const SPECIES = [
   { key: 'pinguin', emoji: '🐧', name: 'Pinguine', own: 'einen eigenen Pinguin', color: '#0ea5e9' },
   { key: 'frosch', emoji: '🐸', name: 'Frösche', own: 'einen eigenen Frosch', color: '#e11d48' },
 ];
+
+// Statt eines Profilbilds wählt jeder Spieler sein Tier, so wie es im Schwimmreifen auf dem Brett steht
+const AVATARS = SPECIES.map((sp) => `/img/sumozoo/${sp.key}.svg`);
+
+function speciesOfAvatar(avatar) {
+  const i = AVATARS.indexOf(avatar);
+  return i >= 0 ? i : null;
+}
 
 const FALL_LINES = ['Platsch!', 'Tschüss!', 'Und weg!', 'Abgang!', 'Bye bye!'];
 
@@ -68,6 +76,8 @@ class SumoZoo {
       teams: 'optional',
       maxTeams: MAX_SIDES,
       sharedDevice: true, // nichts ist geheim, ein Handy kann reihum gehen
+      avatars: AVATARS,
+      avatarLabel: 'Dein Tier',
     };
   }
 
@@ -117,19 +127,42 @@ class SumoZoo {
   // ---------- Seiten ----------
 
   start() {
-    const species = shuffle([...SPECIES.keys()]);
     if (this.settings.teamMode) {
       const teams = this.lobby.teams.filter((t) => this.lobby.playersInTeam(t.id).length).slice(0, MAX_SIDES);
       if (teams.length < 2) throw new Error('Mindestens zwei Teams brauchen Spieler.');
-      this.sides = teams.map((t, i) => ({ id: `s${i}`, teamId: t.id, playerIds: null, species: species[i], turns: 0 }));
+      this.sides = teams.map((t, i) => ({ id: `s${i}`, teamId: t.id, playerIds: null, species: null, turns: 0 }));
     } else {
       const active = this.lobby.activePlayers();
       if (active.length < 2) throw new Error('Sumo Zoo braucht mindestens zwei Spieler.');
       if (active.length > MAX_SIDES) throw new Error(`Ohne Teams können höchstens ${MAX_SIDES} spielen. Schaltet die Teams ein.`);
-      this.sides = shuffle(active).map((p, i) => ({ id: `s${i}`, teamId: null, playerIds: [p.id], species: species[i], turns: 0 }));
+      this.sides = shuffle(active).map((p, i) => ({ id: `s${i}`, teamId: null, playerIds: [p.id], species: null, turns: 0 }));
     }
+    this.assignSpecies();
     for (const s of this.sides) this.wins[s.id] = 0;
     this.startSet();
+  }
+
+  // Jede Seite spielt mit dem Tier, das ihre Spieler gewählt haben (im Team das häufigste).
+  // Wollen zwei Seiten dasselbe Tier, bekommt es die erste, die andere ein freies.
+  assignSpecies() {
+    const taken = new Set();
+    const wishes = this.sides.map((side) => {
+      const counts = new Map();
+      for (const p of this.members(side)) {
+        const sp = speciesOfAvatar(p.avatar);
+        if (sp !== null) counts.set(sp, (counts.get(sp) || 0) + 1);
+      }
+      return [...counts.entries()].sort((a, b) => b[1] - a[1]).map(([sp]) => sp);
+    });
+    this.sides.forEach((side, i) => {
+      const sp = wishes[i].find((x) => !taken.has(x));
+      if (sp !== undefined) {
+        side.species = sp;
+        taken.add(sp);
+      }
+    });
+    const free = shuffle([...SPECIES.keys()].filter((x) => !taken.has(x)));
+    for (const side of this.sides) if (side.species === null) side.species = free.shift();
   }
 
   members(side) {
@@ -163,18 +196,30 @@ class SumoZoo {
 
   animalCount() {
     if (this.settings.animals) return this.settings.animals;
-    return this.sides.length === 2 ? 6 : 5;
+    return { 2: 12, 3: 8 }[this.sides.length] || 6; // zu zweit 12 wie im Original
+  }
+
+  // Passt die gewünschte Zahl nicht auf die Karte, stehen so viele Tiere da, wie Platz haben
+  fittingLayout(count) {
+    const sides = this.sides.length;
+    for (let n = count; n >= 3; n--) {
+      const circle = this.settings.layout === 'kreis' ? World.layout(this.mapId, sides, n, 'kreis') : null;
+      if (circle) return { pattern: 'kreis', groups: circle };
+      const patterns = World.patternsFor(this.mapId, sides, n);
+      if (patterns.length) {
+        const pattern = pick(patterns);
+        return { pattern, groups: World.layout(this.mapId, sides, n, pattern) };
+      }
+    }
+    throw new Error('Auf dieser Karte ist kein Platz für die Tiere.');
   }
 
   startSet() {
     this.setNo++;
     this.mapId = this.settings.map === 'random' ? pick(World.MAP_IDS) : this.settings.map;
-    const count = this.animalCount();
     // Kreis wie im Original, wenn er auf die Karte passt, sonst Gruppen in zufälliger Form
-    const circle = this.settings.layout === 'kreis' ? World.layout(this.mapId, this.sides.length, count, 'kreis') : null;
-    const pattern = circle ? 'kreis' : pick(World.patternsFor(this.mapId, this.sides.length, count));
+    const { pattern, groups } = this.fittingLayout(this.animalCount());
     this.pattern = pattern;
-    const groups = circle || World.layout(this.mapId, this.sides.length, count, pattern);
     this.animals = [];
     this.sides.forEach((s, i) => {
       groups[i].forEach((p, k) => this.animals.push({ id: `${s.id}-${k}`, side: s.id, x: p.x, y: p.y, alive: true }));

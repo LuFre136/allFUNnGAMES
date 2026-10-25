@@ -144,6 +144,7 @@ label.field > span { display: block; font-weight: 700; margin-bottom: 6px; font-
 .avatar-pick { padding: 3px; border-radius: 50%; border: 3px solid transparent; background: none; cursor: pointer; }
 .avatar-pick img { width: 100%; aspect-ratio: 1; border-radius: 50%; object-fit: cover; display: block; }
 .avatar-pick.selected { border-color: var(--accent); }
+.avatar-pick.taken:not(.selected) { opacity: 0.35; }
 
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .chip { border: 1px solid var(--line); background: var(--bg); color: var(--text); border-radius: 999px; padding: 7px 12px; font: inherit; font-size: 0.9rem; cursor: pointer; font-weight: 700; }

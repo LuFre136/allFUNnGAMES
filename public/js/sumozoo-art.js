@@ -159,11 +159,5 @@
     return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="${size}" height="${size}">${frame(color, uid)}${draw()}</svg>`;
   }
 
-  // Nur der Schwimmreifen (für Spielsteine mit Profilbild)
-  function ring(color, size = 200) {
-    const uid = `ring${++seq}`;
-    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="${size}" height="${size}">${frame(color, uid)}</svg>`;
-  }
-
-  return { svg, ring, KEYS, HOLE: 51 };
+  return { svg, KEYS };
 }));

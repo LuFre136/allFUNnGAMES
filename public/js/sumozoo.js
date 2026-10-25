@@ -6,7 +6,7 @@
   const MAX_PULL = 200; // so weit zieht man für volle Stärke (Weltpunkte)
   const MIN_POWER = 0.06;
   const FALL_TAIL = 0.5;
-  const ANIMALS = [[0, 'Automatisch'], [3, '3'], [4, '4'], [5, '5'], [6, '6'], [7, '7'], [8, '8']];
+  const ANIMALS = [[0, 'Automatisch'], [3, '3'], [4, '4'], [5, '5'], [6, '6'], [7, '7'], [8, '8'], [10, '10'], [12, '12']];
   const SETS = [1, 2, 3];
   const TIMES = [0, 20, 40];
   const FALL_LINES = ['Platsch!', 'Tschüss!', 'Und weg!', 'Abgang!', 'Bye!'];
@@ -61,15 +61,18 @@
 
   // ---------- Lobby ----------
 
+  let guestAvatar = null; // Tier für den nächsten Mitspieler an diesem Gerät
+
   function lobbyExtra() {
     if (S.me.isHost && !S.settings.hostPlays) return '';
     if (S.settings.game.teamMode) return '';
     const guests = S.players.filter((p) => p.guestOf === S.me.id);
     return `<div class="card stack">
       <h3 style="margin:0">Mitspieler an diesem Gerät</h3>
-      <div class="small muted">Nur ein Handy für zwei? Trag hier die zweite Person ein und gebt das Gerät reihum weiter. Es steht immer da, wer gerade schubst.</div>
+      <div class="small muted">Nur ein Handy für zwei? Such für die zweite Person ein Tier aus, trag den Namen ein und gebt das Gerät reihum weiter. Es steht immer da, wer gerade schubst.</div>
       ${guests.map((p) => `<div class="member">${avatarHtml(p, 'sm')}<span class="name">${esc(p.name)}</span>
         <button class="btn small icon ghost" data-action="szRemoveGuest" data-player="${p.id}" title="Entfernen">✕</button></div>`).join('')}
+      <div class="sz-guest-pick">${avatarPicker(guestAvatar, 'szGuestAvatar')}</div>
       <form id="sz-guest-form" class="row" style="flex-wrap:nowrap">
         <input id="sz-guest-name" type="text" maxlength="24" placeholder="Name" autocomplete="off" style="flex:1;min-width:0">
         <button class="btn primary small" type="submit">+ Hinzufügen</button>
@@ -92,7 +95,7 @@
         <label class="field"><span>Lobbyname</span><input id="set-lobbyName" type="text" maxlength="40" value="${esc(s.lobbyName)}"></label>
         <label class="field"><span>Dein Spielername</span><input id="set-myName" type="text" maxlength="24" value="${esc(S.me.name)}"></label>
       </div>
-      <div>${label('Dein Profilbild')}${avatarPicker(S.me.avatar, 'hostAvatar')}</div>
+      <div>${label('Dein Tier')}${avatarPicker(S.me.avatar, 'hostAvatar')}</div>
       <div>${label('Fernseher')}${seg('tv', g.tv, [[true, '📺 Mit Fernseher'], [false, '📱 Nur Handys']])}
         <div class="small muted" style="margin-top:6px">${g.tv
           ? 'Dieses Gerät zeigt den Felsen groß. Spielst du mit, zielst du direkt auf dem Fernseher, sonst bist du nur Gamemaster.'
@@ -115,7 +118,7 @@
       </div>
       <div class="grid-2" style="gap:12px">
         <label class="field"><span>Tiere pro Seite</span>
-          <select id="sz-animals">${ANIMALS.map(([n, t]) => `<option value="${n}" ${n === g.animals ? 'selected' : ''}>${n ? t : `${t} (6, bei 3–4 Seiten 5)`}</option>`).join('')}</select>
+          <select id="sz-animals">${ANIMALS.map(([n, t]) => `<option value="${n}" ${n === g.animals ? 'selected' : ''}>${n ? t : `${t} (12, bei 3 Seiten 8, bei 4 Seiten 6)`}</option>`).join('')}</select>
         </label>
         <label class="field"><span>Gewinnsätze</span>
           <select id="sz-sets">${SETS.map((n) => `<option value="${n}" ${n === g.sets ? 'selected' : ''}>${n === 1 ? 'Ein Satz' : `${n} Gewinnsätze`}</option>`).join('')}</select>
@@ -130,7 +133,7 @@
       </div>
       <div>${label('Startaufstellung')}
         <div class="segmented" style="grid-template-columns:1fr 1fr">${[['kreis', '⭕ Kreis wie im Original'], ['groups', '🐾 Gruppen']].map(([v, t]) => `<button data-action="szLayout" data-value="${v}" class="${g.layout === v ? 'on' : ''}">${t}</button>`).join('')}</div>
-        <div class="small muted" style="margin-top:6px">${g.layout === 'kreis' ? 'Die Tiere stehen abwechselnd im Kreis in der Mitte, je zwei stehen draußen auf der eigenen Seite. Auf der Brücke passt das nicht, dort stehen die Seiten in Gruppen.' : 'Jede Seite steht als Gruppe zusammen (Block, Reihe, Dreieck oder Kreis, ausgelost).'}</div>
+        <div class="small muted" style="margin-top:6px">${g.layout === 'kreis' ? 'Die Tiere stehen abwechselnd im Kreis in der Mitte, je zwei stehen draußen auf der eigenen Seite. Auf der Brücke passt das nicht, dort stehen die Seiten in Gruppen.' : 'Jede Seite steht als Gruppe zusammen (Block, Reihe, Dreieck oder Kreis, ausgelost).'} Haben nicht alle Tiere Platz, stehen so viele da, wie auf die Karte passen.</div>
       </div>
       <div class="small muted">So geht's: Wer dran ist, tippt eines seiner Tiere an, zieht nach hinten wie bei einer Steinschleuder und lässt los. Je weiter gezogen, desto fester der Schubs. An den Mauern prallen die Tiere ab, runter geht es nur durch die Lücken. Wer über die Kante rutscht, ist raus, auch eigene Tiere. Wer als Letzter noch Tiere oben hat, gewinnt den Satz.${g.extraTurn ? ' Wer ein fremdes Tier runterschubst und keins der eigenen verliert, darf gleich noch einmal.' : ''}${g.timeLimit ? ' Läuft die Zeit ab, verfällt der Zug.' : ''}</div>
     </div>`;
@@ -289,100 +292,22 @@
     }
   }
 
-  // Spielsteine: Profilbild des Spielers im Schwimmreifen (ohne Profilbild das gezeichnete Tier der Seite)
-  const PIECE = 160; // Pixel des fertigen Steins
-  const pieces = new Map(); // key -> { canvas, url, failed }
-  let panelRefresh = null;
-
-  function svgUrl(svg) {
-    return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+  // Spielsteine (Tier im Schwimmreifen) als Bild, einmal pro Tierart und Farbe
+  const pieces = new Map();
+  function pieceUrl(species, color) {
+    return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(SzArt.svg(species, color, 128))}`;
   }
 
-  function loadImage(src) {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      img.onload = () => resolve(img);
-      img.onerror = reject;
-      img.src = src;
-    });
-  }
-
-  // Wem gehört ein Stein? Ohne Teams dem Spieler der Seite, im Team reihum den Mitgliedern
-  function pieceOwner(side, index) {
-    const ids = side.members;
-    return ids.length ? playerById(ids[index % ids.length]) : null;
-  }
-
-  function pieceKey(side, index) {
-    const avatar = pieceOwner(side, index)?.avatar;
-    return avatar ? `a|${avatar}|${side.color}` : `s|${side.species}|${side.color}`;
-  }
-
-  function buildPiece(key, side, avatar) {
-    const entry = { canvas: null, url: null, failed: false };
-    pieces.set(key, entry);
-    const finish = (canvas) => {
-      entry.canvas = canvas;
-      entry.url = canvas.toDataURL('image/png');
-      requestDraw();
-      // Seitenleiste einmal neu aufbauen, damit dort auch die fertigen Steine erscheinen
-      clearTimeout(panelRefresh);
-      panelRefresh = setTimeout(() => { if (S?.game.id === 'sumozoo' && S.phase === 'playing') render(); }, 150);
-    };
-    const canvasOf = () => {
-      const c = document.createElement('canvas');
-      c.width = PIECE;
-      c.height = PIECE;
-      return c;
-    };
-    if (!avatar) {
-      loadImage(svgUrl(SzArt.svg(side.species, side.color, PIECE))).then((img) => {
-        const c = canvasOf();
-        c.getContext('2d').drawImage(img, 0, 0, PIECE, PIECE);
-        finish(c);
-      }).catch(() => { entry.failed = true; });
-      return;
+  function pieceImage(side) {
+    const key = `${side.species}|${side.color}`;
+    let img = pieces.get(key);
+    if (!img) {
+      img = new Image();
+      img.onload = requestDraw;
+      img.src = pieceUrl(side.species, side.color);
+      pieces.set(key, img);
     }
-    Promise.all([loadImage(svgUrl(SzArt.ring(side.color, PIECE))), loadImage(avatar)]).then(([ringImg, face]) => {
-      const c = canvasOf();
-      const g = c.getContext('2d');
-      g.drawImage(ringImg, 0, 0, PIECE, PIECE);
-      // Profilbild rund ins Loch des Reifens, etwas größer, damit es am Reifen anliegt
-      const r = (PIECE * (SzArt.HOLE + 6)) / 200;
-      const cx = PIECE / 2;
-      g.save();
-      g.beginPath();
-      g.arc(cx, cx, r, 0, Math.PI * 2);
-      g.clip();
-      g.fillStyle = '#fff';
-      g.fillRect(cx - r, cx - r, r * 2, r * 2);
-      const k = Math.max((r * 2) / face.naturalWidth, (r * 2) / face.naturalHeight) || 1;
-      const w = (face.naturalWidth || r * 2) * k;
-      const h = (face.naturalHeight || r * 2) * k;
-      g.drawImage(face, cx - w / 2, cx - h / 2, w, h);
-      g.restore();
-      g.beginPath();
-      g.arc(cx, cx, r, 0, Math.PI * 2);
-      g.lineWidth = PIECE / 60;
-      g.strokeStyle = 'rgba(0,0,0,0.35)';
-      g.stroke();
-      finish(c);
-    }).catch(() => {
-      // Profilbild lädt nicht: gezeichnetes Tier nehmen
-      pieces.delete(key);
-      buildPiece(`s|${side.species}|${side.color}`, side, null);
-      pieces.set(key, pieces.get(`s|${side.species}|${side.color}`));
-    });
-  }
-
-  function piece(side, index) {
-    const key = pieceKey(side, index);
-    if (!pieces.has(key)) buildPiece(key, side, pieceOwner(side, index)?.avatar || null);
-    return pieces.get(key);
-  }
-
-  function animalIndex(id) {
-    return Number(String(id).split('-')[1]) || 0;
+    return img.complete && img.naturalWidth ? img : null;
   }
 
   function drawAnimal(a, side, scale = 1, glow = false, alpha = 1) {
@@ -396,7 +321,7 @@
       ctx.fillStyle = 'rgba(253, 224, 71, 0.55)';
       ctx.fill();
     }
-    const img = side && piece(side, animalIndex(a.id))?.canvas;
+    const img = side && pieceImage(side);
     if (img) {
       // Im Bild hat der Reifen den Radius 89 von 200, er soll genau so groß sein wie das Tier
       const size = (r * 200) / 89;
@@ -545,7 +470,7 @@
           scale = Math.max(0, 1 - k);
           if (k < 2) uprightText(FALL_LINES[(t.id.length + Math.round(t.fall)) % FALL_LINES.length], pos.x, pos.y - 30 - k * 30, 34, '#fde047', Math.max(0, 1 - k / 2));
         }
-        drawAnimal({ ...pos, id: t.id }, side, scale);
+        drawAnimal(pos, side, scale);
       }
       sz.frame = requestAnimationFrame(draw);
     } else {
@@ -584,10 +509,8 @@
     const active = R.turn?.side === s.id;
     const total = R.animals.filter((a) => a.side === s.id).length;
     const alive = aliveShown(R, s);
-    const icons = Array.from({ length: total }, (_, i) => {
-      const url = piece(s, i)?.url;
-      return url ? `<img class="${i < alive ? '' : 'gone'}" src="${url}" alt="${s.emoji}">` : `<span class="${i < alive ? '' : 'gone'}">${s.emoji}</span>`;
-    }).join('');
+    const src = pieceUrl(s.species, s.color);
+    const icons = Array.from({ length: total }, (_, i) => `<img class="${i < alive ? '' : 'gone'}" src="${src}" alt="${s.emoji}">`).join('');
     const who = s.teamId
       ? `<span class="team-dot" style="--team:${s.color}"></span><b>${esc(s.name)}</b>`
       : `${avatarHtml(playerById(s.members[0]), 'sm')}<b>${esc(s.name)}</b>`;
@@ -821,6 +744,7 @@
       const R = S.round;
       if (R.turn && confirm(`${playerName(R.turn.shooterId)} überspringen?`)) act('force');
     },
+    szGuestAvatar: (el) => { guestAvatar = el.dataset.src; render(); },
     szRemoveGuest: (el) => socket.emit('guest:remove', { playerId: el.dataset.player }, (res) => { if (res?.error) toast(res.error); }),
   });
 
@@ -830,9 +754,10 @@
     const input = document.getElementById('sz-guest-name');
     const name = input.value.trim();
     if (!name) return toast('Bitte gib einen Namen ein.');
-    const avatar = avatars.length ? avatars[Math.floor(Math.random() * avatars.length)] : null;
+    const avatar = guestAvatar && !takenAvatars(null).includes(guestAvatar) ? guestAvatar : freeAvatar();
     socket.emit('guest:add', { name, avatar }, (res) => {
       if (res?.error) return toast(res.error);
+      guestAvatar = null;
       const field = document.getElementById('sz-guest-name');
       if (field) field.value = '';
     });

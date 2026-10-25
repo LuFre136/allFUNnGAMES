@@ -79,7 +79,7 @@ async function join() {
     if (!ui.profile) {
       ui.profile = {
         name: store.get('afng:name') || '',
-        avatar: avatars.length ? avatars[Math.floor(Math.random() * avatars.length)] : null,
+        avatar: freeAvatar(),
         teamId: null,
       };
     }
@@ -186,11 +186,36 @@ function viewFatal() {
   </div>`;
 }
 
+// Manche Spiele bringen eigene Bilder mit (z. B. die Tiere bei Sumo Zoo), sonst alle Profilbilder
+function avatarList() {
+  return (S ? S.game.avatars : joinInfo?.avatars) || avatars;
+}
+
+function avatarLabel(fallback = 'Profilbild') {
+  return (S ? S.game.avatarLabel : joinInfo?.avatarLabel) || fallback;
+}
+
+// Bei eigenen Bildern ohne Teams: Wer hat welches schon? (Jede Seite spielt mit einem anderen Tier)
+function takenAvatars(selected) {
+  if (S) return S.game.avatars && !S.usesTeams ? S.players.map((p) => p.avatar).filter((a) => a !== selected) : [];
+  return joinInfo?.takenAvatars || [];
+}
+
+function freeAvatar() {
+  const list = avatarList();
+  const taken = takenAvatars(null);
+  const free = list.filter((a) => !taken.includes(a));
+  const from = free.length ? free : list;
+  return from.length ? from[Math.floor(Math.random() * from.length)] : null;
+}
+
 function avatarPicker(selected, action = 'pickAvatar') {
-  if (!avatars.length) return '<p class="muted small">Keine Profilbilder vorhanden.</p>';
-  return `<div class="avatar-grid">${avatars.map((src) => `
-    <button type="button" class="avatar-pick ${src === selected ? 'selected' : ''}" data-action="${action}" data-src="${esc(src)}">
-      <img src="${esc(src)}" alt="Profilbild">
+  const list = avatarList();
+  if (!list.length) return '<p class="muted small">Keine Profilbilder vorhanden.</p>';
+  const taken = takenAvatars(selected);
+  return `<div class="avatar-grid">${list.map((src) => `
+    <button type="button" class="avatar-pick ${src === selected ? 'selected' : ''} ${taken.includes(src) ? 'taken' : ''}" data-action="${action}" data-src="${esc(src)}" ${taken.includes(src) ? 'title="Schon vergeben"' : ''}>
+      <img src="${esc(src)}" alt="${esc(avatarLabel())}">
     </button>`).join('')}</div>`;
 }
 
@@ -214,7 +239,7 @@ function profileFields({ withTeam, teams, membersOf }) {
     <label class="field"><span>Dein Name</span>
       <input id="profile-name" type="text" maxlength="24" value="${esc(p.name)}" placeholder="z. B. Anna" autocomplete="nickname">
     </label>
-    <div><div class="small muted" style="font-weight:700;margin-bottom:6px">Profilbild</div>${avatarPicker(p.avatar)}</div>
+    <div><div class="small muted" style="font-weight:700;margin-bottom:6px">${esc(avatarLabel())}</div>${avatarPicker(p.avatar)}</div>
     ${withTeam ? `<div><div class="small muted" style="font-weight:700;margin-bottom:6px">Team</div>${teamPicker(teams, p.teamId, membersOf)}</div>` : ''}`;
 }
 
@@ -318,7 +343,7 @@ function viewSettings() {
       <label class="field"><span>Lobbyname</span><input id="set-lobbyName" type="text" maxlength="40" value="${esc(s.lobbyName)}"></label>
       <label class="field"><span>Dein Spielername</span><input id="set-myName" type="text" maxlength="24" value="${esc(S.me.name)}"></label>
     </div>
-    <div><div class="small muted" style="font-weight:700;margin-bottom:6px">Dein Profilbild</div>${avatarPicker(S.me.avatar, 'hostAvatar')}</div>
+    <div><div class="small muted" style="font-weight:700;margin-bottom:6px">${esc(avatarLabel('Dein Profilbild'))}</div>${avatarPicker(S.me.avatar, 'hostAvatar')}</div>
     <div>
       <div class="small muted" style="font-weight:700;margin-bottom:6px">Deine Rolle</div>
       <div class="segmented">
@@ -892,6 +917,6 @@ Promise.all([
 ]).then(([list, info]) => {
   avatars = list;
   serverInfo = info;
-  if (ui.profile && !ui.profile.avatar && avatars.length) ui.profile.avatar = avatars[Math.floor(Math.random() * avatars.length)];
+  if (ui.profile && !ui.profile.avatar) ui.profile.avatar = freeAvatar();
   render();
 });

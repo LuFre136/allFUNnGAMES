@@ -102,3 +102,22 @@ test('Wechsel nach Spielende beendet das alte Spiel', () => {
   assert.equal(lobby.start(), null);
   lobby.backToLobby();
 });
+
+test('Sumo Zoo: nur die Tiere als Bild, beim Wechsel kommt das Profilbild zurück', () => {
+  const { lobby, players } = lobbyWith('pubquiz', 2);
+  const [anna] = players;
+  lobby.updatePlayer(anna, { avatar: '/avatars/platzhalter-03.svg' });
+  assert.equal(lobby.switchGame('sumozoo'), null);
+  const animals = lobby.Game.meta().avatars;
+  const all = [...lobby.players.values()].map((p) => p.avatar);
+  assert.ok(all.every((a) => animals.includes(a)), 'jeder hat ein Tier');
+  assert.equal(new Set(all).size, all.length, 'jeder ein anderes');
+  lobby.updatePlayer(anna, { avatar: '/avatars/platzhalter-05.svg' });
+  assert.ok(animals.includes(anna.avatar), 'andere Bilder gehen nicht');
+  lobby.updatePlayer(anna, { avatar: animals[2] });
+  assert.equal(anna.avatar, animals[2]);
+  const guest = lobby.addPlayer({ name: 'Neu', avatar: '/avatars/platzhalter-01.svg' });
+  assert.ok(animals.includes(guest.avatar));
+  assert.equal(lobby.switchGame('justone'), null);
+  assert.equal(anna.avatar, '/avatars/platzhalter-03.svg');
+});

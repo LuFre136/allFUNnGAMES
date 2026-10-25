@@ -96,7 +96,7 @@ class Lobby {
       id: `p${this.players.size + 1}_${randomCode(3)}`,
       token: randomToken(),
       name: cleanName(name, 'Spieler'),
-      avatar: typeof avatar === 'string' ? avatar.slice(0, 200) : null,
+      avatar: this.allowedAvatar(avatar),
       teamId: this.resolveTeamId(teamId),
       isHost,
       connected: false,
@@ -109,11 +109,21 @@ class Lobby {
 
   updatePlayer(player, { name, avatar, teamId }) {
     if (name !== undefined) player.name = cleanName(name, player.name);
-    if (avatar !== undefined) player.avatar = typeof avatar === 'string' ? avatar.slice(0, 200) : null;
+    if (avatar !== undefined) player.avatar = this.allowedAvatar(avatar, player);
     if (teamId !== undefined) {
       player.teamId = this.resolveTeamId(teamId, player);
       this.game?.playersChanged();
     }
+  }
+
+  // Spiele mit eigenen Bildern (meta().avatars, z. B. die Tiere bei Sumo Zoo) lassen nur diese zu.
+  // Sonst bekommt man ein Bild, das noch keiner hat.
+  allowedAvatar(avatar, player = null) {
+    const list = this.Game.meta().avatars;
+    if (!list) return typeof avatar === 'string' ? avatar.slice(0, 200) : null;
+    if (list.includes(avatar)) return avatar;
+    const used = new Set([...this.players.values()].filter((p) => p !== player).map((p) => p.avatar));
+    return pick(list.filter((a) => !used.has(a))) || pick(list);
   }
 
   // Mitspieler ohne eigenes Gerät (bei Spielen mit meta().sharedDevice): Sie spielen am Gerät
@@ -230,6 +240,19 @@ class Lobby {
     this.settings.game = Game.defaultSettings();
     Game.syncSettings?.(this.settings);
     if (autoName) this.settings.lobbyName = autoLobbyName(host.name, Game);
+
+    // Eigene Bilder des neuen Spiels verteilen, das alte Profilbild kommt beim nächsten Wechsel zurück
+    const list = Game.meta().avatars;
+    for (const p of this.players.values()) {
+      if (list) {
+        if (list.includes(p.avatar)) continue;
+        p.ownAvatar ??= p.avatar;
+        p.avatar = this.allowedAvatar(null, p);
+      } else if (p.ownAvatar !== undefined) {
+        p.avatar = p.ownAvatar;
+        delete p.ownAvatar;
+      }
+    }
 
     // Gäste haben kein eigenes Handy und können nur an einem geteilten Gerät mitspielen
     if (!Game.meta().sharedDevice) {
