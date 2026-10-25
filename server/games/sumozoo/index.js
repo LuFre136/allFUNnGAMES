@@ -14,6 +14,7 @@ const ANIMAL_COUNTS = [0, 3, 4, 5, 6, 7, 8]; // 0 = automatisch
 const SETS = [1, 2, 3];
 const TIME_LIMITS = [0, 20, 40];
 const MAP_CHOICES = [...World.MAP_IDS, 'random'];
+const LAYOUTS = ['oval', 'groups'];
 const LOG_SIZE = 8;
 const ROLL_PAUSE_MS = 700; // kurze Pause nach dem Stoß, bevor der Nächste dran ist
 const MAX_AIM_PER_SEC = 25;
@@ -76,6 +77,7 @@ class SumoZoo {
       tv: true,
       map: 'plateau',
       animals: 0,
+      layout: 'oval',
       extraTurn: true,
       sets: 1,
       timeLimit: 0,
@@ -87,6 +89,7 @@ class SumoZoo {
     const next = { ...current };
     for (const k of ['teamMode', 'tv', 'extraTurn', 'aimHelp']) if (patch[k] !== undefined) next[k] = Boolean(patch[k]);
     if (patch.map !== undefined && MAP_CHOICES.includes(patch.map)) next.map = patch.map;
+    if (patch.layout !== undefined && LAYOUTS.includes(patch.layout)) next.layout = patch.layout;
     if (patch.animals !== undefined && ANIMAL_COUNTS.includes(Number(patch.animals))) next.animals = Number(patch.animals);
     if (patch.sets !== undefined && SETS.includes(Number(patch.sets))) next.sets = Number(patch.sets);
     if (patch.timeLimit !== undefined && TIME_LIMITS.includes(Number(patch.timeLimit))) next.timeLimit = Number(patch.timeLimit);
@@ -167,9 +170,11 @@ class SumoZoo {
     this.setNo++;
     this.mapId = this.settings.map === 'random' ? pick(World.MAP_IDS) : this.settings.map;
     const count = this.animalCount();
-    const pattern = pick(World.patternsFor(this.mapId, this.sides.length, count));
+    // Oval wie im Original, wenn es auf die Karte passt, sonst Gruppen in zufälliger Form
+    const oval = this.settings.layout === 'oval' ? World.layout(this.mapId, this.sides.length, count, 'oval') : null;
+    const pattern = oval ? 'oval' : pick(World.patternsFor(this.mapId, this.sides.length, count));
     this.pattern = pattern;
-    const groups = World.layout(this.mapId, this.sides.length, count, pattern);
+    const groups = oval || World.layout(this.mapId, this.sides.length, count, pattern);
     this.animals = [];
     this.sides.forEach((s, i) => {
       groups[i].forEach((p, k) => this.animals.push({ id: `${s.id}-${k}`, side: s.id, x: p.x, y: p.y, alive: true }));

@@ -6,12 +6,13 @@ const World = require('../../../public/js/sumozoo-world');
 const DT = 1 / 120;
 const FPS = 20; // so oft wird die Bahn aufgezeichnet, die Geräte rechnen dazwischen
 const STEPS_PER_FRAME = Math.round(1 / (DT * FPS));
-const MAX_SPEED = 1250; // Weltpunkte pro Sekunde bei voller Stärke
-const DECEL = 600; // Reibung
+const MAX_SPEED = 1350; // Weltpunkte pro Sekunde bei voller Stärke
+const DECEL = 320; // Reibung (wenig, die Tiere gleiten weit)
 const RESTITUTION = 0.9;
+const WALL_RESTITUTION = 0.75; // Mauern schlucken etwas Schwung
 const MIN_SPEED = 4;
 const FALL_TAIL = 0.5; // so lange fliegt ein Tier nach dem Absturz noch weiter (für die Animation)
-const MAX_TIME = 12;
+const MAX_TIME = 15;
 
 function clamp(v, lo, hi) {
   return Math.min(hi, Math.max(lo, v));
@@ -89,6 +90,36 @@ function simulate(map, animals, shot) {
         a.y -= ny * push;
         b.x += nx * push;
         b.y += ny * push;
+      }
+    }
+    // Mauern: abprallen wie an einer Bande
+    for (const b of bodies) {
+      if (b.fallen) continue;
+      for (const w of map.walls) {
+        const dx = w.x2 - w.x1;
+        const dy = w.y2 - w.y1;
+        const t = Math.max(0, Math.min(1, ((b.x - w.x1) * dx + (b.y - w.y1) * dy) / (dx * dx + dy * dy || 1)));
+        const px = w.x1 + t * dx;
+        const py = w.y1 + t * dy;
+        let nx = b.x - px;
+        let ny = b.y - py;
+        const d = Math.hypot(nx, ny);
+        const min = R + World.WALL;
+        if (d >= min) continue;
+        if (d === 0) {
+          nx = 0;
+          ny = 1;
+        } else {
+          nx /= d;
+          ny /= d;
+        }
+        const vn = b.vx * nx + b.vy * ny;
+        if (vn < 0) {
+          b.vx -= (1 + WALL_RESTITUTION) * vn * nx;
+          b.vy -= (1 + WALL_RESTITUTION) * vn * ny;
+        }
+        b.x += nx * (min - d);
+        b.y += ny * (min - d);
       }
     }
     // Abstürze: Die Mitte ist nicht mehr auf dem Felsen
