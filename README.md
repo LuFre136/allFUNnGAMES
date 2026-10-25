@@ -359,6 +359,17 @@ Schubs-Spiel nach dem alten ICQ-Spiel Zoopaloola für 2 bis 8 Spieler. Jede Seit
 
 Physik und Regeln prüft `npm test`. Der Plan steht in [docs/plan-zoopaloola.md](docs/plan-zoopaloola.md).
 
+## So läuft Kampfschafe
+
+Nach dem alten ICQ-Spiel Warsheep für 2 bis 8 Spieler. Zwei bis vier Schafarmeen (ein Spieler oder ein Team je Armee) stehen sich auf einem Schlachtfeld gegenüber. Reihum ist eine Einheit dran und hat ein paar Sekunden zum Fahren, Zielen und Schießen.
+
+- Auf dem Handy: mit dem Stick fahren, aufs Schlachtfeld tippen zum Zielen, „Feuer!“. In den letzten Sekunden des Zugs kann man nur noch zielen und schießen. Am Fernseher gehen Maus, Pfeiltasten/WASD und Leertaste.
+- Einheiten wie im Original: Funker (Luftangriff, trifft auch eigene), Bazookas, MG-Schafe, Panzer, auf der Seenplatte Hubschrauber statt Bazookas. Bäume, Felsen und Häuser halten Fahrt und Schüsse auf, Wasser nur die Fahrt. Medipacks heilen die ganze Armee.
+- Wer zuletzt noch Schafe hat, gewinnt. Wer mit dem letzten Schuss auch seine eigenen letzten Schafe erwischt, verliert.
+- Einstellbar: Karte (Grüne Wiesen, Wüstensturm, Weiße Hölle, Seenplatte, Zufall), Armeegröße, Zeit pro Zug (10 bis 30 s), Gewinnsätze, Medipacks, Einheit gelost oder frei wählen, mit oder ohne Fernseher. Zu zweit reicht ein Handy.
+
+Regeln und Schüsse prüft `npm test`. Der Plan steht in [docs/plan-warsheep.md](docs/plan-warsheep.md).
+
 ## Aufbau
 
 ```
@@ -386,6 +397,7 @@ server/games/muehle/         Mühle (Brettspiel für zwei)
 server/games/hundsgemein/    Hundsgemein (nach Brändi Dog), Zugregeln in public/js/hundsgemein-rules.js
 server/games/backgammon/     Backgammon (Regelkern in rules.js)
 server/games/sumozoo/        Sumo Zoo (nach Zoopaloola), Karten in public/js/sumozoo-world.js, Spielsteine in public/js/sumozoo-art.js
+server/games/kampfschafe/    Kampfschafe (nach Warsheep), Karten in public/js/kampfschafe-world.js
 test/                        Regeltests (npm test)
 server/spotify.js            Optionale Spotify-Suche
 server/deezer.js             30-Sekunden-Vorschauen über Deezer (Musikzeitreise)

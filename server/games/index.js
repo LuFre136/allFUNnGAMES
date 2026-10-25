@@ -23,6 +23,7 @@ const Muehle = require('./muehle');
 const Hundsgemein = require('./hundsgemein');
 const Backgammon = require('./backgammon');
 const SumoZoo = require('./sumozoo');
+const Kampfschafe = require('./kampfschafe');
 
 const games = {
   pubquiz: PubQuiz,
@@ -48,6 +49,7 @@ const games = {
   hundsgemein: Hundsgemein,
   backgammon: Backgammon,
   sumozoo: SumoZoo,
+  kampfschafe: Kampfschafe,
 };
 
 // Platzhalter für die Startseite, bis die Spiele gebaut sind

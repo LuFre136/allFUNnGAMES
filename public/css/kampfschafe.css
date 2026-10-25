@@ -1,0 +1,53 @@
+/* Kampfschafe */
+
+.ks-layout { display: grid; gap: 12px; }
+.ks-layout.big { grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 1000px) {
+  .ks-layout.big { grid-template-columns: minmax(0, 1fr) 300px; align-items: start; }
+}
+.ks-board { display: flex; justify-content: center; min-width: 0; }
+.ks-canvas { display: block; border-radius: 18px; user-select: none; -webkit-user-select: none; touch-action: manipulation; }
+.ks-board.aiming .ks-canvas { touch-action: none; cursor: crosshair; }
+
+.ks-status { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 14px; border-radius: 999px; background: var(--bg-2); border: 1px solid var(--line); text-align: center; flex-wrap: wrap; }
+.ks-status:empty { display: none; }
+.ks-status.mine { background: var(--accent); color: var(--accent-ink); border-color: transparent; font-weight: 900; }
+
+.ks-time { position: relative; height: 26px; border-radius: 999px; background: var(--bg-2); border: 1px solid var(--line); overflow: hidden; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.9rem; }
+.ks-time:empty { display: none; }
+.ks-time span { position: relative; }
+.ks-time-fill { position: absolute; left: 0; top: 0; bottom: 0; background: #22c55e; opacity: 0.55; }
+.ks-time-fill.aim { background: #f97316; }
+
+.ks-controls { display: grid; grid-template-columns: 120px minmax(0, 1fr) auto; gap: 12px; align-items: center; user-select: none; -webkit-user-select: none; }
+.ks-controls.go { grid-template-columns: 1fr; }
+.ks-go { font-size: 1.2rem; padding: 16px; }
+.ks-joy { width: 120px; height: 120px; border-radius: 50%; background: var(--bg-2); border: 2px solid var(--line); display: grid; place-items: center; touch-action: none; cursor: grab; box-shadow: inset 0 0 0 10px rgba(0,0,0,0.08); }
+.ks-joy-thumb { width: 50px; height: 50px; border-radius: 50%; background: var(--accent); box-shadow: 0 4px 10px rgba(0,0,0,0.3); pointer-events: none; }
+.ks-unitinfo { display: grid; gap: 2px; min-width: 0; }
+.ks-fire { font-size: 1.15rem; padding: 18px 16px; border-radius: 18px; touch-action: manipulation; }
+@media (max-width: 420px) {
+  .ks-controls { grid-template-columns: 110px minmax(0, 1fr); }
+  .ks-joy { width: 110px; height: 110px; grid-row: span 2; }
+  .ks-fire { grid-column: 2; }
+}
+
+.ks-sides { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+.ks-layout.big .ks-sides { grid-template-columns: 1fr; }
+.ks-side { display: grid; gap: 4px; padding: 8px 10px; border-radius: 14px; background: var(--bg-2); border: 2px solid var(--line); border-left: 6px solid var(--side); min-width: 0; }
+.ks-side b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.ks-side.active { border-color: var(--accent); border-left-color: var(--side); box-shadow: 0 0 0 2px var(--accent); }
+.ks-side.out { opacity: 0.5; }
+.ks-icons { display: flex; flex-wrap: wrap; gap: 2px; font-size: 1.05rem; line-height: 1.3; }
+.ks-icons .gone { filter: grayscale(1); opacity: 0.25; }
+.ks-icons .now { outline: 2px solid var(--accent); border-radius: 6px; }
+.ks-wins { margin-left: auto; font-size: 0.85rem; flex: none; }
+
+.ks-log { display: grid; gap: 2px; font-size: 0.85rem; color: var(--muted); text-align: center; }
+.ks-score { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; font: 700 1.1rem 'Fredoka', sans-serif; }
+.ks-score b { font-size: 1.5rem; }
+
+.ks-maps { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.ks-map { display: grid; gap: 2px; text-align: left; padding: 10px; border-radius: 14px; background: var(--bg-2); border: 2px solid var(--line); color: inherit; font: inherit; cursor: pointer; }
+.ks-map.on { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+.ks-map-icon { font-size: 1.4rem; }
