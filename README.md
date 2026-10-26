@@ -397,6 +397,19 @@ Schach für 2 bis 4 Spieler. Zu zweit wird klassisch auf 8 × 8 gespielt (Weiß 
 
 Die Regeln prüft `npm test` (auch mit den bekannten Perft-Zugzahlen). Der Plan steht in [docs/plan-schach.md](docs/plan-schach.md).
 
+## So läuft die Minispiel Party
+
+Eine Partie besteht aus kurzen Minispielen (3 bis 16, Standard 8), die alle gleichzeitig auf dem Handy spielen, nach dem Vorbild von Mario Party. Vor jedem Minispiel steht kurz da, wie es geht; sind alle „Bereit!“ (spätestens nach 30 Sekunden), zählt die Bühne 3, 2, 1. Nach jedem Minispiel gibt es Punkte, am Ende eine Siegerehrung mit Podest und Sonderpreisen.
+
+- **Minispiele:** ⚡ Schnellzieher (auf „JETZT!“ tippen, drei Durchgänge), 🪢 Seilhüpfer (tippen, wenn das Seil unten ist), 🎨 Farbfolge (Farben merken und nachtippen), 🐞 Zählfieber (Tiere einer Sorte zählen), 🎈 Ballonpumpe (schütteln oder tippen, bis der Ballon platzt), 💣 Heiße Kartoffel (Bombe weitergeben), ⏱️ Stoppuhr (unsichtbare Uhr bei 10,00 s stoppen), 🚪 Glückstür (Tür wählen, hinter einer lauert ein Gespenst), 🙂 Phantombild (Augen, Nase und Mund wie auf der Vorlage hinziehen). Der Host wählt in der Lobby, welche dabei sind. Gespielt wird in zufälliger Reihenfolge, jedes Minispiel erst wieder, wenn alle dran waren.
+- **Punkte:** Standard ist „pro Spieler dahinter“ (bei sechs Spielern bekommt der Erste 5, der Letzte 0), wählbar auch 3/2/1 für die ersten drei. Optional zählt das letzte Minispiel doppelt.
+- **Fair trotz WLAN:** Reaktionszeiten misst jedes Handy selbst, und jedes Handy gleicht vor jedem Minispiel seine Uhr mit dem Server ab.
+- **Schütteln:** Die Ballonpumpe nutzt den Bewegungssensor. iPhones fragen beim „Bereit!“-Tippen um Erlaubnis. Wer nicht schütteln kann, tippt, beides ist gleich schnell gedeckelt.
+- **Mit Fernseher:** Das Host-Gerät ist die Bühne. Spielt der Host mit, tippt er dort mit Maus oder Leertaste. **Nur Handys:** Jedes Handy zeigt das Minispiel selbst, auch die wuselnden Tiere beim Zählfieber.
+- Der Host kann ein Minispiel überspringen oder sofort werten. Wer mitten im Minispiel geht, bekommt dafür keine Punkte; wer neu dazukommt, ist ab dem nächsten dabei.
+
+Neue Minispiele sind je eine Datei in `server/games/minispielparty/minigames/` plus die Darstellung in `public/js/minispielparty-games.js`. Der Plan steht in [docs/plan-minispiel-party.md](docs/plan-minispiel-party.md).
+
 ## Aufbau
 
 ```
@@ -427,6 +440,7 @@ server/games/sumozoo/        Sumo Zoo (nach Zoopaloola), Karten in public/js/sum
 server/games/kampfschafe/    Kampfschafe (nach Warsheep), Karten in public/js/kampfschafe-world.js
 server/games/rps/            RPS (Schach mit Schere, Stein, Papier nach ICQ), Regelkern in rules.js
 server/games/schach/         Schach für 2–4 (klassisch und Kreuzbrett), Regelkern in rules.js
+server/games/minispielparty/ Minispiel Party (Ablauf und Punkte), Minispiele einzeln in minigames/, Darstellung in public/js/minispielparty-games.js
 test/                        Regeltests (npm test)
 server/spotify.js            Optionale Spotify-Suche
 server/deezer.js             30-Sekunden-Vorschauen über Deezer (Musikzeitreise)

@@ -26,6 +26,7 @@ const SumoZoo = require('./sumozoo');
 const Kampfschafe = require('./kampfschafe');
 const Rps = require('./rps');
 const Schach = require('./schach');
+const MinispielParty = require('./minispielparty');
 
 const games = {
   pubquiz: PubQuiz,
@@ -54,6 +55,7 @@ const games = {
   kampfschafe: Kampfschafe,
   rps: Rps,
   schach: Schach,
+  minispielparty: MinispielParty,
 };
 
 // Platzhalter für die Startseite, bis die Spiele gebaut sind

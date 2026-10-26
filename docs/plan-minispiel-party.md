@@ -1,6 +1,6 @@
-# Plan: Minispiel-Party (nach dem Vorbild von „Mario Party“)
+# Plan: Minispiel Party (nach dem Vorbild von „Mario Party“)
 
-Stand: Plan, noch nicht gebaut (26.10.2026). Offene Fragen an Lukas stehen am Ende.
+Stand: umgesetzt (26.10.2026). Lukas' Entscheidungen und Abweichungen beim Bau stehen am Ende.
 
 ## Name
 
@@ -8,8 +8,8 @@ Stand: Plan, noch nicht gebaut (26.10.2026). Offene Fragen an Lukas stehen am En
 Spielnamen noch in den Minispielen vor. Die Minispiele selbst sind einfache Ideen (Reaktion, Merken, Schätzen,
 Schütteln) und werden frei nachgebaut, mit eigenen Namen und eigener Grafik.
 
-Vorschlag: **„Partyparcours“**, Symbol 🎪, technische Kennung `partyparcours`, CSS-Präfix `pp-` (noch frei).
-Andere Ideen: „Minispiel-Marathon“, „Zappel-Olympiade“, „Kunterbunt“.
+Name: **„Minispiel Party“** (von Lukas gewählt), Symbol 🎪, technische Kennung `minispielparty`, CSS-Präfix `mp-`.
+(Vorgeschlagen waren „Partyparcours“, „Minispiel-Marathon“, „Zappel-Olympiade“.)
 
 ## Spielidee
 
@@ -131,10 +131,27 @@ Für die Wertung sind beide Wege gleich viel wert (gedeckelt), damit Tippen kein
 - Minispiele 2 gegen 2 und 1 gegen 3.
 - Bestenliste für einzelne Minispiele (schnellste Reaktion, längste Farbfolge) über `createBoard`.
 
-## Offene Fragen an Lukas
+## Entscheidungen von Lukas (26.10.2026)
 
-1. **Name:** „Partyparcours“ oder ein anderer?
-2. **Erste Minispiele:** Passen die acht aus der Tabelle, oder fehlt eins, das dir wichtig ist (z. B. Phantombild)?
-3. **Punkte:** „So viele Punkte, wie Spieler hinter dir“ oder lieber nur die ersten drei (3/2/1)?
-4. **Brett:** Reicht erst mal die Reihe von Minispielen, oder soll gleich ein Spielbrett wie im Original dazu?
-5. **Fernseher:** Soll es auch ganz ohne Fernseher gehen (dann ohne Zählfieber), oder ist der Fernseher Pflicht?
+1. **Name:** „Minispiel Party“.
+2. **Minispiele:** die acht aus der Tabelle plus **Phantombild** (Gesichter nachbauen), also neun.
+3. **Punkte:** wählbar, Standard „so viele Punkte, wie Spieler hinter dir“, sonst 3/2/1.
+4. **Brett:** Erst mal reicht die Reihe von Minispielen. Nach dem Bau kommt ein eigener Plan für einen Brettmodus,
+   der auch ohne Fernseher geht.
+5. **Ohne Fernseher:** soll gehen.
+
+## Abweichungen beim Bau
+
+- Zählfieber geht doch auch ohne Fernseher: Die Tiere laufen dann auf jedem Handy gleichzeitig. Damit braucht kein
+  Minispiel zwingend den Fernseher. Mit Fernseher schauen alle auf den großen Bildschirm, das Handy ist nur der Zähler.
+- Anzahl Minispiele: 3, 5, 8, 12 oder 16 (3 zum schnellen Ausprobieren).
+- Eine Liste in fester Reihenfolge („Host wählt Liste“) gibt es nicht. Der Host wählt aus, welche Minispiele dabei
+  sind, die Reihenfolge wird gelost.
+- Der Host kann ein laufendes Minispiel abbrechen (keine Punkte) oder sofort werten.
+- Sonderpreise: Dauerbrenner (meiste Siege), Blitzmerker (schnellste Reaktion beim Schnellzieher), Bombenpech
+  (meiste Explosionen bei der heißen Kartoffel), Pechvogel (meiste letzte Plätze).
+- Töne gibt es noch nicht.
+- Zusätzliche Werte: Seilhüpfer erster Sprung nach 1,8 s, Takt von 1,3 s bis 0,43 s, Toleranz 210 bis 110 ms.
+  Ballonpumpe platzt nach 50 Stößen, höchstens einer alle 80 ms. Farbfolge 75 s. Phantombild 30 s, je Teil 25 %.
+  Heiße Kartoffel: Zünder 5–11 s (ab 7 Spielern 4–8 s). Glückstür: 3 Türen, ab 4 Spielern 4, ab 7 Spielern
+  5 Türen mit 2 Gespenstern.
