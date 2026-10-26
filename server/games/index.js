@@ -25,6 +25,7 @@ const Backgammon = require('./backgammon');
 const SumoZoo = require('./sumozoo');
 const Kampfschafe = require('./kampfschafe');
 const Rps = require('./rps');
+const Schach = require('./schach');
 
 const games = {
   pubquiz: PubQuiz,
@@ -52,6 +53,7 @@ const games = {
   sumozoo: SumoZoo,
   kampfschafe: Kampfschafe,
   rps: Rps,
+  schach: Schach,
 };
 
 // Platzhalter für die Startseite, bis die Spiele gebaut sind

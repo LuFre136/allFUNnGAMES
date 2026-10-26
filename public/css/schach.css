@@ -1,0 +1,110 @@
+/* Schach */
+
+.sc-note { padding: 10px 14px; border-radius: 14px; background: rgba(255, 204, 51, 0.12); border: 1px solid rgba(255, 204, 51, 0.4); font-weight: 700; }
+.sc-mode { padding: 10px 14px; border-radius: 14px; background: var(--bg-2); border: 1px solid var(--line); font-weight: 700; }
+
+/* Spielerfarben */
+.cw { --sc-fill: #f8fafc; --sc-ink: #1f2937; --sc-dot: #f8fafc; }
+.cb { --sc-fill: #1f2937; --sc-ink: #e5e7eb; --sc-dot: #1f2937; }
+.c0 { --sc-fill: #dc2626; --sc-ink: #2b0a0a; --sc-dot: #ef4444; }
+.c1 { --sc-fill: #2563eb; --sc-ink: #0b1a3d; --sc-dot: #3b82f6; }
+.c2 { --sc-fill: #eab308; --sc-ink: #3a2a00; --sc-dot: #facc15; }
+.c3 { --sc-fill: #16a34a; --sc-ink: #052e14; --sc-dot: #22c55e; }
+
+.sc-status { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 14px; border-radius: 999px; background: var(--bg-2); border: 1px solid var(--line); text-align: center; flex-wrap: wrap; }
+.sc-status.mine { background: var(--accent); color: var(--accent-ink); border-color: transparent; font-weight: 900; }
+.sc-status.check { box-shadow: 0 0 0 3px #ef4444; }
+
+/* Brett groß, Spieler daneben; auf Handys untereinander */
+.sc-layout { display: grid; gap: 12px; }
+@media (min-width: 900px) {
+  .sc-layout { grid-template-columns: minmax(0, min(max(320px, 100vh - 280px), 820px)) minmax(240px, 1fr); align-items: start; justify-content: center; }
+}
+.sc-main { min-width: 0; }
+
+.sc-board { position: relative; width: min(100%, max(300px, 100vh - 280px)); margin-inline: auto; aspect-ratio: 1; border-radius: 14px; padding: 1.5%; background: #5b3a1e; box-shadow: var(--shadow); }
+.sc-board.cross { background: transparent; box-shadow: none; padding: 0; }
+.sc-board.mine { box-shadow: 0 0 0 4px var(--accent), var(--shadow); }
+.sc-board.cross.mine { box-shadow: none; }
+.sc-board svg { width: 100%; height: 100%; display: block; touch-action: manipulation; user-select: none; -webkit-user-select: none; }
+.sc-sq.light { fill: #f0d9b5; }
+.sc-sq.dark { fill: #b58863; }
+.sc-board.cross .sc-sq.light { fill: #e8dcc6; }
+.sc-board.cross .sc-sq.dark { fill: #a7896b; }
+.sc-sq.tap, .tap { cursor: pointer; }
+.sc-marks, .sc-labels { pointer-events: none; }
+.sc-last { fill: rgba(250, 204, 21, 0.42); }
+.sc-sel { fill: rgba(34, 197, 94, 0.55); }
+.sc-dot { fill: rgba(20, 83, 45, 0.55); }
+.sc-hit { fill: none; stroke: rgba(20, 83, 45, 0.6); stroke-width: 9; }
+.sc-check { fill: rgba(239, 68, 68, 0.75); filter: blur(10px); }
+.sc-lbl { font: 800 22px 'Nunito', sans-serif; }
+.sc-lbl.on-dark { fill: #f0d9b5; }
+.sc-lbl.on-light { fill: #8a6443; }
+
+.sc-piece .sc-shape > * { fill: var(--sc-fill); stroke: var(--sc-ink); stroke-width: 3.2; stroke-linejoin: round; }
+.sc-piece .sc-shape > .sc-line { fill: none; stroke-width: 4; stroke-linecap: round; }
+.sc-piece .sc-shape > .sc-eye { fill: var(--sc-ink); stroke: none; }
+.sc-piece .sc-shape { filter: drop-shadow(0 4px 2px rgba(0, 0, 0, 0.35)); }
+.sc-piece.dead { --sc-fill: #9ca3af; --sc-ink: #4b5563; opacity: 0.85; }
+.sc-piece.ghost { pointer-events: none; animation: sc-vanish 0.7s ease-in forwards; }
+.sc-shape.slide { animation: sc-slide 0.35s cubic-bezier(.3, .9, .4, 1); }
+@keyframes sc-slide { from { transform: translate(var(--dx), var(--dy)); } to { transform: translate(0, 0); } }
+@keyframes sc-vanish { from { opacity: 1; } to { opacity: 0; } }
+
+/* Umwandlung */
+.sc-promo { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(0, 0, 0, 0.45); border-radius: 14px; }
+.sc-promo-box { display: grid; gap: 10px; justify-items: center; padding: 14px; border-radius: 18px; background: var(--bg-2); border: 1px solid var(--line); box-shadow: var(--shadow); }
+.sc-promo-row { display: flex; gap: 8px; }
+.sc-promo-btn { display: grid; justify-items: center; gap: 2px; padding: 6px; border-radius: 12px; border: 2px solid var(--line); background: #f0d9b5; color: #3b2410; cursor: pointer; font: inherit; }
+.sc-promo-btn:hover { border-color: var(--accent); }
+.sc-icon { width: 54px; height: 54px; display: block; }
+.sc-icon.mini { width: 18px; height: 18px; display: inline-block; vertical-align: middle; }
+.sc-icon .sc-shape > * { fill: var(--sc-fill, #e5e7eb); stroke: var(--sc-ink, #111); stroke-width: 4; stroke-linejoin: round; }
+.sc-icon .sc-shape > .sc-line { fill: none; }
+.sc-icon .sc-shape > .sc-eye { fill: var(--sc-ink, #111); stroke: none; }
+.sc-icon.mini .sc-shape > * { fill: #e5e7eb; stroke: #111; stroke-width: 6; }
+
+/* Spielerkarten */
+.sc-side { display: grid; gap: 10px; min-width: 0; }
+.sc-seats { display: grid; gap: 8px; }
+@media (max-width: 899px) { .sc-seats { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); } }
+.sc-seat { display: grid; gap: 6px; padding: 10px 12px; border-radius: 16px; background: var(--bg-2); border: 2px solid var(--line); border-left: 8px solid var(--sc-dot); }
+.sc-seat.active { border-color: var(--accent); border-left-color: var(--sc-dot); box-shadow: 0 0 0 2px var(--accent); }
+.sc-seat.dead { opacity: 0.55; }
+.sc-seat.offline { filter: grayscale(1); }
+.sc-who { display: flex; align-items: center; gap: 8px; }
+.sc-who-text { flex: 1; min-width: 0; }
+.sc-name { font-weight: 900; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: flex; align-items: center; gap: 6px; }
+.sc-dot-c { width: 12px; height: 12px; border-radius: 50%; display: inline-block; flex: none; background: var(--sc-dot); border: 1px solid rgba(255, 255, 255, 0.5); }
+.sc-team { font-size: 0.75rem; padding: 1px 6px; border-radius: 999px; background: rgba(255, 255, 255, 0.08); }
+.sc-score { font: 700 1.6rem/1 'Fredoka', sans-serif; }
+.sc-clock { font: 700 1.1rem/1 'Fredoka', monospace; padding: 4px 8px; border-radius: 8px; background: rgba(0, 0, 0, 0.3); }
+.sc-clock.run { background: var(--accent); color: var(--accent-ink); }
+.sc-clock.urgent { background: #ef4444; color: #fff; }
+.sc-row { display: flex; align-items: center; justify-content: space-between; gap: 6px; min-height: 22px; }
+.sc-capwrap { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; justify-content: flex-end; }
+.sc-caps { display: inline-flex; flex-wrap: wrap; }
+.sc-tag { font-size: 0.8rem; font-weight: 900; padding: 2px 8px; border-radius: 999px; background: rgba(255, 255, 255, 0.1); }
+.sc-tag.turn { background: var(--accent); color: var(--accent-ink); }
+.sc-tag.check { background: #ef4444; color: #fff; }
+.sc-tag.out { background: rgba(0, 0, 0, 0.35); }
+
+.sc-moves { padding: 10px 14px; }
+.sc-moves summary { cursor: pointer; }
+.sc-history { margin: 8px 0 0; padding-left: 2.2em; max-height: 40vh; overflow: auto; display: grid; gap: 2px; font-variant-numeric: tabular-nums; }
+.sc-history li { display: list-item; }
+.sc-history li .sc-dot-c { margin-right: 6px; vertical-align: -1px; }
+.sc-history li.event { font-weight: 800; color: var(--accent); }
+
+.sc-result { text-align: center; }
+.sc-result-head { font: 700 1.6rem 'Fredoka', sans-serif; }
+.sc-places { display: grid; gap: 4px; justify-content: center; }
+.sc-places > div { display: flex; align-items: center; gap: 6px; }
+.sc-series { font-size: 1.1rem; }
+.sc-series.big { font-size: 1.4rem; margin-top: 6px; }
+
+.sc-stats { width: 100%; border-collapse: collapse; }
+.sc-stats th, .sc-stats td { padding: 6px 8px; text-align: center; border-bottom: 1px solid var(--line); }
+.sc-stats td:first-child { text-align: left; }
+.sc-final-board .sc-board { width: min(100%, 460px); }
