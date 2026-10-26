@@ -2,13 +2,19 @@
 // Alle spielen gleichzeitig auf dem Handy, der Fernseher ist die Bühne. Nach jedem Minispiel gibt es Punkte.
 // Die Minispiele liegen einzeln in ./minigames, dieser Teil steuert Ablauf, Punkte und Sonderpreise.
 
-const { shuffle } = require('../../util');
+const { shuffle, pick } = require('../../util');
 const minigames = require('./minigames');
+const Board = require('./board');
 
 const MIN_PLAYERS = 2;
 const MAX_PLAYERS = 12;
 const COUNTS = [3, 5, 8, 12, 16];
 const SCORINGS = ['behind', 'top3'];
+const MODES = ['serie', 'brett'];
+const ROUNDS = [5, 10, 15, 20];
+const STAR_PRICES = [10, 20, 30];
+const DUEL_GAMES = ['schnellzieher', 'stoppuhr', 'farbfolge'];
+const DUEL_RESULT_MS = 6000;
 const COUNTDOWN = 3500; // 3, 2, 1 vor jedem Minispiel
 const READY_TIME = 30000; // so lange wird höchstens auf „Bereit!“ gewartet
 const MAX_PLAY = 5 * 60 * 1000; // Notbremse, falls ein Minispiel nicht endet
@@ -38,6 +44,10 @@ class MinispielParty {
     this.playSeq = 0;
     this.fastest = null; // { id, ms }
     this.bombs = new Map(); // id -> Explosionen
+    this.board = null; // Brettmodus
+    this.special = null; // { type: 'duel', ids, module } während eines Duells
+    this.duelResult = null;
+    this.bonus = [];
   }
 
   static meta() {
@@ -53,11 +63,27 @@ class MinispielParty {
       teams: false,
       minigames: minigames.list.map((m) => ({ id: m.id, name: m.name, icon: m.icon, short: m.short, motion: Boolean(m.motion) })),
       countOptions: COUNTS,
+      roundOptions: ROUNDS,
+      starPrices: STAR_PRICES,
+      items: Object.values(Board.ITEMS),
     };
   }
 
   static defaultSettings() {
-    return { count: 8, scoring: 'behind', games: minigames.list.map((m) => m.id), doubleLast: false, tv: true };
+    return {
+      mode: 'serie',
+      count: 8,
+      scoring: 'behind',
+      games: minigames.list.map((m) => m.id),
+      doubleLast: false,
+      tv: true,
+      // Brettmodus
+      board: 'rummelplatz',
+      rounds: 10,
+      starPrice: 20,
+      bonusStars: false,
+      lastDouble: true,
+    };
   }
 
   static sanitizeSettings(current, patch) {
@@ -65,7 +91,10 @@ class MinispielParty {
     if (patch.count !== undefined && COUNTS.includes(Number(patch.count))) next.count = Number(patch.count);
     if (patch.scoring !== undefined && SCORINGS.includes(patch.scoring)) next.scoring = patch.scoring;
     if (Array.isArray(patch.games)) next.games = minigames.list.map((m) => m.id).filter((id) => patch.games.includes(id));
-    for (const k of ['doubleLast', 'tv']) if (patch[k] !== undefined) next[k] = Boolean(patch[k]);
+    for (const k of ['doubleLast', 'tv', 'bonusStars', 'lastDouble']) if (patch[k] !== undefined) next[k] = Boolean(patch[k]);
+    if (patch.mode !== undefined && MODES.includes(patch.mode)) next.mode = patch.mode;
+    if (patch.rounds !== undefined && ROUNDS.includes(Number(patch.rounds))) next.rounds = Number(patch.rounds);
+    if (patch.starPrice !== undefined && STAR_PRICES.includes(Number(patch.starPrice))) next.starPrice = Number(patch.starPrice);
     return next;
   }
 
@@ -95,31 +124,68 @@ class MinispielParty {
     if (n < MIN_PLAYERS) throw new Error(`Die Minispiel Party braucht mindestens ${MIN_PLAYERS} Mitspieler.`);
     if (n > MAX_PLAYERS) throw new Error(`Die Minispiel Party geht mit höchstens ${MAX_PLAYERS} Spielern.`);
     if (!this.settings.games.length) throw new Error('Bitte wähle mindestens ein Minispiel.');
-    this.playlist = this.buildPlaylist();
+    this.playlist = this.buildPlaylist(this.brett ? this.settings.rounds : this.settings.count);
     this.index = 0;
     this.totals = new Map(this.players().map((p) => [p.id, 0]));
     this.history = [];
+    if (this.brett) {
+      this.board = new Board(this.boardHost(), this.settings, this.players().map((p) => p.id));
+      this.phase = 'board';
+      this.board.startRound();
+    } else this.toIntro();
+  }
+
+  get brett() {
+    return this.settings.mode === 'brett';
+  }
+
+  // Schnittstelle für das Brett
+  boardHost() {
+    return {
+      players: () => this.players().map((p) => p.id),
+      connected: (id) => this.connected(id),
+      name: (id) => this.lobby.players.get(id)?.name || 'Jemand',
+      broadcast: () => this.lobby.broadcast(),
+      roundDone: () => this.toIntro(),
+      startDuel: (a, b) => this.startDuel(a, b),
+    };
+  }
+
+  // Duell auf dem Brett: kurzes Minispiel nur für zwei
+  startDuel(a, b) {
+    const pool = DUEL_GAMES.filter((id) => this.settings.games.includes(id));
+    const module = minigames.byId[pick(pool.length ? pool : DUEL_GAMES)];
+    this.special = { type: 'duel', ids: [a, b], module };
     this.toIntro();
   }
 
+  endDuel(winner = null, loser = null) {
+    this.clearTimer();
+    this.stopInstance();
+    this.special = null;
+    this.duelResult = null;
+    this.phase = 'board';
+    this.board.duelDone(winner, loser);
+  }
+
   // Zufällige Reihenfolge, jedes Minispiel erst wieder, wenn alle dran waren, nie zweimal hintereinander
-  buildPlaylist() {
+  buildPlaylist(count) {
     const ids = this.settings.games;
     const list = [];
-    while (list.length < this.settings.count) {
+    while (list.length < count) {
       let round = shuffle(ids);
       if (round.length > 1 && round[0] === list[list.length - 1]) round = [...round.slice(1), round[0]];
       list.push(...round);
     }
-    return list.slice(0, this.settings.count);
+    return list.slice(0, count);
   }
 
   get current() {
-    return minigames.byId[this.playlist[this.index]];
+    return this.special?.module || minigames.byId[this.playlist[this.index]];
   }
 
   get isDouble() {
-    return this.settings.doubleLast && this.index === this.playlist.length - 1 && this.playlist.length > 1;
+    return !this.brett && this.settings.doubleLast && this.index === this.playlist.length - 1 && this.playlist.length > 1;
   }
 
   clearTimer() {
@@ -149,6 +215,7 @@ class MinispielParty {
   setReady(player) {
     if (this.phase !== 'intro') return { error: 'Es geht schon los.' };
     if (!this.isPlaying(player)) return { error: 'Du spielst nicht mit.' };
+    if (this.special && !this.special.ids.includes(player.id)) return { error: 'Bei diesem Duell schaust du zu.' };
     this.ready.add(player.id);
     this.checkReady();
     return { ok: true };
@@ -156,7 +223,7 @@ class MinispielParty {
 
   checkReady() {
     if (this.phase !== 'intro') return;
-    const waiting = this.players().filter((p) => !this.ready.has(p.id));
+    const waiting = this.players().filter((p) => !this.ready.has(p.id) && (!this.special || this.special.ids.includes(p.id)));
     if (!waiting.length && this.ready.size) this.toPlay();
   }
 
@@ -168,7 +235,11 @@ class MinispielParty {
     if (this.phase !== 'intro') return;
     this.clearTimer();
     for (const p of this.players()) if (!this.totals.has(p.id)) this.totals.set(p.id, 0);
-    this.participants = this.players().map((p) => p.id);
+    this.participants = this.special ? this.special.ids.filter((id) => this.connected(id)) : this.players().map((p) => p.id);
+    if (this.special && this.participants.length < 2) {
+      this.endDuel();
+      return;
+    }
     if (!this.participants.length) {
       this.skip();
       return;
@@ -224,6 +295,15 @@ class MinispielParty {
     this.clearTimer();
     const { groups, info = null, extra = null } = this.instance.ranking();
     this.stopInstance();
+    if (this.special) {
+      // Duell: Sieger nur, wenn einer klar vorne liegt
+      const [a, b] = this.special.ids;
+      const winner = groups.length > 1 && groups[0].ids.length === 1 && !groups[0].none ? groups[0].ids[0] : null;
+      this.duelResult = { winner, loser: winner ? (winner === a ? b : a) : null, groups: groups.map((g, i) => ({ ...g, place: i + 1, points: 0 })), info, id: this.special.module.id, stake: Board.DUEL_STAKE };
+      this.phase = 'result';
+      this.setTimer(DUEL_RESULT_MS, () => this.endDuel(this.duelResult.winner, this.duelResult.loser));
+      return;
+    }
     const total = this.participants.length;
     const mult = this.isDouble ? 2 : 1;
     let before = 0;
@@ -234,12 +314,17 @@ class MinispielParty {
       for (const id of g.ids) this.totals.set(id, (this.totals.get(id) || 0) + points);
       return { ...g, place, points };
     });
-    this.history.push({ id: this.current.id, groups: scored, info, extra, double: mult > 1, skipped: false });
+    const coins = this.board ? this.board.minigameCoins(scored) : null;
+    this.history.push({ id: this.current.id, groups: scored, info, extra, double: mult > 1, skipped: false, coins });
     this.phase = 'result';
   }
 
   // Host: Minispiel auslassen, keine Punkte
   skip() {
+    if (this.special && ['intro', 'play', 'result'].includes(this.phase)) {
+      this.endDuel();
+      return;
+    }
     if (!['intro', 'play'].includes(this.phase)) return;
     this.clearTimer();
     this.stopInstance();
@@ -252,12 +337,21 @@ class MinispielParty {
     if (this.phase === 'intro') this.toPlay();
     else if (this.phase === 'play') this.toResult();
     else if (this.phase === 'result') {
+      if (this.special) {
+        this.endDuel(this.duelResult?.winner, this.duelResult?.loser);
+        return;
+      }
       if (this.index + 1 >= this.playlist.length) {
+        this.clearTimer();
+        if (this.board) this.bonus = this.board.bonusStars();
         this.phase = 'final';
         return;
       }
       this.index++;
-      this.toIntro();
+      if (this.board) {
+        this.phase = 'board';
+        this.board.nextRound();
+      } else this.toIntro();
     }
   }
 
@@ -269,6 +363,10 @@ class MinispielParty {
       return { ok: true };
     }
     if (type === 'ready') return this.setReady(player);
+    if (['roll', 'useItem', 'choose', 'force'].includes(type)) {
+      if (this.phase !== 'board' || !this.board) return { error: 'Gerade ist niemand am Brett dran.' };
+      return this.board.action(player, { type, ...data });
+    }
     if (this.phase !== 'play' || !this.instance) return { error: 'Gerade läuft kein Minispiel.' };
     return this.instance.action(player, data.move || {}) || { ok: true };
   }
@@ -283,11 +381,13 @@ class MinispielParty {
   playersChanged() {
     if (this.phase === 'intro') this.checkReady();
     if (this.phase === 'play') this.instance?.playersChanged?.();
+    if (this.phase === 'board') this.board?.playersChanged();
   }
 
   // ---------- Wertung ----------
 
   standings() {
+    if (this.board) return this.board.standings();
     const list = [...this.totals].map(([id, points]) => ({ id, points })).sort((a, b) => b.points - a.points);
     let place = 0;
     return list.map((e, i) => {
@@ -334,11 +434,14 @@ class MinispielParty {
       double: this.isDouble,
       scoring: this.settings.scoring,
       tv: this.settings.tv,
+      mode: this.board ? 'brett' : 'serie',
       standings: this.standings(),
       playing: this.isPlaying(viewer),
       serverNow: Date.now(),
       deadline: this.phase === 'intro' ? this.deadline : null,
     };
+    if (this.board) view.board = this.board.view(viewer);
+    if (this.special) view.duel = { ids: this.special.ids, stake: Board.DUEL_STAKE };
     if (this.phase === 'intro') view.ready = [...this.ready];
     if (this.phase === 'play') {
       view.playId = this.playSeq;
@@ -347,7 +450,10 @@ class MinispielParty {
       view.inGame = this.participants.includes(viewer.id);
       view.game = this.instance ? this.instance.view(viewer) : null;
     }
-    if (['result', 'final'].includes(this.phase)) {
+    if (this.phase === 'result' && this.special && this.duelResult) {
+      const d = this.duelResult;
+      view.last = { ...d, duel: true, game: this.publicGame(minigames.byId[d.id]) };
+    } else if (['result', 'final'].includes(this.phase)) {
       const h = this.history[this.history.length - 1];
       view.last = h && { ...h, game: this.publicGame(minigames.byId[h.id]) };
       view.lastOne = this.index + 1 >= this.playlist.length;
@@ -355,6 +461,7 @@ class MinispielParty {
     if (this.phase === 'final') {
       view.history = this.history.map((h) => ({ id: h.id, skipped: h.skipped, winners: h.groups[0]?.ids || [], double: h.double }));
       view.awards = this.awards();
+      view.bonus = this.bonus;
     }
     return view;
   }
@@ -362,6 +469,7 @@ class MinispielParty {
   dispose() {
     this.clearTimer();
     this.stopInstance();
+    this.board?.dispose();
   }
 }
 

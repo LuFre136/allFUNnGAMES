@@ -1,6 +1,6 @@
 # Plan: Brettmodus für die Minispiel Party
 
-Stand: Plan, noch nicht gebaut (26.10.2026). Offene Fragen an Lukas stehen am Ende.
+Stand: umgesetzt (26.10.2026). Lukas' Antworten und die Abweichungen vom Plan stehen am Ende.
 
 Die Minispiel Party läuft bisher als Reihe von Minispielen mit Punkten (siehe `plan-minispiel-party.md`). Lukas
 möchte zusätzlich ein Spielbrett wie im Original, das auch ganz ohne Fernseher funktioniert. Dieser Plan beschreibt
@@ -94,10 +94,27 @@ Minispiele an/aus, Fernseher und die Punkteart aus dem bisherigen Spiel bleiben 
 - Minispiele 2 gegen 2 und 1 gegen 3, ausgelöst durch die Farben der Felder, auf denen alle stehen.
 - Weitere Bretter.
 
-## Offene Fragen an Lukas
+## Entscheidungen und Umsetzung
 
-1. **Würfel:** 1–6 (ruhiger, mehr Felder werden besucht) oder 1–10 wie im Original (schneller, mehr Zufall)?
-2. **Reihum oder gleichzeitig würfeln:** Passt der Vorschlag „reihum bis 5 Spieler, ab 6 gleichzeitig“?
-3. **Runden:** Ist 10 als Standard gut (etwa 45–60 Minuten mit Minispielen)?
-4. **Felder:** Sollen Duelle und Münzen klauen dabei sein, oder lieber ohne gemeine Felder?
-5. **Gegenstände/Shop:** schon in der ersten Version oder später?
+Lukas' Antworten auf die offenen Fragen:
+
+1. **Würfel:** 1–10 wie im Original.
+2. **Würfeln:** immer reihum, auch bei vielen Spielern. „Gleichzeitig würfeln“ gibt es nicht.
+3. **Runden:** 10 als Standard passt (wählbar 5, 10, 15, 20).
+4. **Felder:** Duelle und Münzen klauen sind dabei.
+5. **Shop:** gleich in der ersten Version.
+
+Gebaut wurde es so:
+
+- `server/games/minispielparty/board.js` (Würfeln, Laufen, Felder, Stern, Shop, Ereignisse, Duelle) und
+  `boards.js` (Brett „Rummelplatz“: 32 Felder im Rundkurs plus eine Abkürzung mit 4 Feldern). Die Brettdaten sind
+  JavaScript statt JSON, weil der Rundkurs berechnet wird.
+- Gegenstände im Shop: 🎲 Doppelwürfel (6 Münzen), 🔄 Tauschkarte (8), 🧭 Sternkompass (15). Höchstens drei.
+  Shops stehen als eigene Felder auf dem Brett; man kann beim Vorbeilaufen kaufen.
+- Glücksrad: +5, +10, nochmal würfeln, 5 Münzen klauen, Gratis-Gegenstand, −3.
+- Pechfeld: entweder die Hälfte der Münzen weg oder 5 Münzen an den Letzten.
+- Startguthaben 10 Münzen. Minispiele bringen zwei Münzen pro Spieler dahinter.
+- Wer nicht verbunden ist, setzt aus; bei Entscheidungen wird nach 30 Sekunden automatisch gewählt, der Host kann
+  mit „Für X weitermachen“ abkürzen.
+- Handys zeigen auch mit Fernseher das Brett (gezoomt auf die laufende Figur), damit man nicht nur auf den Fernseher
+  schauen muss.
