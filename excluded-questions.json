@@ -95,6 +95,12 @@
       "type": "flag",
       "question": "Zu welchem Land gehört diese Flagge?",
       "excludedAt": "2026-10-24T08:31:13.682Z"
+    },
+    {
+      "id": "zi24",
+      "type": "choice",
+      "question": "Aus welchem Film stammt das Zitat „Möge die Macht mit dir sein.“?",
+      "excludedAt": "2026-10-26T18:50:52.761Z"
     }
   ]
 }
