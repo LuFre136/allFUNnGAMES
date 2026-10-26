@@ -261,3 +261,170 @@ test('Wer mitten im Minispiel geht, bekommt keine Punkte, das Spiel läuft weite
   assert.strictEqual(groups[2].points, 0);
   g.dispose();
 });
+
+// ---------- Brettmodus ----------
+
+// Uhr in kleinen Schritten vorspulen, damit auch Zeitgeber laufen, die erst unterwegs gestellt werden
+function run(t, ms) {
+  for (let left = ms; left > 0; left -= 50) t.mock.timers.tick(Math.min(50, left));
+}
+
+function brett(t, n = 3, game = {}) {
+  const s = setup(n, { mode: 'brett', ...game });
+  const b = s.g.board;
+  b.order = [...s.lobby.players.keys()];
+  b.turnIdx = 0;
+  b.startTurn();
+  b.rng = () => 4; // Würfel zeigt 5
+  const pl = (i) => b.p.get(`p${i}`);
+  const act = (i, type, data = {}) => s.g.action(s.p(i), { type, ...data });
+  return { ...s, b, pl, act };
+}
+
+test('Brett: Start mit 10 Münzen, Würfel 1–10, Figur läuft und Feld zählt', (t) => {
+  const { g, b, pl, act } = brett(t);
+  assert.strictEqual(g.phase, 'board');
+  assert.strictEqual(pl(1).coins, 10);
+  b.star = 20;
+  assert.ok(act(2, 'roll').error, 'nicht dran');
+  act(1, 'roll');
+  assert.deepStrictEqual(b.turn.dice, [5]);
+  run(t, 1400 + 5 * 280 + 300);
+  assert.strictEqual(pl(1).field, 5);
+  assert.strictEqual(pl(1).coins, 13, 'blaues Feld +3');
+  run(t, 2700);
+  assert.strictEqual(b.turn.id, 'p2');
+  g.dispose();
+});
+
+test('Brett: Am Stern vorbei kaufen, dann weiterlaufen', (t) => {
+  const { g, b, pl, act } = brett(t);
+  b.star = 3;
+  pl(1).coins = 30;
+  act(1, 'roll');
+  run(t, 1400 + 3 * 280 + 300);
+  assert.strictEqual(b.turn.step, 'choice');
+  assert.strictEqual(b.turn.choice.type, 'star');
+  act(1, 'choose', { value: 'yes' });
+  assert.strictEqual(pl(1).stars, 1);
+  assert.strictEqual(pl(1).coins, 10);
+  assert.notStrictEqual(b.star, 3, 'Stern wandert weiter');
+  run(t, 1500 + 2 * 280 + 300);
+  assert.strictEqual(pl(1).field, 5);
+  g.dispose();
+});
+
+test('Brett: Zu wenig Münzen für den Stern', (t) => {
+  const { g, b, pl, act } = brett(t);
+  b.star = 3;
+  pl(1).coins = 5;
+  act(1, 'roll');
+  run(t, 1400 + 3 * 280 + 300);
+  assert.notStrictEqual(b.turn.step, 'choice');
+  run(t, 1600 + 2 * 280 + 300);
+  assert.strictEqual(pl(1).field, 5);
+  assert.strictEqual(pl(1).stars, 0);
+  g.dispose();
+});
+
+test('Brett: Abzweig fragt nach der Richtung', (t) => {
+  const { g, b, pl, act } = brett(t);
+  b.star = 5;
+  pl(1).field = 13;
+  act(1, 'roll');
+  run(t, 1400 + 3 * 280 + 300);
+  assert.strictEqual(pl(1).field, 16);
+  assert.strictEqual(b.turn.choice.type, 'fork');
+  assert.deepStrictEqual(b.turn.choice.options.map((o) => o.value), [17, 32]);
+  act(1, 'choose', { value: 32 });
+  run(t, 2 * 280 + 300);
+  assert.strictEqual(pl(1).field, 33);
+  g.dispose();
+});
+
+test('Brett: Shop beim Vorbeilaufen, Doppelwürfel im nächsten Zug', (t) => {
+  const { g, b, pl, act } = brett(t, 2);
+  b.star = 20;
+  pl(1).field = 5;
+  act(1, 'roll');
+  run(t, 1400 + 3 * 280 + 300);
+  assert.strictEqual(b.turn.choice.type, 'shop');
+  act(1, 'choose', { value: 'doppel' });
+  assert.deepStrictEqual(pl(1).items, ['doppel']);
+  assert.strictEqual(pl(1).coins, 4);
+  run(t, 1200 + 2 * 280 + 300 + 2700);
+  // Spieler 2 zieht, dann ist Spieler 1 wieder dran (nach dem Minispiel)
+  assert.strictEqual(b.turn.id, 'p2');
+  b.turn.id = 'p1';
+  act(1, 'useItem', { item: 'doppel' });
+  act(1, 'roll');
+  assert.deepStrictEqual(b.turn.dice, [5, 5]);
+  assert.deepStrictEqual(pl(1).items, []);
+  g.dispose();
+});
+
+test('Brett: Nach der Runde ein Minispiel um Münzen, dann nächste Runde', (t) => {
+  const { g, b, pl, p, act } = brett(t, 2, { games: ['stoppuhr'], rounds: 5 });
+  b.star = 20;
+  for (const i of [1, 2]) {
+    act(i, 'roll');
+    run(t, 1400 + 5 * 280 + 300 + 2700);
+  }
+  assert.strictEqual(g.phase, 'intro');
+  g.action(p(1), { type: 'ready' });
+  g.action(p(2), { type: 'ready' });
+  run(t, 3600);
+  const before = pl(1).coins;
+  g.action(p(1), { type: 'move', move: { type: 'stop', ms: 10000 } });
+  g.action(p(2), { type: 'move', move: { type: 'stop', ms: 13000 } });
+  assert.strictEqual(g.phase, 'result');
+  assert.strictEqual(pl(1).coins, before + 2, 'Platzpunkte mal zwei');
+  g.action(p(1), { type: 'next' });
+  assert.strictEqual(g.phase, 'board');
+  assert.strictEqual(b.round, 2);
+  g.dispose();
+});
+
+test('Brett: Duell um 5 Münzen', (t) => {
+  const { g, b, pl, act } = brett(t);
+  b.star = 20;
+  pl(1).field = 6;
+  pl(1).coins = 0; // kein Geld für den Shop unterwegs, 6 + 5 = 11 ist ein Duellfeld
+  act(1, 'roll');
+  run(t, 1400 + 5 * 280 + 600);
+  assert.strictEqual(b.turn.choice.type, 'duel');
+  act(1, 'choose', { value: 'p3' });
+  run(t, 1900);
+  assert.strictEqual(g.phase, 'intro');
+  assert.deepStrictEqual(g.special.ids, ['p1', 'p3']);
+  assert.ok(g.action(g.lobby.players.get('p2'), { type: 'ready' }).error, 'p2 schaut zu');
+  g.endDuel('p1', 'p3');
+  assert.strictEqual(g.phase, 'board');
+  assert.strictEqual(pl(1).coins, 5);
+  assert.strictEqual(pl(3).coins, 5);
+  g.dispose();
+});
+
+test('Brett: Rangliste nach Sternen, dann Münzen; Bonussterne', (t) => {
+  const { g, b, pl } = brett(t, 3, { bonusStars: true });
+  pl(1).stars = 1; pl(1).coins = 3;
+  pl(2).stars = 1; pl(2).coins = 9;
+  pl(3).stars = 0; pl(3).coins = 50;
+  assert.deepStrictEqual(b.standings().map((e) => e.id), ['p2', 'p1', 'p3']);
+  pl(3).earned = 99;
+  const bonus = b.bonusStars();
+  assert.ok(bonus.some((x) => x.key === 'earned' && x.ids[0] === 'p3'));
+  assert.strictEqual(pl(3).stars, 1);
+  g.dispose();
+});
+
+test('Brett: Wer weg ist, setzt aus', (t) => {
+  const { g, b, p } = brett(t);
+  p(2).connected = false;
+  b.turnIdx = 1;
+  b.startTurn();
+  assert.strictEqual(b.turn.step, 'effect');
+  run(t, 1600);
+  assert.strictEqual(b.turn.id, 'p3');
+  g.dispose();
+});

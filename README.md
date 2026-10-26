@@ -408,6 +408,18 @@ Eine Partie besteht aus kurzen Minispielen (3 bis 16, Standard 8), die alle glei
 - **Mit Fernseher:** Das Host-Gerät ist die Bühne. Spielt der Host mit, tippt er dort mit Maus oder Leertaste. **Nur Handys:** Jedes Handy zeigt das Minispiel selbst, auch die wuselnden Tiere beim Zählfieber.
 - Der Host kann ein Minispiel überspringen oder sofort werten. Wer mitten im Minispiel geht, bekommt dafür keine Punkte; wer neu dazukommt, ist ab dem nächsten dabei.
 
+### Brettmodus
+
+In den Einstellungen lässt sich der **Modus „Spielbrett“** wählen, wie im Original: Alle Figuren laufen über das Brett „Rummelplatz“ 🎡, und wer am Ende die meisten Sterne hat (bei Gleichstand die meisten Münzen), gewinnt.
+
+- **Reihum würfeln (1–10):** Wer dran ist, würfelt auf dem Handy, die Figur läuft Feld für Feld auf allen Bildschirmen. Am Abzweig wählt man außen herum oder die gefährliche Abkürzung.
+- **Felder:** 🔵 +3 Münzen, 🔴 −3, ❓ Ereignis (Münzregen, Stern wandert, Windstoß, Geschenk, Platztausch), 🍀 Glücksrad, 💀 Pechfeld, ⚔️ Duell um 5 Münzen (Schnellzieher, Stoppuhr oder Farbfolge zu zweit), 🛒 Shop. In den letzten drei Runden zählen blaue und rote Felder doppelt (abschaltbar).
+- **Stern:** Wer am Stern vorbeikommt, kann ihn kaufen (10, 20 oder 30 Münzen); danach wandert er weiter.
+- **Shop:** 🎲 Doppelwürfel, 🔄 Tauschkarte (Platz mit jemandem tauschen), 🧭 Sternkompass (direkt vor den Stern springen). Höchstens drei Gegenstände, einer pro Zug vor dem Würfeln.
+- **Minispiel nach jeder Runde:** Platzierung wird in Münzen umgerechnet (zwei Münzen pro Spieler dahinter).
+- **Runden:** 5, 10 (Standard), 15 oder 20. Optional Bonussterne am Ende (Minispiel-König, Münzsammler, Ereignis-Magnet).
+- **Ohne Fernseher:** Jedes Handy zeigt das Brett selbst und folgt der Figur, die gerade läuft; „Ganzes Brett“ zeigt die Übersicht. Wer weg ist, setzt aus; der Host kann für jemanden weitermachen.
+
 Neue Minispiele sind je eine Datei in `server/games/minispielparty/minigames/` plus die Darstellung in `public/js/minispielparty-games.js`. Der Plan steht in [docs/plan-minispiel-party.md](docs/plan-minispiel-party.md).
 
 ## Aufbau
@@ -440,7 +452,7 @@ server/games/sumozoo/        Sumo Zoo (nach Zoopaloola), Karten in public/js/sum
 server/games/kampfschafe/    Kampfschafe (nach Warsheep), Karten in public/js/kampfschafe-world.js
 server/games/rps/            RPS (Schach mit Schere, Stein, Papier nach ICQ), Regelkern in rules.js
 server/games/schach/         Schach für 2–4 (klassisch und Kreuzbrett), Regelkern in rules.js
-server/games/minispielparty/ Minispiel Party (Ablauf und Punkte), Minispiele einzeln in minigames/, Darstellung in public/js/minispielparty-games.js
+server/games/minispielparty/ Minispiel Party (Ablauf und Punkte), Minispiele einzeln in minigames/, Brett in board.js und boards.js, Darstellung in public/js/minispielparty-games.js und -board.js
 test/                        Regeltests (npm test)
 server/spotify.js            Optionale Spotify-Suche
 server/deezer.js             30-Sekunden-Vorschauen über Deezer (Musikzeitreise)
