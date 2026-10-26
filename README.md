@@ -384,6 +384,19 @@ Schach mit Schere, Stein, Papier nach dem alten ICQ-Spiel RPS, für genau 2 Spie
 
 Die Regeln prüft `npm test`. Der Plan steht in [docs/plan-rps.md](docs/plan-rps.md).
 
+## So läuft Schach
+
+Schach für 2 bis 4 Spieler. Zu zweit wird klassisch auf 8 × 8 gespielt (Weiß gegen Schwarz), zu dritt und zu viert auf dem Kreuzbrett (14 × 14 ohne die Ecken) mit Rot, Blau, Gelb und Grün, gezogen wird im Uhrzeigersinn.
+
+- Es gelten die normalen Regeln mit Rochade, Umwandlung (mit Auswahl der Figur) und, im klassischen Spiel, en passant. Auf dem Kreuzbrett verwandeln sich Bauern schon auf der 8. Reihe, also in der Mitte des Bretts.
+- **Jeder gegen jeden** (zu dritt, zu viert): Wer am Zug matt oder patt ist, aufgibt oder die Zeit überschreitet, scheidet aus. Seine Figuren bleiben grau als Hindernis stehen und dürfen geschlagen werden. Wer zuletzt übrig ist, gewinnt. Punkte gibt es nach Platz (zu viert 3, 2, 1, 0).
+- **Zwei gegen zwei** (zu viert, Einstellung): Partner sitzen gegenüber und schlagen sich nicht. Das erste Matt entscheidet, Patt ist Remis.
+- Remis: dreimal dieselbe Stellung, 50 Züge ohne Schlagen und Bauernzug, zu wenig Material, klassisch auch Patt. Der Host kann Remis werten oder für jemanden einen Zufallszug auslösen.
+- Einstellbar sind die Zahl der Partien (1, 3, 5, ohne Ende; jede Partie rückt jeder einen Platz weiter), eine Schachuhr (3 bis 30 Minuten pro Spieler) und ob mögliche Züge angezeigt werden.
+- **Ein Gerät für alle:** Unter „Mitspieler an diesem Gerät“ bis zu drei Mitspieler eintragen und das Handy oder Tablet reihum weitergeben. Das Brett dreht sich zu dem, der dran ist (abschaltbar). Natürlich kann auch jeder mit dem eigenen Handy spielen, der Fernseher zeigt dann das Brett groß.
+
+Die Regeln prüft `npm test` (auch mit den bekannten Perft-Zugzahlen). Der Plan steht in [docs/plan-schach.md](docs/plan-schach.md).
+
 ## Aufbau
 
 ```
@@ -413,6 +426,7 @@ server/games/backgammon/     Backgammon (Regelkern in rules.js)
 server/games/sumozoo/        Sumo Zoo (nach Zoopaloola), Karten in public/js/sumozoo-world.js, Spielsteine in public/js/sumozoo-art.js
 server/games/kampfschafe/    Kampfschafe (nach Warsheep), Karten in public/js/kampfschafe-world.js
 server/games/rps/            RPS (Schach mit Schere, Stein, Papier nach ICQ), Regelkern in rules.js
+server/games/schach/         Schach für 2–4 (klassisch und Kreuzbrett), Regelkern in rules.js
 test/                        Regeltests (npm test)
 server/spotify.js            Optionale Spotify-Suche
 server/deezer.js             30-Sekunden-Vorschauen über Deezer (Musikzeitreise)
