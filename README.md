@@ -408,6 +408,14 @@ Eine Partie besteht aus kurzen Minispielen (3 bis 16, Standard 8), die alle glei
 - **Mit Fernseher:** Das Host-Gerät ist die Bühne. Spielt der Host mit, tippt er dort mit Maus oder Leertaste. **Nur Handys:** Jedes Handy zeigt das Minispiel selbst, auch die wuselnden Tiere beim Zählfieber.
 - Der Host kann ein Minispiel überspringen oder sofort werten. Wer mitten im Minispiel geht, bekommt dafür keine Punkte; wer neu dazukommt, ist ab dem nächsten dabei.
 
+### Einer gegen alle, Teams und Team-Party
+
+- **Spielarten:** „Jeder gegen jeden“, „Gemischt“ (Standard, jedes dritte Minispiel) oder „Viel Team“ (jedes zweite). Dann spielt einer allein gegen alle (ab 3 Spielern, zufällig ausgelost) oder Team Blau gegen Team Rot (ab 4 Spielern, jedes Mal neu gemischt).
+- **Einer gegen alle:** 🥅 Torwart (Ecke erraten), 🚦 Ochs am Berg (bei Rot nicht laufen), 👻 Gespensterhaus (verstecken, das Gespenst öffnet Türen).
+- **Team gegen Team:** 🪢 Tauziehen (Tippen, Durchschnitt pro Kopf), 🎨 Staffel-Farbfolge (Farben der Reihe nach), 🗼 Turmbau (Blöcke stapeln).
+- **Punkte:** Siegerteam: jeder so viele Punkte, wie das andere Team Spieler hat. Gewinnt der Einzelne, bekommt er einen Punkt pro Gegner, gewinnt die Gruppe, jeder einen. Bei 3/2/1 bekommt jeder Sieger 3.
+- **Team-Party:** dritter Modus mit zwei festen Teams für die ganze Partie. Jedes Minispiel ist ein Punkt für ein Team, bei „jeder gegen jeden“ gewinnt das Team mit mehr Punkten pro Kopf.
+
 ### Brettmodus
 
 In den Einstellungen lässt sich der **Modus „Spielbrett“** wählen, wie im Original: Alle Figuren laufen über das Brett „Rummelplatz“ 🎡, und wer am Ende die meisten Sterne hat (bei Gleichstand die meisten Münzen), gewinnt.
@@ -452,7 +460,7 @@ server/games/sumozoo/        Sumo Zoo (nach Zoopaloola), Karten in public/js/sum
 server/games/kampfschafe/    Kampfschafe (nach Warsheep), Karten in public/js/kampfschafe-world.js
 server/games/rps/            RPS (Schach mit Schere, Stein, Papier nach ICQ), Regelkern in rules.js
 server/games/schach/         Schach für 2–4 (klassisch und Kreuzbrett), Regelkern in rules.js
-server/games/minispielparty/ Minispiel Party (Ablauf und Punkte), Minispiele einzeln in minigames/, Brett in board.js und boards.js, Darstellung in public/js/minispielparty-games.js und -board.js
+server/games/minispielparty/ Minispiel Party (Ablauf und Punkte), Minispiele einzeln in minigames/, Brett in board.js und boards.js, Darstellung in public/js/minispielparty-games.js, -board.js und -teams.js
 test/                        Regeltests (npm test)
 server/spotify.js            Optionale Spotify-Suche
 server/deezer.js             30-Sekunden-Vorschauen über Deezer (Musikzeitreise)

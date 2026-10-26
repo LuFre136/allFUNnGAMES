@@ -243,7 +243,7 @@ test('Phantombild: genaue Teile bringen 100 %, Teile im Korb nichts', (t) => {
 });
 
 test('Alle Minispiele haben Name, Symbol und Erklärung', () => {
-  assert.strictEqual(minigames.list.length, 9);
+  assert.strictEqual(minigames.list.length, 15);
   for (const m of minigames.list) {
     assert.ok(m.id && m.name && m.icon && m.short && m.howto, m.id);
   }

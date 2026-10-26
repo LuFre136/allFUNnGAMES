@@ -86,11 +86,20 @@
           <button data-action="hostPlays" data-value="1" class="${s.hostPlays ? 'on' : ''}">🎮 Spielt mit</button>
           <button data-action="hostPlays" data-value="0" class="${!s.hostPlays ? 'on' : ''}">🎩 Nur Gamemaster</button>
         </div></div>` : ''}
-      <div>${label('Modus')}${seg('mode', g.mode, [['serie', '🎪 Minispiel-Reihe'], ['brett', '🎡 Spielbrett']])}
-        <div class="small muted" style="margin-top:6px">${g.mode === 'brett'
-          ? 'Reihum würfeln (1–10) und über das Brett ziehen, Münzen sammeln und Sterne kaufen. Nach jeder Runde kommt ein Minispiel um Münzen. Wer am Ende die meisten Sterne hat, gewinnt.'
-          : 'Ein Minispiel nach dem anderen, nach jedem gibt es Punkte.'}</div>
+      <div>${label('Modus')}${seg('mode', g.mode, [['serie', '🎪 Minispiel-Reihe'], ['brett', '🎡 Spielbrett'], ['team', '🤝 Team-Party']])}
+        <div class="small muted" style="margin-top:6px">${{
+          brett: 'Reihum würfeln (1–10) und über das Brett ziehen, Münzen sammeln und Sterne kaufen. Nach jeder Runde kommt ein Minispiel um Münzen. Wer am Ende die meisten Sterne hat, gewinnt.',
+          team: 'Zwei feste Teams (Blau gegen Rot) für die ganze Partie, zufällig gemischt. Jedes Minispiel ist ein Punkt für ein Team: Team-Minispiele direkt, bei den anderen gewinnt das Team mit mehr Punkten pro Kopf. Ab 4 Spielern.',
+          serie: 'Ein Minispiel nach dem anderen, nach jedem gibt es Punkte.',
+        }[g.mode]}</div>
       </div>
+      ${g.mode !== 'team' ? `<div>${label('Spielarten')}${seg('formatMix', g.formatMix, [['ffa', '👤 Jeder gegen jeden'], ['mixed', '🎲 Gemischt'], ['many', '🤝 Viel Team']])}
+        <div class="small muted" style="margin-top:6px">${{
+          ffa: 'Bei jedem Minispiel spielt jeder für sich.',
+          mixed: 'Etwa jedes dritte Minispiel ist „Einer gegen alle“ (ab 3 Spielern, der Einzelne wird ausgelost) oder Team gegen Team (ab 4 Spielern, jedes Mal neu gemischt).',
+          many: 'Jedes zweite Minispiel ist „Einer gegen alle“ oder Team gegen Team.',
+        }[g.formatMix]}</div>
+      </div>` : ''}
       ${g.mode === 'brett' ? `<div class="grid-2" style="gap:12px">
         <label class="field"><span>Runden</span>
           <select id="mp-rounds">${meta.roundOptions.map((n) => `<option value="${n}" ${n === g.rounds ? 'selected' : ''}>${n} Runden</option>`).join('')}</select>
@@ -114,14 +123,55 @@
       <div>
         <div class="row spread" style="margin-bottom:6px"><span class="small muted" style="font-weight:700">Minispiele (${g.games.length} von ${meta.minigames.length})</span>
           <span class="row"><button class="btn small ghost" data-action="mpAllGames">Alle</button></span></div>
-        <div class="mp-pick">${meta.minigames.map((m) => `<button class="mp-pick-one ${g.games.includes(m.id) ? 'on' : ''}" data-action="mpToggleGame" data-id="${m.id}">
-          <span class="mp-pick-icon">${m.icon}</span><b>${esc(m.name)}</b><span class="small muted">${esc(m.short)}${m.motion ? ' 📳' : ''}</span></button>`).join('')}</div>
+        ${FORMAT_GROUPS.map(([f, title]) => `<div class="small muted mp-pick-title">${title}</div>
+        <div class="mp-pick">${meta.minigames.filter((m) => m.formats.includes(f)).map((m) => `<button class="mp-pick-one ${g.games.includes(m.id) ? 'on' : ''}" data-action="mpToggleGame" data-id="${m.id}">
+          <span class="mp-pick-icon">${m.icon}</span><b>${esc(m.name)}</b><span class="small muted">${esc(m.short)}${m.motion ? ' 📳' : ''}</span></button>`).join('')}</div>`).join('')}
       </div>
       <div class="small muted">So geht's: Eine Partie besteht aus kurzen Minispielen, die alle gleichzeitig auf dem Handy spielen. Vor jedem Minispiel steht kurz da, wie es geht. Nach jedem Minispiel gibt es Punkte, am Ende gewinnt, wer die meisten hat. 📳 = mit Schütteln (geht auch mit Tippen). Für 2 bis 12 Spieler.</div>
     </div>`;
   }
 
+  const FORMAT_GROUPS = [['ffa', '👤 Jeder gegen jeden'], ['solo', '🎯 Einer gegen alle'], ['teams', '🤝 Team gegen Team']];
+
   // ---------- Ansichten ----------
+
+  function teamParty(R) {
+    return R.mode === 'team';
+  }
+
+  function teamTag(t) {
+    return `<span class="mp-team-tag" style="--tc:${t.color}">${t.icon} ${esc(t.name)}</span>`;
+  }
+
+  // Wer gegen wen: Einzelner gegen Gruppe oder zwei Teams
+  function versus(R, setupData = R.setup) {
+    if (!setupData) return '';
+    if (setupData.format === 'solo') {
+      const others = R.standings.map((e) => e.id).filter((id) => id !== setupData.solo && playerById(id)?.connected);
+      return `<div class="mp-vs">
+        <div class="mp-vs-solo">${avatarHtml(playerById(setupData.solo), 'lg')}<b>🎯 ${pname(setupData.solo)}</b>${setupData.solo === S.me.id ? '<span class="mp-vs-you">Das bist du!</span>' : ''}</div>
+        <div class="mp-vs-x">gegen</div>
+        <div class="mp-vs-group"><b>👥 alle anderen</b><div>${others.map((id) => avatarHtml(playerById(id), 'sm')).join('')}</div></div>
+      </div>`;
+    }
+    if (setupData.teams) {
+      return `<div class="mp-vs teams">${setupData.teams.map((t, i) => `${i ? '<div class="mp-vs-x">gegen</div>' : ''}<div class="mp-vs-team ${t.ids.includes(S.me.id) ? 'me' : ''}" style="--tc:${t.color}">
+        ${teamTag(t)}${R.teamParty ? `<span class="mp-vs-score">${R.teamParty.score[i]}</span>` : ''}
+        <div class="mp-vs-names">${t.ids.map((id) => `<span>${avatarHtml(playerById(id), 'sm')} ${pname(id)}</span>`).join('')}</div>
+        ${t.ids.includes(S.me.id) ? '<span class="mp-vs-you">Dein Team</span>' : ''}</div>`).join('')}</div>`;
+    }
+    return '';
+  }
+
+  // Für Handys: Rahmen in der Farbe des eigenen Teams
+  function myTeamColor(R) {
+    const t = R.setup?.teams?.find((x) => x.ids.includes(S.me.id));
+    return t ? t.color : null;
+  }
+
+  function formatLabel(format) {
+    return { solo: '🎯 Einer gegen alle', teams: '🤝 Team gegen Team' }[format] || '';
+  }
 
   function brett(R) {
     return R.mode === 'brett';
@@ -130,8 +180,10 @@
   function head(R) {
     const m = R.current;
     const where = R.duel ? '⚔️ Duell' : brett(R) ? `Runde ${R.board.round}/${R.board.rounds} · Minispiel` : `Minispiel ${R.index + 1}/${R.total}`;
+    const fmt = !R.duel && R.format !== 'ffa' ? ` · ${formatLabel(R.format)}` : '';
+    const score = R.teamParty ? ` · ${R.teamParty.teams.map((t, i) => `${t.icon} ${R.teamParty.score[i]}`).join(' : ')}` : '';
     return `<div class="q-head mp-head">
-      <div class="small muted"><b>${where}</b>${R.double ? ' · <span class="mp-double">⭐ zählt doppelt</span>' : ''}</div>
+      <div class="small muted"><b>${where}</b>${fmt}${score}${R.double ? ' · <span class="mp-double">⭐ zählt doppelt</span>' : ''}</div>
       <div class="mp-head-name">${m ? `${m.icon} ${esc(m.name)}` : ''}</div>
     </div>`;
   }
@@ -222,6 +274,7 @@
     const canReady = R.playing && (!R.duel || R.duel.ids.includes(S.me.id));
     return `<div class="stack">
       ${head(R)}
+      ${!R.duel ? versus(R) : ''}
       ${R.duel ? `<div class="mp-duel">${avatarHtml(playerById(R.duel.ids[0]), 'lg')}<b>${pname(R.duel.ids[0])}</b><span>⚔️</span><b>${pname(R.duel.ids[1])}</b>${avatarHtml(playerById(R.duel.ids[1]), 'lg')}<div class="small muted">Duell um ${R.duel.stake} Münzen</div></div>` : ''}
       <div class="card mp-intro">
         <div class="mp-intro-icon">${m.icon}</div>
@@ -238,27 +291,31 @@
   }
 
   function viewPlay(R) {
-    return `<div class="stack">${head(R)}<div id="mp-slot"></div>${!R.inGame && !big(R) ? '<div class="notice center">Du schaust bei diesem Minispiel zu. Beim nächsten bist du dabei!</div>' : ''}</div>`;
+    const color = !big(R) && (R.format === 'teams' || R.teamParty) ? myTeamColor(R) : null;
+    const role = R.setup?.format === 'solo' && R.inGame && !big(R) ? `<div class="mp-role">${R.setup.solo === S.me.id ? '🎯 Du spielst allein gegen alle!' : `👥 Ihr spielt zusammen gegen ${pname(R.setup.solo)}`}</div>` : '';
+    const team = color ? `<div class="mp-role" style="--tc:${color}">${teamTag(R.setup.teams.find((t) => t.ids.includes(S.me.id)))} Du spielst für dein Team</div>` : '';
+    return `<div class="stack ${color ? 'mp-teamframe' : ''}" ${color ? `style="--tc:${color}"` : ''}>${head(R)}${role}${team}<div id="mp-slot"></div>${!R.inGame && !big(R) ? '<div class="notice center">Du schaust bei diesem Minispiel zu. Beim nächsten bist du dabei!</div>' : ''}</div>`;
   }
 
   // Gewonnen hat nur, wer vor jemandem liegt
   function won(last, g) {
-    return g.place === 1 && !g.none && last.groups.length > 1;
+    return g.place === 1 && !g.none && last.groups.length > 1 && !last.tie;
   }
 
   function gain(last, id, g) {
     if (last.duel) return '';
     if (last.coins) {
       const c = last.coins.find((x) => x.id === id)?.coins || 0;
-      return `+${c} 🪙`;
+      return `${c < 0 ? '−' : '+'}${Math.abs(c)} 🪙`;
     }
     return g.points ? `+${g.points}` : '0';
   }
 
   function resultRows(last) {
+    const teamOf = (id) => last.setup?.teams?.find((t) => t.ids.includes(id));
     return last.groups.map((g) => g.ids.map((id) => `<div class="score-row ${id === S.me.id ? 'me' : ''}" style="--team:${g.place === 1 ? 'var(--accent)' : 'var(--line)'}">
       <span class="rank">${won(last, g) ? '🏆' : `${g.place}.`}</span>
-      <span class="name">${avatarHtml(playerById(id), 'sm')} ${pname(id)}</span>
+      <span class="name">${avatarHtml(playerById(id), 'sm')} ${pname(id)}${last.format === 'ffa' && teamOf(id) ? ` ${teamOf(id).icon}` : ''}</span>
       <span class="small muted">${esc(g.label)}</span>
       <span class="pts">${gain(last, id, g)}</span></div>`).join('')).join('');
   }
@@ -267,6 +324,10 @@
     const g = last.groups.find((x) => x.ids.includes(S.me.id));
     if (!g) return '';
     const total = R.standings.find((e) => e.id === S.me.id);
+    if (last.format && last.format !== 'ffa') {
+      const verdict = last.tie ? '🤝 Unentschieden' : won(last, g) ? '🏆 Gewonnen!' : '😢 Verloren';
+      return `<div class="mp-myline">${verdict} · <b>${gain(last, S.me.id, g)}</b>${last.coins ? '' : ` ${g.points === 1 ? 'Punkt' : 'Punkte'}`}${total ? (last.coins ? ` · jetzt ⭐ ${total.stars} und 🪙 ${total.coins}` : ` · gesamt ${total.points} (Platz ${total.place})`) : ''}</div>`;
+    }
     if (last.coins) return `<div class="mp-myline">${won(last, g) ? '🏆 Gewonnen!' : `Platz ${g.place}`} · <b>${gain(last, S.me.id, g)}</b>${total ? ` · jetzt ⭐ ${total.stars} und 🪙 ${total.coins}` : ''}</div>`;
     return `<div class="mp-myline">${won(last, g) ? '🏆 Gewonnen!' : `Platz ${g.place}`} · <b>+${g.points}</b> ${g.points === 1 ? 'Punkt' : 'Punkte'}${total ? ` · gesamt ${total.points} (Platz ${total.place})` : ''}</div>`;
   }
@@ -282,6 +343,27 @@
     </div>`;
   }
 
+  // Überschrift im Ergebnis: wer hat gewonnen
+  function headline(last) {
+    if (last.format === 'solo') {
+      if (last.winner === 'solo') return `🎯 ${pname(last.setup.solo)} gewinnt allein!`;
+      return `👥 Die Gruppe gewinnt gegen ${pname(last.setup.solo)}!`;
+    }
+    if (last.format === 'teams') {
+      if (last.winner === null || last.winner === undefined) return 'Unentschieden!';
+      const t = last.setup.teams[last.winner];
+      return `${t.icon} ${esc(t.name)} gewinnt!`;
+    }
+    return 'Ergebnis';
+  }
+
+  function teamPoint(R, last) {
+    if (!R.teamParty || last.teamWin === undefined) return '';
+    const t = last.teamWin === null ? null : R.teamParty.teams[last.teamWin];
+    const score = R.teamParty.teams.map((x, i) => `${x.icon} ${R.teamParty.score[i]}`).join(' : ');
+    return `<div class="mp-teampoint">${t ? `Punkt für ${teamTag(t)}` : 'Kein Punkt, beide Teams gleichauf.'} · Stand ${score}</div>`;
+  }
+
   function viewResult(R) {
     const last = R.last;
     if (last.duel) return viewDuelResult(R);
@@ -290,7 +372,7 @@
     const nextHint = S.me.isHost ? '' : `<div class="small muted center">${R.lastOne ? 'Gleich kommt die Siegerehrung.' : brett(R) ? 'Gleich geht es auf dem Brett weiter.' : `Als Nächstes: ${R.next ? `${R.next.icon} ${esc(R.next.name)}` : '…'}. Der Host startet es.`}</div>`;
     return `<div class="stack">
       ${head(R)}
-      <div class="center"><h2 style="margin:0">🏁 ${esc(m.name)}: Ergebnis</h2>${last.info ? `<p class="mp-info">${esc(last.info)}</p>` : ''}${last.double ? '<div class="mp-double">⭐ doppelte Punkte</div>' : ''}</div>
+      <div class="center"><h2 style="margin:0">🏁 ${esc(m.name)}: ${headline(last)}</h2>${last.info ? `<p class="mp-info">${esc(last.info)}</p>` : ''}${last.double ? '<div class="mp-double">⭐ doppelte Punkte</div>' : ''}${teamPoint(R, last)}</div>
       ${!big(R) && R.playing ? myLine(R, last) : ''}
       <div class="grid-2">
         <div class="card stack"><h3 style="margin:0">Dieses Minispiel</h3><div class="scoreboard">${resultRows(last)}</div></div>
@@ -303,6 +385,7 @@
 
   function viewFinal(R) {
     const a = R.awards || {};
+    const tp = R.teamParty;
     const st = R.standings;
     const podium = [st.filter((e) => e.place === 2), st.filter((e) => e.place === 1), st.filter((e) => e.place === 3)];
     const step = (list, cls, medal) => `<div class="mp-podium-step ${cls}">${list.map((e) => `<div class="mp-podium-who">${avatarHtml(playerById(e.id), cls === 'first' ? 'lg' : '')}<b>${pname(e.id)}</b><span class="small">${e.stars !== undefined ? `⭐ ${e.stars} · 🪙 ${e.coins}` : `${e.points} ${e.points === 1 ? 'Punkt' : 'Punkte'}`}</span></div>`).join('') || ''}<div class="mp-podium-block">${list.length ? medal : ''}</div></div>`;
@@ -312,16 +395,29 @@
       a.fastest && award('⚡', 'Blitzmerker', [a.fastest.id], `schnellste Reaktion: ${a.fastest.ms} ms`),
       a.bombs && award('💣', 'Bombenpech', a.bombs.ids, `${a.bombs.n}× in der Hand explodiert`),
       a.lasts && award('🐢', 'Pechvogel', a.lasts.ids, `${a.lasts.n}× Letzter`),
+      a.solo && award('🎯', 'Einzelkämpfer', a.solo.ids, `${a.solo.n}× allein gegen alle gewonnen`),
+      a.team && award('🤝', 'Teamplayer', a.team.ids, `${a.team.n} Team-${a.team.n === 1 ? 'Minispiel' : 'Minispiele'} gewonnen`),
     ].filter(Boolean).join('');
     const bonus = (R.bonus || []).map((b) => award(b.icon, `Bonusstern: ${b.title}`, b.ids, `${b.n} ${b.unit}`)).join('');
     const history = (R.history || []).map((h, i) => {
       const m = S.game.minigames.find((x) => x.id === h.id);
       return `<div class="score-row" style="--team:var(--accent)"><span class="rank">${i + 1}.</span><span class="name">${m.icon} ${esc(m.name)}${h.double ? ' ⭐' : ''}</span>
-        <span class="small">${h.skipped ? '<span class="muted">übersprungen</span>' : `🏆 ${names(h.winners)}`}</span></div>`;
+        <span class="small">${h.skipped ? '<span class="muted">übersprungen</span>' : h.tie ? 'unentschieden' : `🏆 ${names(h.winners)}`}${tp && h.teamWin !== undefined && h.teamWin !== null ? ` · ${tp.teams[h.teamWin].icon}` : ''}</span></div>`;
     }).join('');
+    let teamFinal = '';
+    if (tp) {
+      const [a, b] = tp.score;
+      const win = a === b ? null : a > b ? 0 : 1;
+      teamFinal = `<div class="card center mp-teamfinal">
+        <h2 style="margin:0">${win === null ? '🤝 Unentschieden!' : `🏆 ${esc(tp.teams[win].name)} gewinnt!`}</h2>
+        <div class="mp-teamfinal-score">${tp.teams.map((t, i) => `<span style="color:${t.color}">${t.icon} ${tp.score[i]}</span>`).join(' : ')}</div>
+        ${versus(R, { format: 'teams', teams: tp.teams })}
+      </div>`;
+    }
     return `<div class="stack">
       <div class="center"><div style="font-size:3rem">🎪</div><h1>Siegerehrung</h1></div>
-      <div class="mp-podium">${step(podium[0], 'second', '🥈')}${step(podium[1], 'first', '🥇')}${step(podium[2], 'third', '🥉')}</div>
+      ${teamFinal}
+      ${tp ? '' : `<div class="mp-podium">${step(podium[0], 'second', '🥈')}${step(podium[1], 'first', '🥇')}${step(podium[2], 'third', '🥉')}</div>`}
       ${bonus ? `<div class="mp-awards">${bonus}</div>` : ''}
       ${awards ? `<div class="mp-awards">${awards}</div>` : ''}
       <div class="grid-2">
@@ -472,7 +568,7 @@
   Object.assign(actions, {
     mpSetting: (el) => {
       const { key, value } = el.dataset;
-      setGame({ [key]: ['scoring', 'mode'].includes(key) ? value : value === '1' });
+      setGame({ [key]: ['scoring', 'mode', 'formatMix'].includes(key) ? value : value === '1' });
     },
     mpToggleGame: (el) => {
       const list = S.settings.game.games;
