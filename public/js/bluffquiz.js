@@ -1,12 +1,11 @@
 // Bluff-Quiz: Einstellungen und Spielansicht für Host und Handys (nutzt die Helfer aus lobby.js)
 
 (() => {
-  const bq = { draft: '', draftKey: null, lastLikes: {}, error: null };
+  const bq = { draft: '', draftKey: null, lastLikes: {} };
 
   function act(type, data = {}, done) {
     socket.emit('game:action', { type, ...data }, (res) => {
-      // Ist die Lüge zu nah an der Wahrheit, steht der Hinweis direkt unter dem Feld
-      if (res?.error && !res.truth) toast(res.error);
+      if (res?.error) toast(res.error);
       done?.(res || {});
     });
   }
@@ -140,7 +139,6 @@
     if (bq.draftKey !== key) {
       bq.draftKey = key;
       bq.draft = '';
-      bq.error = null;
     }
     let form = '';
     if (R.mySheet) {
@@ -150,7 +148,6 @@
         <label class="field"><span>${R.teamMode ? 'Eure' : 'Deine'} Lüge</span>
           <input id="bq-lie" type="text" maxlength="40" placeholder="Eine glaubwürdige falsche Antwort" value="${esc(bq.draft)}" spellcheck="false" enterkeyhint="send">
         </label>
-        ${bq.error ? `<div class="small" style="color:var(--bad);font-weight:800">${esc(bq.error)}</div>` : ''}
         <div class="row">
           <button class="btn primary" type="submit">${mine ? 'Ändern' : 'Abschicken'}</button>
           <button class="btn ghost" type="button" data-action="bqSuggest">💡 Mir fällt nichts ein</button>
@@ -213,7 +210,7 @@
         }
         const pickers = o.pickers || [];
         let who;
-        if (o.truth) who = `<div class="bq-tag truth">✅ Die Wahrheit!</div>`;
+        if (o.truth) who = `<div class="bq-tag truth">✅ Die Wahrheit!${o.authors?.length ? ` Auch geschrieben von ${names(R, o.authors)}, das gibt keine Punkte.` : ''}</div>`;
         else if (o.filler) who = `<div class="bq-tag">🎲 Lüge vom Spiel</div>`;
         else who = `<div class="bq-tag lie">🤥 Lüge von ${names(R, o.authors)}</div>`;
         const fooled = o.truth
@@ -343,7 +340,6 @@
     const text = bq.draft.trim();
     if (!text) return toast('Bitte gib eine Antwort ein.');
     act('lie', { text }, (res) => {
-      bq.error = res.truth ? res.error : null;
       if (res.ok) {
         bq.draft = '';
         document.activeElement?.blur?.();
@@ -357,7 +353,6 @@
     bqSuggest: () => act('suggest', {}, (res) => {
       if (!res.ok) return;
       bq.draft = res.text;
-      bq.error = null;
       render();
       document.getElementById('bq-lie')?.focus();
     }),
@@ -368,10 +363,7 @@
   });
 
   app.addEventListener('input', (e) => {
-    if (e.target.id === 'bq-lie') {
-      bq.draft = e.target.value;
-      bq.error = null;
-    }
+    if (e.target.id === 'bq-lie') bq.draft = e.target.value;
   });
 
   app.addEventListener('change', (e) => {
