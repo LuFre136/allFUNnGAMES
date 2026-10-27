@@ -607,6 +607,17 @@ class Board {
     return out;
   }
 
+  // Münzen aus „Einer gegen alle“ und Team-Minispielen: fester Betrag für Sieger, Verlierer zahlen evtl.
+  specialCoins(list, winners) {
+    const out = [];
+    for (const { id, coins } of list) {
+      if (!this.p.has(id)) continue;
+      out.push({ id, coins: this.addCoins(id, coins) });
+    }
+    for (const id of winners) if (this.p.has(id)) this.p.get(id).wins++;
+    return out;
+  }
+
   // Bonussterne am Ende
   bonusStars() {
     if (!this.settings.bonusStars) return [];

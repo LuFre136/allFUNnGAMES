@@ -10,6 +10,14 @@ const list = [
   require('./stoppuhr'),
   require('./glueckstuer'),
   require('./phantombild'),
+  // Einer gegen alle
+  require('./torwart'),
+  require('./ochsamberg'),
+  require('./gespensterhaus'),
+  // Team gegen Team
+  require('./tauziehen'),
+  require('./staffel'),
+  require('./turmbau'),
 ];
 
 const byId = Object.fromEntries(list.map((m) => [m.id, m]));

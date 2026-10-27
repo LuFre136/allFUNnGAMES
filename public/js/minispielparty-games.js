@@ -885,5 +885,8 @@ const MinispielGames = (() => {
     for (const fn of motion.handlers) fn(e);
   });
 
-  return { schnellzieher, seilhuepfer, farbfolge, zaehlfieber, ballonpumpe, kartoffel, stoppuhr, glueckstuer, phantombild, motion };
+  // Helfer auch für die Team-Minispiele (minispielparty-teams.js)
+  const util = { $, onPress, who, pname, timeLeft, fmtSec, COLORS };
+
+  return { schnellzieher, seilhuepfer, farbfolge, zaehlfieber, ballonpumpe, kartoffel, stoppuhr, glueckstuer, phantombild, motion, util };
 })();

@@ -1,6 +1,6 @@
 # Plan: „Einer gegen alle“ und Team-Minispiele für die Minispiel Party
 
-Stand: Plan, noch nicht gebaut (26.10.2026). Offene Fragen an Lukas stehen am Ende.
+Stand: umgesetzt (26.10.2026). Lukas' Antworten und was davon abweicht, stehen am Ende.
 
 Bisher spielt in jedem Minispiel jeder gegen jeden. Im Original gibt es außerdem **1 gegen 3** und **2 gegen 2**.
 Dieser Plan bringt beides in die Minispiel Party, in die Minispiel-Reihe und ins Spielbrett, und zwar für
@@ -100,13 +100,28 @@ Läufer, der Einzelne den großen Knopf.
 - Siegerehrung: neue Sonderpreise „Einzelkämpfer“ (meiste Siege allein) und „Teamplayer“.
 - Tests: Wertung und Teamauslosung mit `node --test`, jedes neue Minispiel mit Playwright mit und ohne Fernseher.
 
-## Offene Fragen an Lukas
+## Entscheidungen und Umsetzung
 
-1. **Wer ist der Einzelne?** Reihum (jeder einmal), zufällig, oder immer der Letzte im Stand (hilft beim Aufholen)?
-2. **Teams:** In der Minispiel-Reihe jedes Mal neu und ausgeglichen gemischt, oder feste Teams für die ganze Partie
-   (die Lobby kann schon Teams bilden)? Auf dem Brett nach Feldfarbe wie im Original?
-3. **Wie oft:** Ist „etwa jedes dritte Minispiel“ als Standard gut?
-4. **Eigener Teammodus:** Soll es zusätzlich eine „Team-Party“ geben, in der zwei feste Teams die ganze Partie
-   gemeinsam Punkte sammeln?
-5. **Erste Minispiele:** Passen Torwart, Ochs am Berg, Gespensterhaus, Tauziehen, Staffel-Farbfolge und Turmbau, oder
-   lieber andere aus der Liste?
+Lukas' Antworten:
+
+1. **Der Einzelne** wird zufällig ausgelost.
+2. **Teams** werden jedes Mal neu gemischt (gleich groß), auch auf dem Brett. Die Feldfarbe spielt keine Rolle.
+3. **Wie oft:** Bei „gemischt“ ist jedes dritte Minispiel „Einer gegen alle“ oder Team, bei „viel Team“ jedes zweite.
+4. **Team-Party:** ja, als dritter Modus neben Minispiel-Reihe und Spielbrett. Zwei feste Teams für die ganze
+   Partie, ab 4 Spielern. Jedes zweite Minispiel ist ein Team-Minispiel, bei den anderen gewinnt das Team mit mehr
+   Punkten pro Kopf. Jedes Minispiel ist ein Punkt für ein Team (das doppelte letzte zählt 2).
+5. **Erste Minispiele:** Torwart, Ochs am Berg, Gespensterhaus, Tauziehen, Staffel-Farbfolge, Turmbau.
+
+Details, die beim Bauen festgelegt wurden:
+
+- Torwart: Der Torwart wählt pro Runde eine Ecke für alle Schützen. Wer nicht wählt, verschießt; ein Torwart, der
+  nicht wählt, bleibt in der Mitte.
+- Ochs am Berg: Ziel nach 40 Schritten, höchstens ein Schritt alle 90 ms. Nach Rot mindestens 0,7 s Grün. Ein Tipp
+  in den ersten 0,35 s nach dem Umschalten auf Rot zählt noch (Funkverzögerung).
+- Gespensterhaus: 6 Türen, 3 Runden. Das Gespenst öffnet 2 Türen, ab 4 Versteckten 3.
+- Tauziehen: 20 Sekunden, gewonnen ist bei 25 Zügen Vorsprung pro Kopf.
+- Staffel-Farbfolge: 7 Sekunden pro Farbe, sonst ist das Team raus. Gleich lange Folge: das schnellere Team gewinnt.
+- Turmbau: 45 Sekunden, 6 Sekunden pro Zug, dann fällt der Block von selbst. Gleich hoch: der breitere Turm gewinnt.
+- Auf dem Brett: Team-Sieger bekommen je 10 Münzen. Gewinnt der Einzelne, bekommt er 5 pro Gegner und jeder Gegner
+  zahlt 3. Gewinnt die Gruppe, bekommt jeder 5.
+- Neue Sonderpreise: 🎯 Einzelkämpfer (allein gewonnen) und 🤝 Teamplayer (Team-Minispiele gewonnen).
