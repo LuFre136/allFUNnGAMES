@@ -177,27 +177,23 @@ test('keine Frage kommt in derselben Lobby doppelt, solange neue da sind', () =>
 });
 
 test('Schlüsselwörter erkennen die Wahrheit auch in anderen Worten', () => {
-  const { game, p } = setup();
-  game.questions[0] = { id: 'x', question: 'Was ist Petrichor?', answer: 'Der Geruch von Regen auf trockener Erde', alternatives: [], keywords: ['regen geruch', ' rad '], suggestions: ['1', '2', '3'] };
-  assert.ok(game.lie(p(1), 'Regengeruch').truth);
-  assert.ok(game.lie(p(1), 'Wie es nach Regen riecht, der Geruch').truth);
-  assert.ok(game.lie(p(1), 'Eine Fahrt mit dem Rad').truth);
-  assert.ok(game.lie(p(1), 'Ein Regenbogen').ok);
-  assert.ok(game.lie(p(1), 'Ein Radio').ok);
-  game.dispose();
+  const q = { answer: 'Der Geruch von Regen auf trockener Erde', alternatives: [], keywords: ['regen geruch', ' rad '] };
+  assert.ok(BluffQuiz.isTruth(q, 'Regengeruch'));
+  assert.ok(BluffQuiz.isTruth(q, 'Wie es nach Regen riecht, der Geruch'));
+  assert.ok(BluffQuiz.isTruth(q, 'Eine Fahrt mit dem Rad'));
+  assert.ok(!BluffQuiz.isTruth(q, 'Ein Regenbogen'));
+  assert.ok(!BluffQuiz.isTruth(q, 'Ein Radio'));
 });
 
 test('jede Frage: Vorschläge gelten nicht als Wahrheit, Antworten passen ins Eingabefeld', () => {
-  const { game, p } = setup();
   const data = require('../server/games/bluffquiz/questions.json');
   for (const q of data.questions) {
-    game.questions[game.index] = q;
     assert.ok(q.answer.length <= 40, `${q.id}: Antwort zu lang`);
     assert.ok(data.categories.includes(q.category), `${q.id}: unbekannte Kategorie`);
+    assert.ok(BluffQuiz.isTruth(q, q.answer), `${q.id}: Antwort wird nicht erkannt`);
     for (const s of q.suggestions) {
       assert.ok(s.length <= 40, `${q.id}: Vorschlag zu lang`);
-      assert.ok(!game.lie(p(1), s).truth, `${q.id}: Vorschlag „${s}“ gilt als Wahrheit`);
+      assert.ok(!BluffQuiz.isTruth(q, s), `${q.id}: Vorschlag „${s}“ gilt als Wahrheit`);
     }
   }
-  game.dispose();
 });

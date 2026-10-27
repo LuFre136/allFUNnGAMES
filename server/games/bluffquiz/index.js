@@ -605,4 +605,6 @@ class BluffQuiz {
   }
 }
 
+BluffQuiz.isTruth = isTruth; // für Tests
+
 module.exports = BluffQuiz;
