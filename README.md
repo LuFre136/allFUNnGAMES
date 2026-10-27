@@ -233,6 +233,7 @@ Für 3 bis 12 Spieler, einzeln oder in Teams (wie Fibbage). Auf dem Fernseher st
 - Einstellungen: Anzahl Fragen, Kategorien, Zeit zum Schreiben und Wählen, letzte Frage doppelt, Team-Modus (eine Lüge pro Team, gewählt wird per Mehrheit).
 - Am Ende gibt es Sonderpreise für den besten Lügner, den Wahrheitsfinder und den Publikumsliebling sowie die beliebteste Lüge der Partie.
 - Fragen lassen sich wie im Pub Quiz einstimmig dauerhaft ausschließen. In derselben Lobby kommt keine Frage doppelt, solange es neue gibt.
+- Die Kategorien „Wer ist das?“ und „Was ist das?“ fragen ohne Lücke nach unbekannten Personen und seltenen Begriffen; dazu erfindet man eine glaubwürdige Erklärung. Wer nur diese beiden Kategorien wählt, spielt einen reinen Erklär-Abend.
 
 Die Fragen stehen in `server/games/bluffquiz/questions.json`. Die Regeln prüft `npm test`.
 
@@ -245,6 +246,7 @@ Für 3 bis 12 Spieler, alle zusammen (nach Fun Facts). Auf dem Fernseher steht e
 - Wer beim Legen dran ist und weg ist, rückt ans Ende; der Host kann ihn überspringen.
 - Am Ende gibt es eine Bewertung und Sonderpreise für den Gedankenleser, das Überraschungsei und den Extremisten.
 - Fragen lassen sich wie im Pub Quiz einstimmig dauerhaft ausschließen. In derselben Lobby kommt keine Frage doppelt, solange es neue gibt.
+- Die Kategorien „Wer ist das?“ und „Was ist das?“ fragen ohne Lücke nach unbekannten Personen und seltenen Begriffen; dazu erfindet man eine glaubwürdige Erklärung. Wer nur diese beiden Kategorien wählt, spielt einen reinen Erklär-Abend.
 
 Die 205 Fragen in 9 Kategorien stehen in `server/games/freundeskala/questions.json`. Die Regeln prüft `npm test`. Der Plan steht in [docs/plan-fun-facts.md](docs/plan-fun-facts.md).
 

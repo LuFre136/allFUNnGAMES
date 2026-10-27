@@ -34,9 +34,23 @@ function cleanAnswer(raw) {
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
+// Bei Begriffen und Personen trifft man die Wahrheit auch mit anderen Worten: Ein Schlüsselwort zählt,
+// wenn alle seine Teile im Text vorkommen („regen geruch“ passt auf „Geruch nach Regen“ und „Regengeruch“).
+// Leerzeichen am Rand eines Teils verlangen eine Wortgrenze (" rad " trifft nicht „Radio“).
+function hitsKeyword(q, text) {
+  const padded = ` ${normalize(text)} `;
+  return (q.keywords || []).some((kw) => {
+    const parts = normalize(kw).split(' ').filter(Boolean);
+    if (/^\s/.test(kw)) parts[0] = ` ${parts[0]}`;
+    if (/\s$/.test(kw)) parts[parts.length - 1] += ' ';
+    return parts.length > 0 && parts.every((p) => padded.includes(p));
+  });
+}
+
 // Zahlen müssen genau stimmen, sonst wäre „12000“ wegen eines Tippfehlers schon „30000“ nahe
 function isTruth(q, text) {
   const accepted = [q.answer, ...(q.alternatives || [])];
+  if (hitsKeyword(q, text)) return true;
   if (/\d/.test(text)) return accepted.some((a) => normalize(a) === normalize(text));
   return fuzzyMatch(text, accepted);
 }
