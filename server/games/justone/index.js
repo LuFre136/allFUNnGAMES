@@ -4,7 +4,13 @@ const path = require('path');
 const fs = require('fs');
 const { shuffle, fuzzyMatch, stems, sameStem, sameFamily } = require('../../util');
 
-const WORDS = JSON.parse(fs.readFileSync(path.join(__dirname, 'words.json'), 'utf8')).words;
+const WORD_LISTS = JSON.parse(fs.readFileSync(path.join(__dirname, 'words.json'), 'utf8'));
+// Wortauswahl: normale Begriffe, schwere Begriffe oder beide gemischt
+const POOLS = {
+  normal: WORD_LISTS.words,
+  hard: WORD_LISTS.hard,
+  mixed: [...WORD_LISTS.words, ...WORD_LISTS.hard],
+};
 const WORDS_PER_CARD = 4;
 const MIN_PLAYERS = 3;
 
@@ -44,20 +50,23 @@ class JustOne {
       maxPlayers: 20,
       available: true,
       teams: false,
-      totalWords: WORDS.length,
+      totalWords: POOLS.mixed.length,
     };
   }
 
   static defaultSettings() {
-    return { cardCount: 13, clueTimeLimit: 0 };
+    return { cardCount: 13, clueTimeLimit: 0, wordLevel: 'normal' };
   }
 
   static sanitizeSettings(current, patch) {
     const next = { ...current };
+    if (patch.wordLevel !== undefined && POOLS[patch.wordLevel]) next.wordLevel = patch.wordLevel;
+    if (!POOLS[next.wordLevel]) next.wordLevel = 'normal';
     if (patch.cardCount !== undefined) {
       const n = Math.round(Number(patch.cardCount));
-      if (Number.isFinite(n)) next.cardCount = Math.min(Math.max(n, 3), Math.floor(WORDS.length / WORDS_PER_CARD));
+      if (Number.isFinite(n)) next.cardCount = Math.max(n, 3);
     }
+    next.cardCount = Math.min(next.cardCount, JustOne.availableCount(next));
     if (patch.clueTimeLimit !== undefined) {
       const t = Math.round(Number(patch.clueTimeLimit));
       if (Number.isFinite(t)) next.clueTimeLimit = Math.min(Math.max(t, 0), 600);
@@ -65,8 +74,8 @@ class JustOne {
     return next;
   }
 
-  static availableCount() {
-    return Math.floor(WORDS.length / WORDS_PER_CARD);
+  static availableCount(settings) {
+    return Math.floor((POOLS[settings?.wordLevel] || POOLS.normal).length / WORDS_PER_CARD);
   }
 
   // Spieler, die mitspielen (verbunden, kein reiner Gamemaster)
@@ -77,8 +86,8 @@ class JustOne {
   start() {
     const players = this.players();
     if (players.length < MIN_PLAYERS) throw new Error(`Just One braucht mindestens ${MIN_PLAYERS} Mitspieler.`);
-    const { cardCount } = this.lobby.settings.game;
-    const words = shuffle(WORDS);
+    const { cardCount, wordLevel } = this.lobby.settings.game;
+    const words = shuffle(POOLS[wordLevel] || POOLS.normal);
     this.deck = Array.from({ length: cardCount }, (_, i) => words.slice(i * WORDS_PER_CARD, (i + 1) * WORDS_PER_CARD));
     this.order = shuffle(players.map((p) => p.id));
     this.cardIndex = 0;
