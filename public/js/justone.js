@@ -31,6 +31,8 @@
     return R.givers.some((g) => g.id === S.me.id);
   }
 
+  const WORD_LEVELS = [['normal', 'Normal'], ['hard', 'Schwer'], ['mixed', 'Gemischt']];
+
   function viewSettings() {
     const s = S.settings;
     const g = s.game;
@@ -56,6 +58,9 @@
           <select id="jo-time">${timeOptions(g.clueTimeLimit)}</select>
         </label>
       </div>
+      <label class="field"><span>Begriffe</span>
+        <select id="jo-level">${WORD_LEVELS.map(([v, label]) => `<option value="${v}" ${v === (g.wordLevel || 'normal') ? 'selected' : ''}>${label}</option>`).join('')}</select>
+      </label>
       <div class="small muted">So geht's: Reihum rät einer. Er wählt eine von vier verdeckten Karten, alle anderen sehen den Begriff und schreiben je ein Wort als Hinweis auf. Gleiche Hinweise, auch mit gleichem Wortstamm, fliegen raus. Ein falscher Rateversuch kostet zusätzlich die nächste Karte, Passen nur die aktuelle. Ihr braucht mindestens 3 Mitspieler.</div>
     </div>`;
   }
@@ -225,6 +230,7 @@
   app.addEventListener('change', (e) => {
     if (e.target.id === 'jo-cards') sendHost('settings', { game: { cardCount: Number(e.target.value) } });
     else if (e.target.id === 'jo-time') sendHost('settings', { game: { clueTimeLimit: Number(e.target.value) } });
+    else if (e.target.id === 'jo-level') sendHost('settings', { game: { wordLevel: e.target.value } });
   });
 
   app.addEventListener('submit', (e) => {
