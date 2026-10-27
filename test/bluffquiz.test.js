@@ -193,3 +193,25 @@ test('keine Frage kommt in derselben Lobby doppelt, solange neue da sind', () =>
   first.dispose();
   second.dispose();
 });
+
+test('Schlüsselwörter erkennen die Wahrheit auch in anderen Worten', () => {
+  const q = { answer: 'Der Geruch von Regen auf trockener Erde', alternatives: [], keywords: ['regen geruch', ' rad '] };
+  assert.ok(BluffQuiz.isTruth(q, 'Regengeruch'));
+  assert.ok(BluffQuiz.isTruth(q, 'Wie es nach Regen riecht, der Geruch'));
+  assert.ok(BluffQuiz.isTruth(q, 'Eine Fahrt mit dem Rad'));
+  assert.ok(!BluffQuiz.isTruth(q, 'Ein Regenbogen'));
+  assert.ok(!BluffQuiz.isTruth(q, 'Ein Radio'));
+});
+
+test('jede Frage: Vorschläge gelten nicht als Wahrheit, Antworten passen ins Eingabefeld', () => {
+  const data = require('../server/games/bluffquiz/questions.json');
+  for (const q of data.questions) {
+    assert.ok(q.answer.length <= 40, `${q.id}: Antwort zu lang`);
+    assert.ok(data.categories.includes(q.category), `${q.id}: unbekannte Kategorie`);
+    assert.ok(BluffQuiz.isTruth(q, q.answer), `${q.id}: Antwort wird nicht erkannt`);
+    for (const s of q.suggestions) {
+      assert.ok(s.length <= 40, `${q.id}: Vorschlag zu lang`);
+      assert.ok(!BluffQuiz.isTruth(q, s), `${q.id}: Vorschlag „${s}“ gilt als Wahrheit`);
+    }
+  }
+});

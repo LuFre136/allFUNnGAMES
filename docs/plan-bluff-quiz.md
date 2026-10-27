@@ -1,6 +1,6 @@
 # Plan: Bluff-Quiz
 
-Stand: umgesetzt (Pull Request auf GitHub, 154 Fragen in 12 Kategorien; im Team-Modus reichen zwei Teams). Entschieden: Name „Bluff-Quiz“, keine eigenen Fragen des Hosts, mit Likes.
+Stand: umgesetzt (Pull Request auf GitHub, 255 Fragen in 14 Kategorien; im Team-Modus reichen zwei Teams). Entschieden: Name „Bluff-Quiz“, keine eigenen Fragen des Hosts, mit Likes.
 
 ## Spielidee
 
@@ -22,6 +22,13 @@ andere mit der eigenen Lüge hereinzulegen.
   - `answer`: die echte Antwort, so wie sie bei der Auflösung gezeigt wird.
   - `alternatives`: weitere Schreibweisen, die als „echte Antwort“ erkannt werden (siehe unten).
   - `suggestions`: drei bis fünf Ausweichlügen für Spieler, denen nichts einfällt, und als Füller (siehe unten).
+  - `keywords` (optional): Schlüsselwörter für Fragen, deren Wahrheit man auch mit anderen Worten treffen kann.
+    Eine Lüge gilt als Wahrheit, wenn alle Teile eines Schlüsselworts darin vorkommen („regen geruch“ trifft
+    „Regengeruch“ und „Geruch nach Regen“); Leerzeichen am Rand verlangen eine Wortgrenze („ rad “ trifft nicht „Radio“).
+- **Wer oder was ist …?** Die Kategorien „Wer ist das?“ (unbekannte Personen) und „Was ist das?“ (seltene Wörter,
+  merkwürdige Dinge) haben keine Lücke: Die Frage lautet z. B. „Was ist ein Fidibus?“, und alle erfinden eine
+  kurze Erklärung (höchstens 40 Zeichen). Diese Fragen haben immer `keywords`, damit „Papierstreifen zum
+  Anzünden“ als Wahrheit erkannt wird, auch wenn es anders formuliert ist.
 - **Kategorien** für den Start: Tiere, Rekorde, Geschichte, Erfindungen, Essen & Trinken, Merkwürdige Gesetze,
   Wörter & Herkunft, Berufe, Promis, Orte, Zahlen. Etwa 150 Fragen zum Start, damit mehrere Partien ohne
   Wiederholung möglich sind.
