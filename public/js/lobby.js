@@ -693,13 +693,49 @@ function view() {
 
 // ---------- Zeichnen ----------
 
+// Fokussiertes Eingabefeld behalten statt neu zu erzeugen: Ein neues Element mit
+// focus() lässt die Handy-Tastatur auf Buchstaben zurückspringen (z. B. von Zahlen).
+// Nur die Vorfahren des Felds bleiben bestehen, alles daneben wird ersetzt.
+function keepFocused(oldRoot, newRoot, el) {
+  if (!el || !/^(INPUT|TEXTAREA)$/.test(el.nodeName) || !oldRoot.contains(el)) return false;
+  const oldPath = [];
+  for (let n = el; n !== oldRoot; n = n.parentNode) oldPath.unshift(n);
+  let target = el.id ? newRoot.querySelector(`#${CSS.escape(el.id)}`) : null;
+  if (!el.id) {
+    // Ohne id über die Position im Baum suchen
+    target = newRoot;
+    for (const n of oldPath) target = target?.childNodes[[...n.parentNode.childNodes].indexOf(n)];
+  }
+  if (!target) return false;
+  const newPath = [];
+  for (let n = target; n && n !== newRoot; n = n.parentNode) newPath.unshift(n);
+  if (newPath.length !== oldPath.length || newPath.some((n, i) => n.nodeName !== oldPath[i].nodeName)) return false;
+
+  let oldParent = oldRoot;
+  let newParent = newRoot;
+  oldPath.forEach((keep, i) => {
+    const fresh = newPath[i];
+    const kids = [...newParent.childNodes];
+    const at = kids.indexOf(fresh);
+    for (const c of [...oldParent.childNodes]) if (c !== keep) c.remove();
+    keep.before(...kids.slice(0, at));
+    keep.after(...kids.slice(at + 1));
+    for (const a of [...keep.attributes]) if (!fresh.hasAttribute(a.name)) keep.removeAttribute(a.name);
+    for (const a of [...fresh.attributes]) if (keep.getAttribute(a.name) !== a.value) keep.setAttribute(a.name, a.value);
+    oldParent = keep;
+    newParent = fresh;
+  });
+  return true;
+}
+
 function render() {
   // Fokus und Eingabe erhalten, damit Tippen nicht durch Updates unterbrochen wird
   const active = document.activeElement;
-  const focusId = active && active.id && app.contains(active) ? active.id : null;
-  const focusValue = focusId && 'value' in active ? active.value : null;
+  const inApp = active && active !== app && app.contains(active);
+  const focusId = inApp && active.id ? active.id : null;
+  const focusValue = inApp && 'value' in active ? active.value : null;
   let selection = null;
-  try { selection = focusId ? [active.selectionStart, active.selectionEnd] : null; } catch { selection = null; }
+  try { selection = inApp ? [active.selectionStart, active.selectionEnd] : null; } catch { selection = null; }
 
   if (S?.round?.question) {
     const key = `${S.round.index}:${S.round.question.id}`;
@@ -709,20 +745,21 @@ function render() {
     }
   }
 
-  app.innerHTML = view();
+  const next = document.createElement('div');
+  next.innerHTML = view();
+  const kept = inApp && keepFocused(app, next, active);
+  if (!kept) app.replaceChildren(...next.childNodes);
   document.getElementById('topinfo').innerHTML = fatal || joinInfo ? '' : viewTopInfo();
   document.getElementById('hostbar-root').innerHTML = fatal ? '' : viewHostbar();
   // Platz unter dem Inhalt, damit die Host-Leiste nichts verdeckt (sie kann auf Handys mehrzeilig sein)
   const bar = document.querySelector('.hostbar');
   document.querySelector('main.wrap').style.paddingBottom = bar ? `${bar.offsetHeight + 24}px` : '';
 
-  if (focusId) {
-    const el = document.getElementById(focusId);
-    if (el) {
-      if (focusValue !== null && el.value !== focusValue) el.value = focusValue;
-      el.focus();
-      try { if (selection && selection[0] !== null) el.setSelectionRange(selection[0], selection[1]); } catch { /* Zahlenfelder */ }
-    }
+  const el = kept ? active : focusId ? document.getElementById(focusId) : null;
+  if (el) {
+    if (focusValue !== null && el.value !== focusValue) el.value = focusValue;
+    if (document.activeElement !== el) el.focus();
+    try { if (selection && selection[0] !== null && (el.selectionStart !== selection[0] || el.selectionEnd !== selection[1])) el.setSelectionRange(selection[0], selection[1]); } catch { /* Zahlenfelder */ }
   }
   syncMusic();
   for (const g of Object.values(gameViews)) g.afterRender?.();
