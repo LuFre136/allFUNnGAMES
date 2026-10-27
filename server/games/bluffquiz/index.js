@@ -55,7 +55,7 @@ class BluffQuiz {
     this.phase = 'write';
     this.index = 0;
     this.questions = [];
-    this.lies = new Map(); // Blatt -> { text, suggested, by }
+    this.lies = new Map(); // Blatt -> { text, suggested, by, truth }
     this.given = new Map(); // Blatt -> Set der angebotenen Vorschläge (normalisiert)
     this.options = []; // { id, text, authors: [Blatt], suggested: { Blatt: true }, truth, filler }
     this.picks = new Map(); // Spieler-ID -> Antwort-ID
@@ -231,11 +231,10 @@ class BluffQuiz {
     if (!key) return { error: this.teamMode ? 'Bitte tritt zuerst einem Team bei.' : 'Du spielst nicht mit.' };
     const text = cleanAnswer(raw);
     if (!text) return { error: 'Bitte gib eine Antwort ein.' };
-    if (isTruth(this.question, text)) {
-      return { error: 'Das ist zu nah an der Wahrheit, denk dir etwas anderes aus.', truth: true };
-    }
+    // Wer die Wahrheit schreibt, wird wie bei einer doppelten Lüge mit ihr zusammengelegt und bekommt keine Punkte dafür
+    const truth = isTruth(this.question, text);
     const suggested = Boolean(this.given.get(key)?.has(normalize(text)));
-    this.lies.set(key, { text, suggested, by: player.id });
+    this.lies.set(key, { text, suggested, by: player.id, truth });
     this.checkAllWritten();
     return { ok: true };
   }
@@ -258,7 +257,12 @@ class BluffQuiz {
     }
     const q = this.question;
     const byText = new Map();
+    const truthAuthors = [];
     for (const [key, lie] of this.lies) {
+      if (lie.truth) {
+        truthAuthors.push(key);
+        continue;
+      }
       const norm = normalize(lie.text);
       if (!byText.has(norm)) byText.set(norm, { id: optionId(), text: lie.text, authors: [], suggested: {}, truth: false, filler: false });
       const option = byText.get(norm);
@@ -266,7 +270,7 @@ class BluffQuiz {
       if (lie.suggested) option.suggested[key] = true;
     }
     const options = [...byText.values()];
-    options.push({ id: optionId(), text: cleanAnswer(q.answer), authors: [], suggested: {}, truth: true, filler: false });
+    options.push({ id: optionId(), text: cleanAnswer(q.answer), authors: truthAuthors, suggested: {}, truth: true, filler: false });
     const used = new Set(options.map((o) => normalize(o.text)));
     for (const s of shuffle(q.suggestions || [])) {
       if (options.length >= MIN_OPTIONS) break;

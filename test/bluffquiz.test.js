@@ -8,6 +8,7 @@ const path = require('path');
 // Ausgeschlossene Fragen landen in einer Wegwerfdatei statt in data/
 process.env.EXCLUSIONS_FILE = path.join(os.tmpdir(), `bq-test-${process.pid}.json`);
 const BluffQuiz = require('../server/games/bluffquiz');
+const { normalize: normalizeText } = require('../server/util');
 
 // Einzeln: p1 (Host) bis pN; im Team-Modus p1, p2 in t1, p3, p4 in t2, p5 in t3
 function fakeLobby(n, game = {}) {
@@ -41,19 +42,36 @@ test('braucht mindestens drei Spieler', () => {
   assert.throws(() => g.start(), /mindestens 3/);
 });
 
-test('die echte Antwort wird als Lüge abgelehnt, auch mit Tippfehler', () => {
+test('die echte Antwort zählt wie eine doppelte Lüge, auch mit Tippfehler', () => {
   const { game, p } = setup();
   const q = game.question;
-  const res = game.lie(p(1), q.answer.toLowerCase());
-  assert.ok(res.error && res.truth);
-  assert.strictEqual(game.lies.size, 0);
+  assert.ok(game.lie(p(1), q.answer.toLowerCase()).ok);
+  assert.ok(game.lies.get('p1').truth);
+  game.lie(p(2), 'Quatsch');
+  game.lie(p(3), 'Unsinn');
+  assert.strictEqual(game.phase, 'pick');
+  const truth = game.options.find((o) => o.truth);
+  assert.deepStrictEqual(truth.authors, ['p1']);
+  assert.strictEqual(game.options.filter((o) => normalizeText(o.text) === normalizeText(q.answer)).length, 1);
+  assert.ok(game.pick(p(1), truth.id).error, 'eigene Eingabe nicht wählbar');
+  game.pick(p(2), truth.id);
+  game.pick(p(3), truth.id);
+  game.next();
+  while (game.phase === 'reveal') game.next();
+  const points = game.history[0].points;
+  assert.strictEqual(points.p1.total, 0, 'keine Punkte für Treffer auf die Wahrheit');
+  assert.ok(points.p2.truth > 0);
+  game.dispose();
 });
 
 test('Zahlen müssen genau stimmen, um als Wahrheit zu gelten', () => {
   const { game, p } = setup();
   game.questions[0] = { id: 'x', question: '____', answer: '30000', alternatives: [], suggestions: ['1', '2', '3'] };
-  assert.ok(game.lie(p(1), '30000').truth);
-  assert.ok(game.lie(p(1), '32000').ok);
+  game.lie(p(1), '30000');
+  assert.ok(game.lies.get('p1').truth);
+  game.lie(p(1), '32000');
+  assert.ok(!game.lies.get('p1').truth);
+  game.dispose();
 });
 
 test('wenn alle geschrieben haben, geht es zur Auswahl; gleiche Lügen werden zusammengefasst', () => {
