@@ -125,3 +125,19 @@ Details, die beim Bauen festgelegt wurden:
 - Auf dem Brett: Team-Sieger bekommen je 10 Münzen. Gewinnt der Einzelne, bekommt er 5 pro Gegner und jeder Gegner
   zahlt 3. Gewinnt die Gruppe, bekommt jeder 5.
 - Neue Sonderpreise: 🎯 Einzelkämpfer (allein gewonnen) und 🤝 Teamplayer (Team-Minispiele gewonnen).
+
+## Zweite Runde Minispiele (27.10.2026)
+
+Lukas wollte weitere Minispiele. Dazugekommen sind sieben, aus den übrigen Ideen dieses Plans und dem ersten Plan:
+
+| Minispiel | Spielart | So geht es |
+| --- | --- | --- |
+| 🔍 Einzelgänger | jeder gegen jeden | 25 Figuren, jede doppelt, nur eine einmal. Vier Runden, ein falscher Tipp kostet 3 Sekunden. Die Zeit über alle Runden zählt. |
+| ➕ Kopfrechner | jeder gegen jeden | Alle bekommen dieselben Aufgaben mit vier Antworten. Wer zuerst 8 richtig hat, gewinnt. Falsch sperrt 1,2 Sekunden. Höchstens 60 Sekunden. |
+| 🤹 Balancierer | jeder gegen jeden | Der Wind schiebt eine Kugel über einen Teller, der Finger zieht sie zurück. 25 Sekunden, gezählt wird die Zeit im goldenen Kreis. Gerechnet wird auf dem Handy, der Server deckelt die Zeit. |
+| 🚩 Minenfeld | einer gegen alle | Der Einzelne versteckt 4 Minen auf 5 × 6 Feldern (15 Sekunden). Dann läuft die Gruppe Reihe für Reihe nach oben, gerade oder schräg. Kommt die Hälfte durch, gewinnt die Gruppe. |
+| 🥜 Hütchenspiel | einer gegen alle | Der Einzelne vertauscht drei Hütchen, so oft er in 9 Sekunden schafft. Die Gruppe tippt, wo die Kugel ist. Zwei Runden; ist mindestens die Hälfte aller Tipps richtig, gewinnt die Gruppe. |
+| 🐞 Team-Zählfieber | Team gegen Team | Wie Zählfieber, jeder im Team zählt eine andere Sorte. Es gewinnt das Team mit der kleineren Abweichung pro Kopf. |
+| 🃏 Team-Memory | Team gegen Team | Jedes Team hat ein eigenes Memory (gleiche Bilder, anders gemischt). Der Reihe nach deckt jeder zwei Karten auf, 8 Sekunden pro Zug. Wer zuerst alle 8 Paare hat oder nach 90 Sekunden mehr, gewinnt. |
+
+Hai-Alarm und Team-Ballon bleiben Ideen für später.

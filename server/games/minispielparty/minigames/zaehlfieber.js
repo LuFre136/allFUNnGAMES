@@ -1,5 +1,6 @@
 // Zählfieber: Über den Bildschirm wuseln Tiere. Danach gibt jeder an, wie viele es von einer Sorte waren.
 // Wer am nächsten dran ist, gewinnt. Mit Fernseher laufen die Tiere dort, sonst auf jedem Handy.
+// Als Team-Minispiel zählt jeder im Team eine andere Sorte, das Team mit der kleineren Abweichung gewinnt.
 
 const { randInt, rand, groupsOf, withMissing } = require('../helpers');
 const { shuffle } = require('../../../util');
@@ -18,12 +19,19 @@ module.exports = {
   id: 'zaehlfieber',
   name: 'Zählfieber',
   icon: '🐞',
+  formats: ['ffa', 'teams'],
   short: 'Zähle die Tiere einer Sorte, die über den Bildschirm wuseln.',
   howto: 'Gleich wuseln Tiere über den Bildschirm. Zähle die Sorte, die oben angesagt wird. Tippe beim Zählen auf „+1“, das hilft. Danach kannst du die Zahl noch anpassen und abschicken. Wer am nächsten dran ist, gewinnt.',
   create(ctx) {
     const kinds = shuffle(KINDS).slice(0, 3);
     const target = kinds[0];
-    const counts = [randInt(9, 22), randInt(5, 16), randInt(5, 16)];
+    const teams = ctx.format === 'teams' ? ctx.teams : null;
+    const counts = teams ? [randInt(7, 18), randInt(7, 18), randInt(7, 18)] : [randInt(9, 22), randInt(5, 16), randInt(5, 16)];
+    // Im Team zählt jeder eine Sorte, der Reihe nach verteilt
+    const kindOf = new Map();
+    if (teams) for (const ids of teams) ids.forEach((id, i) => kindOf.set(id, i % kinds.length));
+    const targetOf = (id) => kinds[kindOf.get(id) ?? 0];
+    const rightOf = (id) => counts[kindOf.get(id) ?? 0];
     const critters = [];
     kinds.forEach((kind, k) => {
       for (let i = 0; i < counts[k]; i++) {
@@ -53,7 +61,9 @@ module.exports = {
     return {
       view(viewer) {
         return {
-          target: { emoji: target.emoji, name: target.name },
+          target: { emoji: targetOf(viewer.id).emoji, name: targetOf(viewer.id).name },
+          teamMode: Boolean(teams),
+          kinds: teams ? Object.fromEntries([...kindOf].map(([id, k]) => [id, kinds[k].emoji])) : null,
           critters,
           showEnd,
           endAt,
@@ -74,6 +84,16 @@ module.exports = {
       },
       playersChanged: check,
       ranking() {
+        if (teams) {
+          // Abweichung pro Kopf; wer nichts abgegeben hat, zählt mit der ganzen Zahl als Fehler
+          const err = teams.map((ids) => ids.reduce((sum, id) => sum + (answers.has(id) ? Math.abs(answers.get(id).value - rightOf(id)) : rightOf(id)), 0) / Math.max(1, ids.length));
+          const winner = Math.abs(err[0] - err[1]) < 1e-9 ? null : err[0] < err[1] ? 0 : 1;
+          const fmt = (x) => x.toFixed(1).replace('.', ',');
+          return {
+            winner,
+            info: `Es waren ${kinds.map((k, i) => ({ k, i })).filter(({ i }) => [...kindOf.values()].includes(i)).map(({ k, i }) => `${counts[i]} ${k.emoji}`).join(', ')}. Abweichung pro Kopf: ${fmt(err[0])} gegen ${fmt(err[1])}.`,
+          };
+        }
         const right = counts[0];
         const entries = [...answers].map(([id, a]) => ({ id, ...a, diff: Math.abs(a.value - right) })).sort((a, b) => a.diff - b.diff || a.at - b.at);
         const groups = groupsOf(entries, (e) => e.diff, (e) => `${e.value} ${e.diff ? `(${e.value > right ? '+' : '−'}${e.diff})` : '🎯'}`);

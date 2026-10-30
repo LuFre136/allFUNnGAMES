@@ -351,7 +351,8 @@ const MinispielGames = (() => {
       let count = 0;
       let sent = G0.mine;
       el.innerHTML = `<div class="mp-zf">
-        <div class="mp-zf-head">Zähle: <span class="mp-zf-target">${G0.target.emoji}</span> <b>${esc(G0.target.name)}</b></div>
+        <div class="mp-zf-head">${G0.teamMode && !c.play ? `Jeder im Team zählt eine Sorte: <span class="mp-zf-target">${[...new Set(Object.values(G0.kinds))].join(' ')}</span>`
+          : `Zähle: <span class="mp-zf-target">${G0.target.emoji}</span> <b>${esc(G0.target.name)}</b>${G0.teamMode ? '<div class="small muted">Die anderen in deinem Team zählen andere Sorten.</div>' : ''}`}</div>
         ${showField ? `<div class="mp-zf-field">${G0.critters.map((cr, i) => `<span class="mp-zf-critter" data-i="${i}">${cr.e}</span>`).join('')}<div class="mp-zf-over hidden">Zeit zum Abgeben!</div></div>`
           : '<div class="notice center">👀 Schau auf den Fernseher und zähle mit!</div>'}
         ${c.play ? `<div class="mp-zf-ctl">
