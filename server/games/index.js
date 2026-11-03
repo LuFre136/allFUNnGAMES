@@ -27,6 +27,7 @@ const Kampfschafe = require('./kampfschafe');
 const Rps = require('./rps');
 const Schach = require('./schach');
 const MinispielParty = require('./minispielparty');
+const Durak = require('./durak');
 
 const games = {
   pubquiz: PubQuiz,
@@ -56,6 +57,7 @@ const games = {
   rps: Rps,
   schach: Schach,
   minispielparty: MinispielParty,
+  durak: Durak,
 };
 
 // Platzhalter für die Startseite, bis die Spiele gebaut sind

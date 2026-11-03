@@ -1,0 +1,96 @@
+/* Durak */
+
+.dk-status { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 14px; border-radius: 999px; background: var(--bg-2); border: 1px solid var(--line); text-align: center; flex-wrap: wrap; }
+.dk-status.mine { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+
+/* Spielkarten */
+.dk-card { --w: 58px; position: relative; flex: none; width: var(--w); height: calc(var(--w) * 1.42); border-radius: calc(var(--w) * 0.12); background: #fffdf7; color: #111827; border: 1px solid #d6d3d1; box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35); display: block; padding: 0; font: 700 calc(var(--w) * 0.27) / 1 'Fredoka', sans-serif; text-align: left; user-select: none; }
+button.dk-card { cursor: pointer; transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s; }
+.dk-card.red { color: #dc2626; }
+.dk-corner { position: absolute; top: 5%; left: 8%; display: grid; justify-items: center; line-height: 0.95; }
+.dk-corner i { font-style: normal; font-size: 0.85em; }
+.dk-corner.bottom { top: auto; left: auto; bottom: 5%; right: 8%; transform: rotate(180deg); }
+.dk-mid { position: absolute; inset: 0; display: grid; place-items: center; font-size: calc(var(--w) * 0.6); }
+.dk-card.trump { background: linear-gradient(160deg, #fffdf7 60%, #fef3c7); box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35), inset 0 0 0 2px #f59e0b; }
+.dk-card.back { background: repeating-linear-gradient(45deg, #7c2d12 0 6px, #9a3412 6px 12px); border: 3px solid #fffdf7; }
+.dk-card.fresh { animation: dk-in 0.35s ease-out; }
+@keyframes dk-in {
+  from { transform: translateY(-40px) rotate(-12deg) scale(1.15); opacity: 0; }
+}
+
+/* Tisch */
+.dk-felt { display: grid; grid-template-columns: auto 1fr; grid-template-areas: 'pile table' 'pile count'; gap: 6px 14px; padding: 14px; border-radius: 20px; background: radial-gradient(circle at 50% 35%, #15803d, #052e16); box-shadow: inset 0 0 0 4px #78350f, var(--shadow); color: #fff; }
+.dk-pile { grid-area: pile; display: grid; gap: 10px; align-content: start; }
+.dk-pilebox { display: grid; justify-items: center; gap: 4px; font-size: 0.7rem; color: rgba(255, 255, 255, 0.8); text-align: center; }
+.dk-talon, .dk-discard { position: relative; width: 92px; height: 74px; display: grid; place-items: center; }
+.dk-talon .dk-card, .dk-discard .dk-card { --w: 44px; position: absolute; }
+.dk-talon .dk-stack { left: 2px; top: 6px; }
+.dk-talon .dk-trumpcard { left: 34px; top: 6px; transform: rotate(90deg); }
+.dk-talon b, .dk-discard b { position: absolute; z-index: 1; padding: 2px 7px; border-radius: 999px; background: rgba(0, 0, 0, 0.65); font: 700 0.85rem 'Fredoka', sans-serif; }
+.dk-talon b { left: 4px; bottom: 0; }
+.dk-discard .dk-card { transform: rotate(-8deg); }
+.dk-discard.none { border: 2px dashed rgba(255, 255, 255, 0.2); border-radius: 8px; width: 44px; }
+.dk-talon.empty { display: grid; place-items: center; align-content: center; gap: 0; }
+.dk-suit { font-size: 2.4rem; line-height: 1; color: #fff; }
+.dk-suit.red { color: #fca5a5; }
+
+.dk-table { grid-area: table; display: flex; flex-wrap: wrap; gap: 14px 10px; align-content: center; justify-content: center; min-height: 120px; }
+.dk-pair { position: relative; width: 80px; height: 110px; }
+.dk-pair > .dk-card { position: absolute; top: 0; left: 0; }
+.dk-pair > .dk-def { top: 22px; left: 20px; transform: rotate(8deg); }
+.dk-pair .target { box-shadow: 0 0 0 3px var(--accent), 0 0 18px var(--accent); animation: dk-pulse 1s ease-in-out infinite alternate; }
+@keyframes dk-pulse { to { transform: translateY(-4px); } }
+.dk-empty { align-self: center; color: rgba(255, 255, 255, 0.75); font-weight: 700; }
+.dk-count { grid-area: count; text-align: right; color: rgba(255, 255, 255, 0.65); }
+
+/* Aktionen und Hand */
+.dk-actions { display: grid; gap: 8px; justify-items: center; }
+.dk-actions .btn { width: min(100%, 420px); }
+.dk-handbox { display: grid; gap: 8px; justify-items: center; }
+.dk-hand { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 0; padding: 14px 8px 4px 26px; }
+.dk-hand > .dk-card { margin-left: -18px; }
+.dk-hand > .dk-card.on { transform: translateY(-14px); box-shadow: 0 0 0 3px var(--accent), 0 8px 16px rgba(0, 0, 0, 0.5); z-index: 1; }
+.dk-hand > .dk-card.dim { opacity: 0.55; filter: saturate(0.6); }
+.dk-hand > .dk-card.ok:hover { transform: translateY(-6px); }
+.dk-hand.small .dk-card { --w: 44px; margin-left: -10px; }
+.dk-done { text-align: center; font-weight: 800; padding: 12px; border-radius: 16px; background: var(--bg-2); border: 1px solid var(--line); }
+
+/* Mitspieler */
+.dk-players { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; }
+.dk-player { display: grid; justify-items: center; gap: 3px; padding: 8px 4px; border-radius: 14px; background: var(--bg-2); border: 2px solid var(--line); text-align: center; }
+.dk-player.def { border-color: var(--pink); }
+.dk-player.att { border-color: var(--accent); }
+.dk-player.waiting { box-shadow: 0 0 0 2px var(--accent); }
+.dk-player.out { opacity: 0.5; }
+.dk-player.offline { filter: grayscale(1); }
+.dk-pname { font-weight: 800; font-size: 0.85rem; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dk-mini { font-size: 0.8rem; display: flex; align-items: center; gap: 4px; color: var(--muted); }
+.dk-fan { display: inline-flex; padding-left: 6px; }
+.dk-fan span { width: 9px; height: 13px; margin-left: -5px; border-radius: 2px; background: #9a3412; border: 1px solid #fffdf7; }
+
+.dk-log { display: grid; gap: 2px; font-size: 0.85rem; color: var(--muted); text-align: center; }
+.dk-log div:first-child { color: var(--text); font-weight: 700; }
+
+.dk-fool h1 { margin: 0; }
+.dk-fool .avatar { margin-inline: auto; }
+
+/* Fernseher: größere Karten */
+@media (min-width: 900px) {
+  .dk-tv .dk-table .dk-card { --w: 84px; }
+  .dk-tv .dk-pair { width: 112px; height: 150px; }
+  .dk-tv .dk-pair > .dk-def { top: 30px; left: 26px; }
+  .dk-tv .dk-table { min-height: 170px; }
+  .dk-tv .dk-talon, .dk-tv .dk-discard { width: 124px; height: 96px; }
+  .dk-tv .dk-talon .dk-trumpcard { left: 46px; }
+  .dk-tv .dk-talon .dk-card, .dk-tv .dk-discard .dk-card { --w: 58px; }
+}
+
+@media (max-width: 420px) {
+  .dk-felt { padding: 10px; gap: 6px 8px; }
+  .dk-card { --w: 50px; }
+  .dk-pair { width: 70px; height: 96px; }
+  .dk-pair > .dk-def { top: 18px; left: 18px; }
+  .dk-talon, .dk-discard { width: 80px; height: 64px; }
+  .dk-talon .dk-trumpcard { left: 30px; }
+  .dk-talon .dk-card, .dk-discard .dk-card { --w: 38px; }
+}

@@ -432,6 +432,19 @@ In den Einstellungen lässt sich der **Modus „Spielbrett“** wählen, wie im 
 
 Neue Minispiele sind je eine Datei in `server/games/minispielparty/minigames/` plus die Darstellung in `public/js/minispielparty-games.js`. Der Plan steht in [docs/plan-minispiel-party.md](docs/plan-minispiel-party.md).
 
+## So läuft Durak
+
+Kartenspiel für 2 bis 8 Spieler, ohne Teams. Jeder hält seine Karten verdeckt auf dem eigenen Handy, der Fernseher zeigt den Tisch, Stapel mit Trumpf, Ablage und wie viele Karten jeder noch hat.
+
+- Gespielt wird mit 36 Karten (6 bis Ass, bis 6 Spieler) oder 52 Karten (2 bis Ass, bis 8 Spieler). Jeder bekommt sechs Karten, die nächste wird aufgedeckt und bestimmt den Trumpf. In der ersten Partie greift an, wer den niedrigsten Trumpf hat.
+- Der Angreifer spielt eine Karte aus, sein linker Nachbar verteidigt und schlägt jede Karte mit einer höheren derselben Farbe oder mit Trumpf. Alle anderen dürfen Karten nachlegen, deren Wert schon auf dem Tisch liegt: höchstens sechs pro Angriff (im ersten fünf) und nie mehr, als der Verteidiger Karten hat.
+- Ist alles geschlagen und keiner legt mehr nach („Fertig“), kommen die Karten weg und der Verteidiger greift als Nächster an. Nimmt er auf, dürfen die anderen noch nachlegen, dann ist er übersprungen. Danach ziehen alle auf sechs Karten nach, der Angreifer zuerst, der Verteidiger zuletzt.
+- Ist der Stapel leer, ist raus, wer keine Karten mehr hat. Wer zuletzt Karten hält, ist der Durak und muss in der nächsten Partie zuerst verteidigen. Gehen die letzten Karten gleichzeitig weg, gibt es keinen Durak.
+- Einstellbar: Kartenspiel, Anzahl der Partien (gewonnen hat, wer am seltensten Durak war), Zeit pro Zug und Weiterschieben (der Verteidiger legt eine Karte gleichen Werts dazu und gibt den Angriff weiter, solange noch nichts geschlagen ist).
+- Auf dem Handy tippt man eine Karte an und spielt sie über den Knopf aus; zweimal tippen spielt sie direkt, wenn es nur einen Zug damit gibt. Läuft die Zeit ab oder drückt der Host „Weiter“, spielt das Spiel die billigste Karte aus, der Verteidiger nimmt auf bzw. wer noch nachlegen könnte, ist fertig. Wer die Verbindung verliert, wird genauso vertreten. Spielt der Host am Fernseher mit, bleiben seine Karten verdeckt, bis er „Meine Karten ansehen“ tippt.
+
+Die Regeln prüft `npm test`.
+
 ## Aufbau
 
 ```
@@ -463,6 +476,7 @@ server/games/kampfschafe/    Kampfschafe (nach Warsheep), Karten in public/js/ka
 server/games/rps/            RPS (Schach mit Schere, Stein, Papier nach ICQ), Regelkern in rules.js
 server/games/schach/         Schach für 2–4 (klassisch und Kreuzbrett), Regelkern in rules.js
 server/games/minispielparty/ Minispiel Party (Ablauf und Punkte), Minispiele einzeln in minigames/, Brett in board.js und boards.js, Darstellung in public/js/minispielparty-games.js, -board.js und -teams.js
+server/games/durak/          Durak (Kartenspiel, mit Weiterschieben als Variante)
 test/                        Regeltests (npm test)
 server/spotify.js            Optionale Spotify-Suche
 server/deezer.js             30-Sekunden-Vorschauen über Deezer (Musikzeitreise)
