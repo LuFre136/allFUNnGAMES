@@ -190,12 +190,40 @@
       <div class="wf-top">${yellow}${blue}</div>
       ${green}${orange}${purple}
       <div class="wf-extras">
-        <span title="Neuwürfe">${bonusIcon({ type: 'reroll' })} ${s.rerolls}</span>
-        <span title="+1">${bonusIcon({ type: 'plusOne' })} ${s.plusOnes}</span>
+        ${extraChip(R, 'reroll', 'Neuwürfe', s.rerolls, !!taps)}
+        ${extraChip(R, 'plusOne', '+1', s.plusOnes, !!taps)}
         <span title="Füchse">${bonusIcon({ type: 'fox' })} ${s.foxes}${sc.fox ? ` = ${sc.fox}` : ''}</span>
         <b class="wf-total">${sc.total} Punkte</b>
       </div>
     </div>`;
+  }
+
+  // Warum Neuwurf oder +1 gerade (nicht) geht; null heißt: geht jetzt
+  function extraBlocker(R, kind) {
+    const m = R.me;
+    const mine = me(R);
+    if (!m || !mine) return 'Das ist nicht dein Blatt.';
+    if (kind === 'reroll') {
+      if (!mine.sheet.rerolls) return 'Du hast keinen Neuwurf. Neuwürfe gibt es über Bonusfelder und die Rundenleiste.';
+      if (m.canReroll) return null;
+      if (R.phase === 'passive') return 'Neuwurf geht nur während deines eigenen Zugs, direkt nach einem Wurf.';
+      if (!m.isActive) return 'Neuwurf geht nur, wenn du selbst am Zug bist, direkt nach einem Wurf.';
+      if (m.pending.length) return 'Setze zuerst deinen Bonus.';
+      return 'Würfle zuerst. Gefällt dir der Wurf nicht, kannst du ihn danach mit dem Neuwurf wiederholen.';
+    }
+    if (!mine.sheet.plusOnes) return 'Du hast kein +1. +1 gibt es über Bonusfelder und die Rundenleiste.';
+    if (m.canPlusOne) return m.pending.length ? 'Setze zuerst deinen Bonus.' : null;
+    if (R.phase === 'passive' && m.done) return 'Du bist für diesen Zug schon fertig. Beim nächsten Zug geht +1 wieder.';
+    return '+1 geht am Ende jedes Zugs (auch bei den anderen), sobald alle Würfel verteilt sind. Dann darfst du einen beliebigen der sechs Würfel zusätzlich eintragen.';
+  }
+
+  // Neuwurf/+1 unter dem Blatt: auf dem eigenen Blatt antippbar, sonst nur Anzeige
+  function extraChip(R, kind, title, count, own) {
+    const icon = `${bonusIcon({ type: kind })} ${count}`;
+    if (!own) return `<span class="wf-extra" title="${title}">${icon}</span>`;
+    const ready = count > 0 && !extraBlocker(R, kind);
+    const on = kind === 'plusOne' && wf.plus;
+    return `<button class="wf-extra own ${ready ? 'ready' : ''} ${on ? 'on' : ''}" data-action="wfExtra" data-kind="${kind}" title="${title}">${icon}</button>`;
   }
 
   function bonusLabel(p) {
@@ -216,6 +244,7 @@
       info = `<b>${NAMES[d.color]} ${d.value}</b>${wf.plus ? ' mit +1' : ''}: tippe auf ein leuchtendes Feld.`;
       if (!m.targets[wf.sel].length) info = `<b>${NAMES[d.color]} ${d.value}</b> passt nirgends hin.`;
       if (!wf.plus) buttons.push(`<button class="btn" data-action="wfWaste">Nehmen, nichts eintragen</button>`);
+      if (m.canReroll && !wf.plus) buttons.push(`<button class="btn" data-action="wfReroll">↻ Neuwurf (${me(R).sheet.rerolls})</button>`);
       buttons.push('<button class="btn ghost" data-action="wfCancel">↩︎ Abbrechen</button>');
     } else if (m.canRoll) {
       info = R.rollNo ? 'Würfle weiter.' : 'Du bist dran!';
@@ -235,7 +264,12 @@
     } else {
       info = `${esc(playerName(R.activeId))} wählt gerade Würfel.`;
     }
-    return `<div class="wf-actions"><div>${info}</div>${buttons.length ? `<div class="row" style="justify-content:center">${buttons.join('')}</div>` : ''}</div>`;
+    // Hinweis, wann vorhandene Neuwürfe und +1 nutzbar sind, solange es gerade nicht geht
+    const hints = [];
+    const mine = me(R);
+    if (mine?.sheet.rerolls && !m.canReroll && m.isActive) hints.push(`↻ Neuwurf (${mine.sheet.rerolls}): direkt nach einem Wurf.`);
+    if (mine?.sheet.plusOnes && !m.canPlusOne && R.phase === 'active') hints.push(`+1 (${mine.sheet.plusOnes}): am Ende dieses Zugs, wenn alle Würfel verteilt sind.`);
+    return `<div class="wf-actions"><div>${info}</div>${buttons.length ? `<div class="row" style="justify-content:center">${buttons.join('')}</div>` : ''}${hints.length ? `<div class="small muted">${hints.join(' ')}</div>` : ''}</div>`;
   }
 
   function viewStatus(R) {
@@ -418,6 +452,14 @@
       wf.sel = null;
     },
     wfPlus: () => { wf.plus = !wf.plus; wf.sel = null; render(); },
+    wfExtra: (el) => {
+      const R = S.round;
+      const kind = el.dataset.kind;
+      const why = extraBlocker(R, kind);
+      if (why) return toast(why);
+      if (kind === 'reroll') act('reroll');
+      else { wf.plus = !wf.plus; wf.sel = null; render(); }
+    },
     wfUndo: () => { wf.sel = null; wf.plus = false; act('undo'); },
     wfDone: (el) => {
       if (el.dataset.skip === '1' && !confirm('Fertig, ohne einen Würfel vom Tablett zu nehmen?')) return;
